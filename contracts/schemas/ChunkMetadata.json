@@ -1,0 +1,155 @@
+{
+  "$defs": {
+    "AccessLevel": {
+      "enum": [
+        "public",
+        "course",
+        "private"
+      ],
+      "title": "AccessLevel",
+      "type": "string"
+    },
+    "ContentType": {
+      "enum": [
+        "pdf",
+        "ppt",
+        "subtitle",
+        "text",
+        "rfc",
+        "other"
+      ],
+      "title": "ContentType",
+      "type": "string"
+    },
+    "Language": {
+      "enum": [
+        "zh",
+        "en",
+        "bilingual"
+      ],
+      "title": "Language",
+      "type": "string"
+    },
+    "ParseStatus": {
+      "enum": [
+        "pending",
+        "parsed",
+        "failed"
+      ],
+      "title": "ParseStatus",
+      "type": "string"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "access_level": {
+      "$ref": "#/$defs/AccessLevel"
+    },
+    "chapter": {
+      "minLength": 1,
+      "title": "Chapter",
+      "type": "string"
+    },
+    "chunk_id": {
+      "minLength": 1,
+      "title": "Chunk Id",
+      "type": "string"
+    },
+    "content": {
+      "minLength": 1,
+      "title": "Content",
+      "type": "string"
+    },
+    "content_type": {
+      "$ref": "#/$defs/ContentType"
+    },
+    "knowledge_point_ids": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Knowledge Point Ids",
+      "type": "array"
+    },
+    "language": {
+      "$ref": "#/$defs/Language"
+    },
+    "page_end": {
+      "anyOf": [
+        {
+          "minimum": 1,
+          "type": "integer"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Page End"
+    },
+    "page_start": {
+      "anyOf": [
+        {
+          "minimum": 1,
+          "type": "integer"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Page Start"
+    },
+    "parse_status": {
+      "$ref": "#/$defs/ParseStatus"
+    },
+    "resource_id": {
+      "minLength": 1,
+      "title": "Resource Id",
+      "type": "string"
+    },
+    "source_url": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Source Url"
+    },
+    "title": {
+      "minLength": 1,
+      "title": "Title",
+      "type": "string"
+    },
+    "updated_at": {
+      "format": "date-time",
+      "title": "Updated At",
+      "type": "string"
+    },
+    "version": {
+      "minLength": 1,
+      "title": "Version",
+      "type": "string"
+    }
+  },
+  "required": [
+    "chunk_id",
+    "resource_id",
+    "knowledge_point_ids",
+    "title",
+    "content",
+    "chapter",
+    "language",
+    "content_type",
+    "version",
+    "access_level",
+    "parse_status",
+    "updated_at"
+  ],
+  "title": "ChunkMetadata",
+  "type": "object"
+}

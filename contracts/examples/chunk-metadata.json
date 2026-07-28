@@ -1,0 +1,19 @@
+{
+  "access_level": "course",
+  "chapter": "第 3 章 运输层",
+  "chunk_id": "chunk-tcp-handshake-001",
+  "content": "TCP 使用三次握手同步双方的初始序列号。",
+  "content_type": "pdf",
+  "knowledge_point_ids": [
+    "kp-transport-tcp-handshake"
+  ],
+  "language": "zh",
+  "page_end": 215,
+  "page_start": 214,
+  "parse_status": "parsed",
+  "resource_id": "resource-cn-textbook-001",
+  "source_url": null,
+  "title": "计算机网络：自顶向下方法",
+  "updated_at": "2026-07-28T00:00:00Z",
+  "version": "8e-zh"
+}

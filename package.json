@@ -1,0 +1,41 @@
+{
+  "name": "cn-course-ai-assistant",
+  "version": "0.1.0",
+  "private": true,
+  "description": "计算机网络课程独立 AI 助教与任务引擎原型",
+  "workspaces": [
+    "apps/web"
+  ],
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "dev": "concurrently -n api,web -c cyan,magenta \"npm run dev:api\" \"npm run dev:web\"",
+    "dev:api": "python -m uvicorn app.main:app --app-dir apps/api --reload --port 8000",
+    "dev:web": "npm run dev --workspace @cn-ai/web",
+    "contracts:export": "python scripts/export_contracts.py",
+    "contracts:types": "openapi-typescript contracts/openapi.json -o apps/web/src/api/schema.d.ts",
+    "contracts": "npm run contracts:export && npm run contracts:types",
+    "check:contracts": "python scripts/check_contracts.py",
+    "format:api": "python -m ruff format apps/api scripts",
+    "lint:api": "python -m ruff check apps/api scripts",
+    "test:api": "python -m pytest apps/api",
+    "lint:web": "npm run lint --workspace @cn-ai/web",
+    "typecheck:web": "npm run typecheck --workspace @cn-ai/web",
+    "test:web": "npm run test --workspace @cn-ai/web",
+    "build:web": "npm run build --workspace @cn-ai/web",
+    "audit": "npm audit --audit-level=high",
+    "test": "npm run test:api && npm run test:web",
+    "build": "npm run build:web",
+    "check": "npm run audit && npm run check:contracts && npm run lint:api && npm run test:api && npm run lint:web && npm run typecheck:web && npm run test:web && npm run build:web"
+  },
+  "devDependencies": {
+    "concurrently": "10.0.4",
+    "jsdom": "29.1.1",
+    "openapi-typescript": "7.13.0"
+  },
+  "overrides": {
+    "brace-expansion": "5.0.8",
+    "js-yaml": "4.3.0"
+  }
+}

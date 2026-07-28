@@ -1,0 +1,20 @@
+{
+  "ai_feedback_points": [
+    "提交报文编号后检查握手顺序。"
+  ],
+  "completion_criteria": [
+    "标注三类报文并解释序列号变化。"
+  ],
+  "description": "从抓包中定位 SYN、SYN-ACK 与 ACK。",
+  "knowledge_point_ids": [
+    "kp-transport-tcp-handshake"
+  ],
+  "prerequisite_ids": [],
+  "resource_ids": [
+    "resource-cn-textbook-001"
+  ],
+  "status": "published",
+  "task_id": "task-protocol-tcp-handshake",
+  "task_type": "protocol_analysis",
+  "title": "Wireshark 分析 TCP 三次握手"
+}

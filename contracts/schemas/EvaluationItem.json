@@ -1,0 +1,85 @@
+{
+  "$defs": {
+    "Difficulty": {
+      "enum": [
+        "introductory",
+        "intermediate",
+        "advanced"
+      ],
+      "title": "Difficulty",
+      "type": "string"
+    },
+    "QuestionCategory": {
+      "enum": [
+        "concept",
+        "protocol_detail",
+        "tool_tutorial",
+        "lab",
+        "common_error",
+        "review"
+      ],
+      "title": "QuestionCategory",
+      "type": "string"
+    },
+    "ScoringDimension": {
+      "enum": [
+        "correctness",
+        "citation_accuracy",
+        "hallucination_rate"
+      ],
+      "title": "ScoringDimension",
+      "type": "string"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "category": {
+      "$ref": "#/$defs/QuestionCategory"
+    },
+    "difficulty": {
+      "$ref": "#/$defs/Difficulty"
+    },
+    "evaluation_id": {
+      "minLength": 1,
+      "title": "Evaluation Id",
+      "type": "string"
+    },
+    "expected_answer": {
+      "minLength": 1,
+      "title": "Expected Answer",
+      "type": "string"
+    },
+    "knowledge_point_ids": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Knowledge Point Ids",
+      "type": "array"
+    },
+    "question": {
+      "minLength": 1,
+      "title": "Question",
+      "type": "string"
+    },
+    "scoring_dimensions": {
+      "items": {
+        "$ref": "#/$defs/ScoringDimension"
+      },
+      "minItems": 1,
+      "title": "Scoring Dimensions",
+      "type": "array"
+    }
+  },
+  "required": [
+    "evaluation_id",
+    "question",
+    "expected_answer",
+    "category",
+    "difficulty",
+    "knowledge_point_ids",
+    "scoring_dimensions"
+  ],
+  "title": "EvaluationItem",
+  "type": "object"
+}

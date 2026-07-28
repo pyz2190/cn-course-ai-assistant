@@ -1,0 +1,106 @@
+{
+  "$defs": {
+    "Difficulty": {
+      "enum": [
+        "introductory",
+        "intermediate",
+        "advanced"
+      ],
+      "title": "Difficulty",
+      "type": "string"
+    },
+    "ReviewStatus": {
+      "enum": [
+        "draft",
+        "reviewed",
+        "approved"
+      ],
+      "title": "ReviewStatus",
+      "type": "string"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "chapter": {
+      "minLength": 1,
+      "title": "Chapter",
+      "type": "string"
+    },
+    "difficulty": {
+      "$ref": "#/$defs/Difficulty"
+    },
+    "keywords_en": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Keywords En",
+      "type": "array"
+    },
+    "keywords_zh": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Keywords Zh",
+      "type": "array"
+    },
+    "kind": {
+      "minLength": 1,
+      "title": "Kind",
+      "type": "string"
+    },
+    "knowledge_point_id": {
+      "minLength": 1,
+      "title": "Knowledge Point Id",
+      "type": "string"
+    },
+    "maintainer": {
+      "minLength": 1,
+      "title": "Maintainer",
+      "type": "string"
+    },
+    "name": {
+      "minLength": 1,
+      "title": "Name",
+      "type": "string"
+    },
+    "parent_id": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Parent Id"
+    },
+    "prerequisite_ids": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Prerequisite Ids",
+      "type": "array"
+    },
+    "review_status": {
+      "$ref": "#/$defs/ReviewStatus"
+    },
+    "summary": {
+      "minLength": 1,
+      "title": "Summary",
+      "type": "string"
+    }
+  },
+  "required": [
+    "knowledge_point_id",
+    "name",
+    "chapter",
+    "kind",
+    "difficulty",
+    "summary",
+    "review_status",
+    "maintainer"
+  ],
+  "title": "KnowledgePoint",
+  "type": "object"
+}

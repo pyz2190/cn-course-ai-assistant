@@ -1,0 +1,63 @@
+{
+  "$defs": {
+    "EventType": {
+      "enum": [
+        "qa_asked",
+        "task_opened",
+        "task_completed",
+        "feedback_submitted"
+      ],
+      "title": "EventType",
+      "type": "string"
+    },
+    "JsonValue": {}
+  },
+  "additionalProperties": false,
+  "properties": {
+    "course_id": {
+      "minLength": 1,
+      "title": "Course Id",
+      "type": "string"
+    },
+    "event_id": {
+      "minLength": 1,
+      "title": "Event Id",
+      "type": "string"
+    },
+    "event_type": {
+      "$ref": "#/$defs/EventType"
+    },
+    "object_id": {
+      "minLength": 1,
+      "title": "Object Id",
+      "type": "string"
+    },
+    "occurred_at": {
+      "format": "date-time",
+      "title": "Occurred At",
+      "type": "string"
+    },
+    "payload": {
+      "additionalProperties": {
+        "$ref": "#/$defs/JsonValue"
+      },
+      "title": "Payload",
+      "type": "object"
+    },
+    "user_id": {
+      "minLength": 1,
+      "title": "User Id",
+      "type": "string"
+    }
+  },
+  "required": [
+    "event_id",
+    "course_id",
+    "user_id",
+    "event_type",
+    "object_id",
+    "occurred_at"
+  ],
+  "title": "LearningEvent",
+  "type": "object"
+}

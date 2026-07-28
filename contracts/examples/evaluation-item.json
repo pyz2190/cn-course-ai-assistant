@@ -1,0 +1,15 @@
+{
+  "category": "protocol_detail",
+  "difficulty": "intermediate",
+  "evaluation_id": "eval-tcp-handshake-001",
+  "expected_answer": "三次握手用于同步初始序列号并确认双向通信能力。",
+  "knowledge_point_ids": [
+    "kp-transport-tcp-handshake"
+  ],
+  "question": "TCP 为什么需要三次握手？",
+  "scoring_dimensions": [
+    "correctness",
+    "citation_accuracy",
+    "hallucination_rate"
+  ]
+}
