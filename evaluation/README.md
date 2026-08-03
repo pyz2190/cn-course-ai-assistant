@@ -76,3 +76,12 @@ authenticated adapter integration test using non-production fixtures.
 - Member D: provide the configured RAG adapter invocation, authentication,
   runtime parameters, Citation mapping, timeout/retry behaviour, and test
   environment. Until then, `evaluate` must not fabricate answers or results.
+
+## Delivery Status
+
+Member C has completed a phase delivery of the evaluation framework. The
+current dataset has 30 `pending_review` Annotations, no approved item, an empty
+formal set, and no real run result or baseline report. See
+[`delivery_checklist.md`](delivery_checklist.md) for completed capabilities,
+blockers, owners, prerequisites, and the remaining execution sequence. This is
+not final acceptance of the evaluation module.
