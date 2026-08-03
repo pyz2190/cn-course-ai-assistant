@@ -60,12 +60,20 @@ class RuntimeParameters:
 class AdapterResponse:
     generated_answer: str
     citations: list[dict[str, Any]]
+    runtime: dict[str, Any] | None = None
+
+
+@dataclass(frozen=True)
+class RagRequest:
+    evaluation_id: str
+    question: str
+    knowledge_point_ids: list[str]
 
 
 class RagAdapter(Protocol):
     def answer(
         self,
-        item: EvaluationItem,
+        item: RagRequest,
         runtime: RuntimeParameters,
     ) -> AdapterResponse: ...
 
@@ -73,7 +81,7 @@ class RagAdapter(Protocol):
 class UnconfiguredRagAdapter:
     def answer(
         self,
-        item: EvaluationItem,
+        item: RagRequest,
         runtime: RuntimeParameters,
     ) -> AdapterResponse:
         del item, runtime
@@ -266,8 +274,13 @@ def run_evaluation(
         item = record.value
         if not isinstance(item, EvaluationItem):
             continue
+        request = RagRequest(
+            evaluation_id=item.evaluation_id,
+            question=item.question,
+            knowledge_point_ids=item.knowledge_point_ids,
+        )
         try:
-            response = active_adapter.answer(item, runtime)
+            response = active_adapter.answer(request, runtime)
             generated_answer = response.generated_answer
             citations = response.citations
             error_message = None
@@ -284,7 +297,10 @@ def run_evaluation(
                 "citations": citations,
                 "scores": None,
                 "error": error_message,
-                "runtime": asdict(runtime),
+                "runtime": {
+                    **asdict(runtime),
+                    "adapter": response.runtime if error_message is None else None,
+                },
             }
         )
 

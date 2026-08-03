@@ -1,9 +1,13 @@
 import json
 from pathlib import Path
 
-from scripts.evaluate import AdapterResponse, RuntimeParameters, _git_commit, run_evaluation
-
-from app.domain.models import EvaluationItem
+from scripts.evaluate import (
+    AdapterResponse,
+    RagRequest,
+    RuntimeParameters,
+    _git_commit,
+    run_evaluation,
+)
 
 PROJECT_ROOT = Path(__file__).resolve().parents[3]
 EVALUATION_DIRECTORY = PROJECT_ROOT / "evaluation"
@@ -17,7 +21,7 @@ JSONL_FILES = (
 class RecordingAdapter:
     def answer(
         self,
-        item: EvaluationItem,
+        item: RagRequest,
         runtime: RuntimeParameters,
     ) -> AdapterResponse:
         del runtime
@@ -33,7 +37,7 @@ class PartiallyFailingAdapter:
 
     def answer(
         self,
-        item: EvaluationItem,
+        item: RagRequest,
         runtime: RuntimeParameters,
     ) -> AdapterResponse:
         del item, runtime
@@ -175,3 +179,25 @@ def test_unconfigured_adapter_does_not_fabricate_answer(tmp_path: Path) -> None:
     assert run.results[0]["generated_answer"] == ""
     assert run.results[0]["citations"] == []
     assert "NotImplementedError" in run.results[0]["error"]
+
+
+def test_adapter_request_does_not_include_evaluation_references(tmp_path: Path) -> None:
+    directory = _approved_evaluation_data(tmp_path)
+
+    class RequestInspectingAdapter:
+        def answer(
+            self,
+            item: RagRequest,
+            runtime: RuntimeParameters,
+        ) -> AdapterResponse:
+            del runtime
+            assert item.evaluation_id == "QA-CONCEPT-001"
+            assert item.question
+            assert item.knowledge_point_ids
+            assert not hasattr(item, "expected_answer")
+            assert not hasattr(item, "key_points")
+            return AdapterResponse(generated_answer="sanitized request", citations=[])
+
+    run = run_evaluation(directory, tmp_path / "reports", adapter=RequestInspectingAdapter())
+
+    assert run.exit_code == 0
