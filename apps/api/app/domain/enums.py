@@ -55,6 +55,14 @@ class ReviewStatus(StrEnum):
     APPROVED = "approved"
 
 
+class EvaluationReviewStatus(StrEnum):
+    DRAFT = "draft"
+    PENDING_REVIEW = "pending_review"
+    APPROVED = "approved"
+    REJECTED = "rejected"
+    REVISED = "revised"
+
+
 class TaskType(StrEnum):
     FOUNDATION = "foundation"
     PROTOCOL_ANALYSIS = "protocol_analysis"

@@ -1,0 +1,1 @@
+{"category":"protocol_detail","difficulty":"intermediate","evaluation_id":"QA-PROTOCOL-001","expected_answer":"TCP 使用三次握手同步双方的初始序列号，并确认双向收发能力。","knowledge_point_ids":["kp-transport-tcp-handshake"],"question":"TCP 为什么需要三次握手？","scoring_dimensions":["correctness","citation_accuracy","hallucination_rate"]}

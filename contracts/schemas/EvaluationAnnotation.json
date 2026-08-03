@@ -1,0 +1,146 @@
+{
+  "$defs": {
+    "EvaluationReviewStatus": {
+      "enum": [
+        "draft",
+        "pending_review",
+        "approved",
+        "rejected",
+        "revised"
+      ],
+      "title": "EvaluationReviewStatus",
+      "type": "string"
+    },
+    "ExpectedCitation": {
+      "additionalProperties": false,
+      "properties": {
+        "chapter": {
+          "anyOf": [
+            {
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Chapter"
+        },
+        "chunk_id": {
+          "anyOf": [
+            {
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Chunk Id"
+        },
+        "page_end": {
+          "anyOf": [
+            {
+              "minimum": 1,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Page End"
+        },
+        "page_start": {
+          "anyOf": [
+            {
+              "minimum": 1,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Page Start"
+        },
+        "resource_id": {
+          "minLength": 1,
+          "title": "Resource Id",
+          "type": "string"
+        }
+      },
+      "required": [
+        "resource_id"
+      ],
+      "title": "ExpectedCitation",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "evaluation_id": {
+      "minLength": 1,
+      "title": "Evaluation Id",
+      "type": "string"
+    },
+    "expected_citations": {
+      "items": {
+        "$ref": "#/$defs/ExpectedCitation"
+      },
+      "title": "Expected Citations",
+      "type": "array"
+    },
+    "key_points": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Key Points",
+      "type": "array"
+    },
+    "review_notes": {
+      "default": "",
+      "title": "Review Notes",
+      "type": "string"
+    },
+    "review_status": {
+      "$ref": "#/$defs/EvaluationReviewStatus"
+    },
+    "reviewed_at": {
+      "anyOf": [
+        {
+          "format": "date-time",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Reviewed At"
+    },
+    "reviewer": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Reviewer"
+    }
+  },
+  "required": [
+    "evaluation_id",
+    "key_points",
+    "expected_citations",
+    "review_status"
+  ],
+  "title": "EvaluationAnnotation",
+  "type": "object"
+}

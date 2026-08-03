@@ -1,0 +1,1 @@
+{"evaluation_id":"QA-PROTOCOL-001","key_points":["说明三次握手用于同步通信双方的初始序列号。","说明三次握手用于确认双方具备双向收发能力。"],"expected_citations":[],"review_status":"draft","reviewer":null,"reviewed_at":null,"review_notes":"真实 resource_id 和 chunk_id 待成员 B 提供后补充。"}

@@ -13,6 +13,7 @@ from app.domain.enums import (
     AccessLevel,
     ContentType,
     Difficulty,
+    EvaluationReviewStatus,
     EventType,
     Language,
     ParseStatus,
@@ -155,6 +156,55 @@ class EvaluationItem(ContractModel):
     difficulty: Difficulty
     knowledge_point_ids: list[str] = Field(min_length=1)
     scoring_dimensions: list[ScoringDimension] = Field(min_length=1)
+
+
+class ExpectedCitation(ContractModel):
+    resource_id: str = Field(min_length=1)
+    chunk_id: str | None = Field(default=None, min_length=1)
+    chapter: str | None = Field(default=None, min_length=1)
+    page_start: int | None = Field(default=None, ge=1)
+    page_end: int | None = Field(default=None, ge=1)
+
+    @model_validator(mode="after")
+    def validate_page_range(self) -> "ExpectedCitation":
+        if (
+            self.page_start is not None
+            and self.page_end is not None
+            and self.page_end < self.page_start
+        ):
+            raise ValueError("page_end must be greater than or equal to page_start")
+        return self
+
+
+class EvaluationAnnotation(ContractModel):
+    evaluation_id: str = Field(min_length=1)
+    key_points: list[str] = Field(min_length=1)
+    expected_citations: list[ExpectedCitation]
+    review_status: EvaluationReviewStatus
+    reviewer: str | None = None
+    reviewed_at: datetime | None = None
+    review_notes: str = ""
+
+    @field_validator("key_points")
+    @classmethod
+    def key_points_must_be_unique_and_non_empty(cls, value: list[str]) -> list[str]:
+        if any(not item for item in value):
+            raise ValueError("key_points must not contain empty values")
+        if len(set(value)) != len(value):
+            raise ValueError("key_points must not contain duplicates")
+        return value
+
+    @model_validator(mode="after")
+    def validate_review_metadata(self) -> "EvaluationAnnotation":
+        if self.review_status in {
+            EvaluationReviewStatus.APPROVED,
+            EvaluationReviewStatus.REJECTED,
+        }:
+            if not self.reviewer:
+                raise ValueError("reviewer is required for approved or rejected annotations")
+            if self.reviewed_at is None:
+                raise ValueError("reviewed_at is required for approved or rejected annotations")
+        return self
 
 
 class ApiError(ContractModel):

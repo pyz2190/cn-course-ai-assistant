@@ -10,21 +10,23 @@ API_ROOT = ROOT / "apps" / "api"
 if str(API_ROOT) not in sys.path:
     sys.path.insert(0, str(API_ROOT))
 
-from app.domain.models import (
+from app.domain.models import (  # noqa: E402
     ChunkMetadata,
     Citation,
+    EvaluationAnnotation,
     EvaluationItem,
     KnowledgePoint,
     LearningEvent,
     TaskTemplate,
 )
-from app.main import create_app
+from app.main import create_app  # noqa: E402
 
 SCHEMA_MODELS = [
     ChunkMetadata,
     KnowledgePoint,
     Citation,
     EvaluationItem,
+    EvaluationAnnotation,
     TaskTemplate,
     LearningEvent,
 ]
