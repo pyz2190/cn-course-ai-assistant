@@ -40,8 +40,8 @@ def test_current_evaluation_data_passes_validation() -> None:
     result = validate_evaluation_data(EVALUATION_DIRECTORY)
 
     assert result.issues == []
-    assert result.question_count == 12
-    assert result.annotation_count == 12
+    assert result.question_count >= 30
+    assert result.annotation_count >= 30
     assert result.evaluation_set_count == 0
 
 

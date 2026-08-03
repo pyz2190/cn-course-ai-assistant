@@ -151,7 +151,7 @@ def test_pending_review_annotation_does_not_require_reviewer_metadata() -> None:
     assert annotation.reviewed_at is None
 
 
-def test_w1_evaluation_jsonl_is_valid_and_relationally_consistent() -> None:
+def test_w2_evaluation_jsonl_is_valid_and_relationally_consistent() -> None:
     question_bank = _load_jsonl(EVALUATION_DIRECTORY / "question_bank.jsonl")
     annotations = _load_jsonl(EVALUATION_DIRECTORY / "annotations.jsonl")
 
@@ -160,20 +160,16 @@ def test_w1_evaluation_jsonl_is_valid_and_relationally_consistent() -> None:
     question_ids = [item.evaluation_id for item in questions]
     annotation_ids = [item.evaluation_id for item in validated_annotations]
 
-    assert len(questions) == 12
-    assert len(validated_annotations) == 12
+    assert len(questions) >= 30
+    assert len(validated_annotations) >= 30
     assert len(question_ids) == len(set(question_ids))
     assert len(annotation_ids) == len(set(annotation_ids))
     assert set(annotation_ids) == set(question_ids)
     assert {item.category.value for item in questions} == EXPECTED_CATEGORIES
-    assert {
-        item.category.value: sum(question.category == item.category for question in questions)
-        for item in questions
-    } == {category: 2 for category in EXPECTED_CATEGORIES}
-    assert {
-        item.difficulty.value: sum(question.difficulty == item.difficulty for question in questions)
-        for item in questions
-    } == {"introductory": 4, "intermediate": 6, "advanced": 2}
+    assert all(
+        sum(question.category.value == category for question in questions) >= 5
+        for category in EXPECTED_CATEGORIES
+    )
     assert all(item.knowledge_point_ids for item in questions)
     assert {
         knowledge_point_id for item in questions for knowledge_point_id in item.knowledge_point_ids
@@ -186,12 +182,35 @@ def test_w1_evaluation_jsonl_is_valid_and_relationally_consistent() -> None:
     assert all(item.key_points for item in validated_annotations)
     statuses = {item.review_status.value for item in validated_annotations}
     assert statuses <= SUBMITTABLE_REVIEW_STATUSES
-    assert statuses == {"pending_review"}
+    assert statuses == SUBMITTABLE_REVIEW_STATUSES
     assert "approved" not in statuses
     assert all(
         item.reviewer is None and item.reviewed_at is None
         for item in validated_annotations
-        if item.review_status.value == "pending_review"
+        if item.review_status.value in SUBMITTABLE_REVIEW_STATUSES
+    )
+    w1_ids = {
+        "QA-CONCEPT-001",
+        "QA-CONCEPT-002",
+        "QA-PROTOCOL-001",
+        "QA-PROTOCOL-002",
+        "QA-TOOL-001",
+        "QA-TOOL-002",
+        "QA-LAB-001",
+        "QA-LAB-002",
+        "QA-ERROR-001",
+        "QA-ERROR-002",
+        "QA-REVIEW-001",
+        "QA-REVIEW-002",
+    }
+    statuses_by_id = {
+        item.evaluation_id: item.review_status.value for item in validated_annotations
+    }
+    assert all(statuses_by_id[evaluation_id] == "pending_review" for evaluation_id in w1_ids)
+    assert all(
+        status == "draft"
+        for evaluation_id, status in statuses_by_id.items()
+        if evaluation_id not in w1_ids
     )
     assert all(item.expected_citations == [] for item in validated_annotations)
     assert (EVALUATION_DIRECTORY / "evaluation_set.jsonl").read_text(encoding="utf-8") == ""
