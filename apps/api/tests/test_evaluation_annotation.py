@@ -23,6 +23,7 @@ EXPECTED_DIMENSIONS = {
     "citation_accuracy",
     "hallucination_rate",
 }
+SUBMITTABLE_REVIEW_STATUSES = {"draft", "pending_review"}
 EXISTING_MOCK_KNOWLEDGE_POINT_IDS = {
     knowledge_point_id
     for item in [*MOCK_CHUNKS, *MOCK_TASKS]
@@ -133,6 +134,23 @@ def test_evaluation_annotation_rejects_extra_fields() -> None:
         EvaluationAnnotation.model_validate(data)
 
 
+def test_pending_review_annotation_does_not_require_reviewer_metadata() -> None:
+    data = _load_annotation_example()
+    data.update(
+        {
+            "review_status": "pending_review",
+            "reviewer": None,
+            "reviewed_at": None,
+        }
+    )
+
+    annotation = EvaluationAnnotation.model_validate(data)
+
+    assert annotation.review_status.value == "pending_review"
+    assert annotation.reviewer is None
+    assert annotation.reviewed_at is None
+
+
 def test_w1_evaluation_jsonl_is_valid_and_relationally_consistent() -> None:
     question_bank = _load_jsonl(EVALUATION_DIRECTORY / "question_bank.jsonl")
     annotations = _load_jsonl(EVALUATION_DIRECTORY / "annotations.jsonl")
@@ -166,6 +184,14 @@ def test_w1_evaluation_jsonl_is_valid_and_relationally_consistent() -> None:
         for item in questions
     )
     assert all(item.key_points for item in validated_annotations)
-    assert all(item.review_status.value == "draft" for item in validated_annotations)
+    statuses = {item.review_status.value for item in validated_annotations}
+    assert statuses <= SUBMITTABLE_REVIEW_STATUSES
+    assert statuses == {"pending_review"}
+    assert "approved" not in statuses
+    assert all(
+        item.reviewer is None and item.reviewed_at is None
+        for item in validated_annotations
+        if item.review_status.value == "pending_review"
+    )
     assert all(item.expected_citations == [] for item in validated_annotations)
     assert (EVALUATION_DIRECTORY / "evaluation_set.jsonl").read_text(encoding="utf-8") == ""
