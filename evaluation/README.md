@@ -43,6 +43,31 @@ code without creating a replacement artifact after an error.
 - `2`: A valid request could not produce its expected artifact, such as too few
   approved items, a missing run file, no valid scores, or an execution error.
 
+## CI Checks
+
+GitHub Actions uses the existing Python 3.11 setup and
+`python -m pip install -e "apps/api[dev]"` dependency installation. Its
+evaluation gate runs:
+
+```bash
+python scripts/run_evaluation_pipeline.py validate
+python scripts/run_evaluation_pipeline.py sync --dry-run
+python scripts/run_evaluation_pipeline.py evaluate --dry-run
+pytest apps/api
+ruff check apps/api scripts
+```
+
+The synchronization and evaluation commands are dry-runs, so CI does not alter
+`evaluation_set.jsonl`, invoke a RAG adapter, create a run report, or create a
+score file. An empty approved set is a successful CI state. Markdown lint is
+not currently part of CI because `markdownlint-cli2` is not installed in the
+Node dependency lockfile.
+
+Member B's real citations and Member D's RAG adapter, credentials, and runtime
+are not required by this gate. After those integrations are complete, add CI
+checks for resource-to-Chunk validity, approved citation support, and an
+authenticated adapter integration test using non-production fixtures.
+
 ## Current External Dependencies
 
 - Member B: provide real, verifiable course resources and Chunk locations for

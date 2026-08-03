@@ -35,5 +35,19 @@ jobs:
       - name: Install Python dependencies
         run: python -m pip install -e "apps/api[dev]"
 
-      - name: Run checks
-        run: npm run check
+      - name: Run evaluation checks
+        run: |
+          python scripts/run_evaluation_pipeline.py validate
+          python scripts/run_evaluation_pipeline.py sync --dry-run
+          python scripts/run_evaluation_pipeline.py evaluate --dry-run
+          pytest apps/api
+          ruff check apps/api scripts
+
+      - name: Run remaining checks
+        run: |
+          npm run audit
+          npm run check:contracts
+          npm run lint:web
+          npm run typecheck:web
+          npm run test:web
+          npm run build:web
