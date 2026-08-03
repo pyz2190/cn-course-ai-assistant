@@ -23,7 +23,6 @@ EXPECTED_DIMENSIONS = {
     "citation_accuracy",
     "hallucination_rate",
 }
-SUBMITTABLE_REVIEW_STATUSES = {"draft", "pending_review"}
 EXISTING_MOCK_KNOWLEDGE_POINT_IDS = {
     knowledge_point_id
     for item in [*MOCK_CHUNKS, *MOCK_TASKS]
@@ -181,36 +180,12 @@ def test_w2_evaluation_jsonl_is_valid_and_relationally_consistent() -> None:
     )
     assert all(item.key_points for item in validated_annotations)
     statuses = {item.review_status.value for item in validated_annotations}
-    assert statuses <= SUBMITTABLE_REVIEW_STATUSES
-    assert statuses == SUBMITTABLE_REVIEW_STATUSES
+    assert statuses == {"pending_review"}
     assert "approved" not in statuses
     assert all(
         item.reviewer is None and item.reviewed_at is None
         for item in validated_annotations
-        if item.review_status.value in SUBMITTABLE_REVIEW_STATUSES
-    )
-    w1_ids = {
-        "QA-CONCEPT-001",
-        "QA-CONCEPT-002",
-        "QA-PROTOCOL-001",
-        "QA-PROTOCOL-002",
-        "QA-TOOL-001",
-        "QA-TOOL-002",
-        "QA-LAB-001",
-        "QA-LAB-002",
-        "QA-ERROR-001",
-        "QA-ERROR-002",
-        "QA-REVIEW-001",
-        "QA-REVIEW-002",
-    }
-    statuses_by_id = {
-        item.evaluation_id: item.review_status.value for item in validated_annotations
-    }
-    assert all(statuses_by_id[evaluation_id] == "pending_review" for evaluation_id in w1_ids)
-    assert all(
-        status == "draft"
-        for evaluation_id, status in statuses_by_id.items()
-        if evaluation_id not in w1_ids
+        if item.review_status.value == "pending_review"
     )
     assert all(item.expected_citations == [] for item in validated_annotations)
     assert (EVALUATION_DIRECTORY / "evaluation_set.jsonl").read_text(encoding="utf-8") == ""

@@ -1,55 +1,67 @@
-# W1 Review Handoff
+# W2 Review Handoff
 
 > Status: Pending Cross-Review
 
 ## Current Dataset
 
-- `question_bank.jsonl`: 12 EvaluationItem records.
-- `annotations.jsonl`: 12 EvaluationAnnotation records.
+- `question_bank.jsonl`: 30 EvaluationItem records.
+- `annotations.jsonl`: 30 EvaluationAnnotation records.
+- Review status: 30 `pending_review`; no `draft`, `approved`, or `rejected`
+  records.
 - `evaluation_set.jsonl`: empty; no item is approved.
 
 ## Submitted for Cross-Review
 
-All 12 records completed the author self-check and are now `pending_review`:
+Every record has completed the author self-check. Each submitted annotation has
+`reviewer: null`, `reviewed_at: null`, and no formal citation yet; these values
+are valid for `pending_review`.
 
-- `QA-CONCEPT-001`, `QA-CONCEPT-002`
-- `QA-PROTOCOL-001`, `QA-PROTOCOL-002`
-- `QA-TOOL-001`, `QA-TOOL-002`
-- `QA-LAB-001`, `QA-LAB-002`
-- `QA-ERROR-001`, `QA-ERROR-002`
-- `QA-REVIEW-001`, `QA-REVIEW-002`
-
-There are no remaining `draft` records. Each submitted annotation has
-`reviewer: null` and `reviewed_at: null`; this is valid for `pending_review`.
+- Concept: `QA-CONCEPT-001` through `QA-CONCEPT-005`.
+- Protocol detail: `QA-PROTOCOL-001` through `QA-PROTOCOL-005`.
+- Tool tutorial: `QA-TOOL-001` through `QA-TOOL-005`.
+- Lab: `QA-LAB-001` through `QA-LAB-005`.
+- Common error: `QA-ERROR-001` through `QA-ERROR-005`.
+- Review: `QA-REVIEW-001` through `QA-REVIEW-005`.
 
 ## Evidence and Reviewer Dependencies
 
-- Member B: all 12 items await real source and Chunk locations. Their
-  `expected_citations` remain empty until those locations are verifiable.
-- Cross-review owner: **待确认**. Do not fill `reviewer` or `reviewed_at` until
-  the reviewer is confirmed and has completed the review.
-- Member D: if retrieval cannot locate supporting material, investigate the
-  retrieval path before any item can be approved.
+- Member B: all 30 items await real course-resource and Chunk locations.
+  `expected_citations` remains empty until those locations and their content
+  are independently verifiable.
+- Cross-review owner: **待确认**. Do not fill `reviewer` or `reviewed_at`
+  until the reviewer is confirmed and has completed the review.
+- Member D: if retrieval cannot locate material that supports an answer and
+  its `key_points`, investigate the retrieval path before approval.
 
-## TCP Three-Way Handshake Duplicate Check
+## Topic-Duplication Check
 
-The six TCP-related records share a knowledge point but have distinct primary
-assessment objectives:
+The TCP/Wireshark items intentionally share one knowledge point but have
+different assessment targets:
 
-- `QA-PROTOCOL-001`: handshake purpose and mechanism.
-- `QA-PROTOCOL-002`: SYN, SYN-ACK, ACK order.
-- `QA-TOOL-001`: locating and annotating packets in Wireshark.
-- `QA-TOOL-002`: deciding completion and checking a submission.
-- `QA-LAB-001`: experiment goal, procedure, observation, and judgement.
+- `QA-PROTOCOL-001`: handshake purpose and bidirectional capability.
+- `QA-PROTOCOL-002`: packet order.
+- `QA-PROTOCOL-003`: the confirmation role of each packet type.
+- `QA-PROTOCOL-004`: bidirectional initial-sequence-number synchronization.
+- `QA-CONCEPT-004`: why packet class and sequence-number observations are both
+  needed.
+- `QA-TOOL-001`: locating and annotating the packets.
+- `QA-TOOL-002`: completion and pre-submission checks.
+- `QA-TOOL-003`: producing a reviewable packet-number and sequence-number
+  record.
+- `QA-LAB-001`: experiment design and completion judgement.
 - `QA-ERROR-002`: correcting an invalid packet-order result from evidence.
 
-Author self-check found no substantive duplicate or answer leakage. The
-cross-reviewer must independently confirm that expected answers remain distinct
-and request revision if they collapse into the same response.
+DNS items distinguish protocol evidence correlation (`QA-PROTOCOL-005`),
+evidence recording (`QA-TOOL-004`), lab procedure (`QA-LAB-002`), insufficient
+evidence handling (`QA-ERROR-003`), and report review (`QA-REVIEW-003`).
+Network-design items distinguish address conflict, topology deliverables,
+single-point-of-failure correction, and integrated design review. The author
+self-check found no answer leakage or substantive duplicate; the cross-reviewer
+must independently confirm this conclusion.
 
 ## Files and Models for Member D
 
-Read the following files together:
+Read these files together:
 
 - `evaluation/question_bank.jsonl` as `EvaluationItem` records.
 - `evaluation/annotations.jsonl` as `EvaluationAnnotation` records.

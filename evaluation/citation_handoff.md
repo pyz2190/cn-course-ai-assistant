@@ -23,7 +23,7 @@ it, and see how its content directly supports the listed answer points.
 
 ## Evidence Gaps by Evaluation Item
 
-Every item is currently `pending_review`. There is no formal citation candidate
+All 30 items are currently `pending_review`. There is no formal citation candidate
 for any item: existing mock and example data are not eligible as course
 evidence. The responsible role for every gap is Member B; the specific person
 is **待确认**.
@@ -135,6 +135,175 @@ is **待确认**.
 - Candidate: none eligible for formal use.
 - Missing: real congestion-control and load-balancing materials, belonging
   Chunks, and inspectable source text.
+
+### QA-CONCEPT-003
+
+- Required topic: IP addressing, subnets, route-table entries, and longest-prefix
+  route selection.
+- Required support: the role of each element and its relation during a route
+  lookup.
+- Candidate: none eligible for formal use.
+- Missing: a real addressing resource, a belonging Chunk, and inspectable
+  source text.
+
+### QA-CONCEPT-004
+
+- Required topic: TCP handshake packet roles and initial sequence-number
+  synchronization.
+- Required support: packet classes, sequence-number observations, and why both
+  are required for analysis.
+- Candidate: none eligible for formal use.
+- Missing: a real TCP teaching resource, a belonging Chunk, and inspectable
+  source text.
+
+### QA-CONCEPT-005
+
+- Required topic: edge load balancing, latency, and failover.
+- Required support: the two strategy objectives and the need to express their
+  trade-off.
+- Candidate: none eligible for formal use.
+- Missing: a real edge-computing or load-balancing resource, a belonging Chunk,
+  and inspectable source text.
+
+### QA-PROTOCOL-003
+
+- Required topic: the SYN, SYN-ACK, and ACK roles in the TCP handshake.
+- Required support: initiation, both acknowledgements, initial sequence numbers,
+  and bidirectional synchronization.
+- Candidate: none eligible for formal use.
+- Missing: a real TCP protocol resource, a belonging Chunk, and inspectable
+  source text.
+
+### QA-PROTOCOL-004
+
+- Required topic: initial sequence-number synchronization in a TCP handshake.
+- Required support: both endpoints supplying sequence numbers and subsequent
+  acknowledgements confirming receipt.
+- Candidate: none eligible for formal use.
+- Missing: a real TCP protocol resource, a belonging Chunk, and inspectable
+  source text.
+
+### QA-PROTOCOL-005
+
+- Required topic: DNS resolution troubleshooting through packet capture and
+  configuration evidence.
+- Required support: locating a failing stage, correlating it with configuration,
+  and withholding a root-cause conclusion when evidence disagrees.
+- Candidate: none eligible for formal use.
+- Missing: a real DNS diagnostic resource, a belonging Chunk, and inspectable
+  source text.
+
+### QA-TOOL-003
+
+- Required topic: recording TCP handshake packet numbers and sequence-number
+  observations in Wireshark.
+- Required support: three packet records, their sequence-number observations,
+  and an order-and-synchronization review.
+- Candidate: none eligible for formal use.
+- Missing: a real Wireshark guide or lab material, a belonging Chunk, and
+  inspectable source text.
+
+### QA-TOOL-004
+
+- Required topic: recording DNS troubleshooting evidence from captures and
+  configuration fragments.
+- Required support: a per-step observation, configuration evidence, judgement,
+  repair action, and verification record.
+- Candidate: none eligible for formal use.
+- Missing: a real DNS troubleshooting guide, a belonging Chunk, and inspectable
+  source text.
+
+### QA-TOOL-005
+
+- Required topic: organizing a Reno-versus-BBR comparison.
+- Required support: each mechanism's control signal, its control goal, and a
+  check against conflating both mechanisms as loss-driven.
+- Candidate: none eligible for formal use.
+- Missing: a real congestion-control resource, a belonging Chunk, and
+  inspectable source text.
+
+### QA-LAB-003
+
+- Required topic: smart-home network-design deliverables.
+- Required support: topology, address plan, security boundary, and checks for
+  address conflicts and single points of failure.
+- Candidate: none eligible for formal use.
+- Missing: a real network-design lab guide, a belonging Chunk, and inspectable
+  source text.
+
+### QA-LAB-004
+
+- Required topic: an edge load-balancing experiment.
+- Required support: the latency-and-failover goal, strategy structure, metrics,
+  trade-offs, and scenario evaluation.
+- Candidate: none eligible for formal use.
+- Missing: a real edge-computing lab guide, a belonging Chunk, and inspectable
+  source text.
+
+### QA-LAB-005
+
+- Required topic: a Reno-versus-BBR congestion-control comparison experiment.
+- Required support: common comparison dimensions, each mechanism's signal and
+  goal, and the completion criterion that distinguishes them.
+- Candidate: none eligible for formal use.
+- Missing: a real congestion-control lab or case-study resource, a belonging
+  Chunk, and inspectable source text.
+
+### QA-ERROR-003
+
+- Required topic: resolving insufficient or conflicting DNS troubleshooting
+  evidence.
+- Required support: continuing the investigation, avoiding an unsupported root
+  cause, and re-verifying after a repair.
+- Candidate: none eligible for formal use.
+- Missing: a real DNS troubleshooting resource, a belonging Chunk, and
+  inspectable source text.
+
+### QA-ERROR-004
+
+- Required topic: identifying and correcting single points of failure in a
+  smart-home network design.
+- Required support: locating the dependency in a topology, describing the
+  continuity impact, and revising then rechecking the design.
+- Candidate: none eligible for formal use.
+- Missing: a real network-design resource, a belonging Chunk, and inspectable
+  source text.
+
+### QA-ERROR-005
+
+- Required topic: correcting a conflated Reno and BBR description.
+- Required support: Reno's loss-driven signal, BBR's bandwidth-delay model, and
+  the relationship between signals and control goals.
+- Candidate: none eligible for formal use.
+- Missing: a real congestion-control resource, a belonging Chunk, and
+  inspectable source text.
+
+### QA-REVIEW-003
+
+- Required topic: reviewing a DNS troubleshooting report.
+- Required support: evidence-based failure location, supported root cause,
+  targeted repair, and post-repair verification.
+- Candidate: none eligible for formal use.
+- Missing: a real DNS diagnostic or lab resource, a belonging Chunk, and
+  inspectable source text.
+
+### QA-REVIEW-004
+
+- Required topic: reviewing an edge load-balancing solution.
+- Required support: strategy structure, metrics, trade-off explanation, and
+  coverage of latency and failover scenarios.
+- Candidate: none eligible for formal use.
+- Missing: a real edge-computing or load-balancing resource, a belonging Chunk,
+  and inspectable source text.
+
+### QA-REVIEW-005
+
+- Required topic: reviewing a Reno-versus-BBR comparison.
+- Required support: separate signal descriptions, control goals, and the absence
+  of a false shared loss-driven characterization.
+- Candidate: none eligible for formal use.
+- Missing: a real congestion-control resource, a belonging Chunk, and
+  inspectable source text.
 
 ## Acceptance Rules
 
