@@ -4,11 +4,30 @@ from pathlib import Path
 import pytest
 from pydantic import ValidationError
 
+from app.adapters.mock import MOCK_CHUNKS, MOCK_TASKS
 from app.domain.models import EvaluationAnnotation, EvaluationItem
 
 PROJECT_ROOT = Path(__file__).resolve().parents[3]
 ANNOTATION_EXAMPLE = PROJECT_ROOT / "contracts" / "examples" / "evaluation-annotation.json"
 EVALUATION_DIRECTORY = PROJECT_ROOT / "evaluation"
+EXPECTED_CATEGORIES = {
+    "concept",
+    "protocol_detail",
+    "tool_tutorial",
+    "lab",
+    "common_error",
+    "review",
+}
+EXPECTED_DIMENSIONS = {
+    "correctness",
+    "citation_accuracy",
+    "hallucination_rate",
+}
+EXISTING_MOCK_KNOWLEDGE_POINT_IDS = {
+    knowledge_point_id
+    for item in [*MOCK_CHUNKS, *MOCK_TASKS]
+    for knowledge_point_id in item.knowledge_point_ids
+}
 
 
 def _load_annotation_example() -> dict[str, object]:
@@ -114,7 +133,7 @@ def test_evaluation_annotation_rejects_extra_fields() -> None:
         EvaluationAnnotation.model_validate(data)
 
 
-def test_evaluation_jsonl_is_valid_and_relationally_consistent() -> None:
+def test_w1_evaluation_jsonl_is_valid_and_relationally_consistent() -> None:
     question_bank = _load_jsonl(EVALUATION_DIRECTORY / "question_bank.jsonl")
     annotations = _load_jsonl(EVALUATION_DIRECTORY / "annotations.jsonl")
 
@@ -123,7 +142,30 @@ def test_evaluation_jsonl_is_valid_and_relationally_consistent() -> None:
     question_ids = [item.evaluation_id for item in questions]
     annotation_ids = [item.evaluation_id for item in validated_annotations]
 
+    assert len(questions) == 12
+    assert len(validated_annotations) == 12
     assert len(question_ids) == len(set(question_ids))
     assert len(annotation_ids) == len(set(annotation_ids))
-    assert set(annotation_ids).issubset(question_ids)
+    assert set(annotation_ids) == set(question_ids)
+    assert {item.category.value for item in questions} == EXPECTED_CATEGORIES
+    assert {
+        item.category.value: sum(question.category == item.category for question in questions)
+        for item in questions
+    } == {category: 2 for category in EXPECTED_CATEGORIES}
+    assert {
+        item.difficulty.value: sum(question.difficulty == item.difficulty for question in questions)
+        for item in questions
+    } == {"introductory": 4, "intermediate": 6, "advanced": 2}
+    assert all(item.knowledge_point_ids for item in questions)
+    assert {
+        knowledge_point_id for item in questions for knowledge_point_id in item.knowledge_point_ids
+    }.issubset(EXISTING_MOCK_KNOWLEDGE_POINT_IDS)
+    assert all(
+        len(item.scoring_dimensions) == len(EXPECTED_DIMENSIONS)
+        and set(item.scoring_dimensions) == EXPECTED_DIMENSIONS
+        for item in questions
+    )
+    assert all(item.key_points for item in validated_annotations)
+    assert all(item.review_status.value == "draft" for item in validated_annotations)
+    assert all(item.expected_citations == [] for item in validated_annotations)
     assert (EVALUATION_DIRECTORY / "evaluation_set.jsonl").read_text(encoding="utf-8") == ""
