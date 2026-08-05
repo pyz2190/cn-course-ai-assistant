@@ -3,7 +3,6 @@ from __future__ import annotations
 import argparse
 import json
 import subprocess
-import sys
 from collections import defaultdict
 from dataclasses import asdict, dataclass
 from datetime import UTC, datetime
@@ -11,14 +10,10 @@ from pathlib import Path
 from typing import Any, Protocol
 from uuid import uuid4
 
+from app.domain.models import EvaluationAnnotation, EvaluationItem
 from pydantic import BaseModel, ValidationError
 
 ROOT = Path(__file__).resolve().parents[1]
-API_ROOT = ROOT / "apps" / "api"
-if str(API_ROOT) not in sys.path:
-    sys.path.insert(0, str(API_ROOT))
-
-from app.domain.models import EvaluationAnnotation, EvaluationItem
 
 
 @dataclass(frozen=True)
@@ -284,7 +279,7 @@ def run_evaluation(
             generated_answer = response.generated_answer
             citations = response.citations
             error_message = None
-        except Exception as error:
+        except Exception as error:  # noqa: BLE001
             generated_answer = ""
             citations = []
             error_message = f"{type(error).__name__}: {error}"

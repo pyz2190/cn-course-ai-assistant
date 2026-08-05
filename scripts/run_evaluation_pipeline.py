@@ -9,11 +9,45 @@ ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
-from scripts.evaluate import run_evaluation
-from scripts.generate_evaluation_report import generate_evaluation_report
-from scripts.score_evaluation_run import apply_scores, prepare_score_file
-from scripts.sync_evaluation_set import sync_evaluation_set
-from scripts.validate_evaluation_data import validate_evaluation_data
+
+def validate_evaluation_data(*args: object, **kwargs: object) -> object:
+    from scripts.validate_evaluation_data import (
+        validate_evaluation_data as _validate_evaluation_data,
+    )
+
+    return _validate_evaluation_data(*args, **kwargs)
+
+
+def sync_evaluation_set(*args: object, **kwargs: object) -> object:
+    from scripts.sync_evaluation_set import sync_evaluation_set as _sync_evaluation_set
+
+    return _sync_evaluation_set(*args, **kwargs)
+
+
+def run_evaluation(*args: object, **kwargs: object) -> object:
+    from scripts.evaluate import run_evaluation as _run_evaluation
+
+    return _run_evaluation(*args, **kwargs)
+
+
+def prepare_score_file(*args: object, **kwargs: object) -> object:
+    from scripts.score_evaluation_run import prepare_score_file as _prepare_score_file
+
+    return _prepare_score_file(*args, **kwargs)
+
+
+def apply_scores(*args: object, **kwargs: object) -> object:
+    from scripts.score_evaluation_run import apply_scores as _apply_scores
+
+    return _apply_scores(*args, **kwargs)
+
+
+def generate_evaluation_report(*args: object, **kwargs: object) -> object:
+    from scripts.generate_evaluation_report import (
+        generate_evaluation_report as _generate_evaluation_report,
+    )
+
+    return _generate_evaluation_report(*args, **kwargs)
 
 
 def _print_stage(name: str) -> None:

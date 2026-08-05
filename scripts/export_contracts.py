@@ -1,14 +1,8 @@
 from __future__ import annotations
 
 import json
-import sys
 from pathlib import Path
 from typing import Any
-
-ROOT = Path(__file__).resolve().parents[1]
-API_ROOT = ROOT / "apps" / "api"
-if str(API_ROOT) not in sys.path:
-    sys.path.insert(0, str(API_ROOT))
 
 from app.domain.models import (
     ChunkMetadata,
@@ -20,6 +14,8 @@ from app.domain.models import (
     TaskTemplate,
 )
 from app.main import create_app
+
+ROOT = Path(__file__).resolve().parents[1]
 
 SCHEMA_MODELS = [
     ChunkMetadata,

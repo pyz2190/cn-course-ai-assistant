@@ -3,22 +3,17 @@ from __future__ import annotations
 import argparse
 import json
 import os
-import sys
 import tempfile
 from collections import Counter, defaultdict
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
+from app.domain.enums import Difficulty, QuestionCategory
+from app.domain.models import EvaluationAnnotation, EvaluationItem
 from pydantic import BaseModel, ValidationError
 
 ROOT = Path(__file__).resolve().parents[1]
-API_ROOT = ROOT / "apps" / "api"
-if str(API_ROOT) not in sys.path:
-    sys.path.insert(0, str(API_ROOT))
-
-from app.domain.enums import Difficulty, QuestionCategory
-from app.domain.models import EvaluationAnnotation, EvaluationItem
 
 MINIMUM_SET_SIZE = 15
 PREFERRED_SET_SIZE = 18

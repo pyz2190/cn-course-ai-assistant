@@ -3,20 +3,15 @@ from __future__ import annotations
 import argparse
 import json
 import os
-import sys
 import tempfile
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
+from app.domain.models import EvaluationAnnotation
 from pydantic import ValidationError
 
 ROOT = Path(__file__).resolve().parents[1]
-API_ROOT = ROOT / "apps" / "api"
-if str(API_ROOT) not in sys.path:
-    sys.path.insert(0, str(API_ROOT))
-
-from app.domain.models import EvaluationAnnotation
 
 SCORE_FIELDS = ("correctness", "citation_accuracy", "hallucination_rate")
 RUN_REQUIRED_FIELDS = {

@@ -3,21 +3,16 @@ from __future__ import annotations
 import argparse
 import json
 import re
-import sys
 from collections import Counter, defaultdict
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
+from app.domain.enums import QuestionCategory, ScoringDimension
+from app.domain.models import EvaluationAnnotation, EvaluationItem
 from pydantic import BaseModel, ValidationError
 
 ROOT = Path(__file__).resolve().parents[1]
-API_ROOT = ROOT / "apps" / "api"
-if str(API_ROOT) not in sys.path:
-    sys.path.insert(0, str(API_ROOT))
-
-from app.domain.enums import QuestionCategory, ScoringDimension
-from app.domain.models import EvaluationAnnotation, EvaluationItem
 
 EXPECTED_CATEGORIES = set(QuestionCategory)
 EXPECTED_DIMENSIONS = set(ScoringDimension)
