@@ -19,7 +19,6 @@ if str(API_ROOT) not in sys.path:
 from app.domain.enums import QuestionCategory, ScoringDimension
 from app.domain.models import EvaluationAnnotation, EvaluationItem
 
-
 EXPECTED_CATEGORIES = set(QuestionCategory)
 EXPECTED_DIMENSIONS = set(ScoringDimension)
 PLACEHOLDER_PATTERN = re.compile(

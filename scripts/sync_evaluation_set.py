@@ -17,9 +17,8 @@ API_ROOT = ROOT / "apps" / "api"
 if str(API_ROOT) not in sys.path:
     sys.path.insert(0, str(API_ROOT))
 
-from app.domain.enums import Difficulty, QuestionCategory  # noqa: E402
-from app.domain.models import EvaluationAnnotation, EvaluationItem  # noqa: E402
-
+from app.domain.enums import Difficulty, QuestionCategory
+from app.domain.models import EvaluationAnnotation, EvaluationItem
 
 MINIMUM_SET_SIZE = 15
 PREFERRED_SET_SIZE = 18

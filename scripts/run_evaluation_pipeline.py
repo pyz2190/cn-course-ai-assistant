@@ -2,18 +2,18 @@ from __future__ import annotations
 
 import argparse
 import sys
+from collections.abc import Sequence
 from pathlib import Path
-from typing import Sequence
 
 ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
-from scripts.evaluate import run_evaluation  # noqa: E402
-from scripts.generate_evaluation_report import generate_evaluation_report  # noqa: E402
-from scripts.score_evaluation_run import apply_scores, prepare_score_file  # noqa: E402
-from scripts.sync_evaluation_set import sync_evaluation_set  # noqa: E402
-from scripts.validate_evaluation_data import validate_evaluation_data  # noqa: E402
+from scripts.evaluate import run_evaluation
+from scripts.generate_evaluation_report import generate_evaluation_report
+from scripts.score_evaluation_run import apply_scores, prepare_score_file
+from scripts.sync_evaluation_set import sync_evaluation_set
+from scripts.validate_evaluation_data import validate_evaluation_data
 
 
 def _print_stage(name: str) -> None:
