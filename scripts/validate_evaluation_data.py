@@ -16,8 +16,8 @@ API_ROOT = ROOT / "apps" / "api"
 if str(API_ROOT) not in sys.path:
     sys.path.insert(0, str(API_ROOT))
 
-from app.domain.enums import QuestionCategory, ScoringDimension  # noqa: E402
-from app.domain.models import EvaluationAnnotation, EvaluationItem  # noqa: E402
+from app.domain.enums import QuestionCategory, ScoringDimension
+from app.domain.models import EvaluationAnnotation, EvaluationItem
 
 
 EXPECTED_CATEGORIES = set(QuestionCategory)
