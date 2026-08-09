@@ -20,19 +20,103 @@ from app.domain.models import (
     TaskTemplate,
 )
 
+MOCK_RESOURCES: dict[str, list[dict]] = {
+    "计算机网络：自顶向下方法": [
+        {
+            "chunk_id": "chunk-app-http-001",
+            "knowledge_point_ids": ["kp-application-http"],
+            "content": "HTTP 使用 TCP 作为传输层协议，客户端发起连接后通过请求-响应模式交换报文。请求报文由请求行、首部行和实体体组成。",
+            "chapter": "第 2 章 应用层",
+            "page_start": 68,
+            "page_end": 72,
+        },
+        {
+            "chunk_id": "chunk-app-dns-001",
+            "knowledge_point_ids": ["kp-application-dns"],
+            "content": "DNS 是分布式数据库，采用层次结构的域名空间。递归查询和迭代查询是两种主要的解析方式，本地 DNS 服务器通常缓存查询结果以减少延迟。",
+            "chapter": "第 2 章 应用层",
+            "page_start": 93,
+            "page_end": 98,
+        },
+        {
+            "chunk_id": "chunk-transport-udp-001",
+            "knowledge_point_ids": ["kp-transport-udp"],
+            "content": "UDP 是无连接的传输层协议，提供多路复用、差错检测但不保证可靠传输。UDP 首部仅 8 字节，包含源端口、目的端口、长度和校验和。",
+            "chapter": "第 3 章 运输层",
+            "page_start": 198,
+            "page_end": 204,
+        },
+        {
+            "chunk_id": "chunk-transport-tcp-001",
+            "knowledge_point_ids": ["kp-transport-tcp-handshake"],
+            "content": "TCP 使用三次握手同步双方的初始序列号，并确认客户端与服务器两个方向的发送和接收能力都可用。SYN、SYN-ACK、ACK 三类报文完成连接建立。",
+            "chapter": "第 3 章 运输层",
+            "page_start": 214,
+            "page_end": 219,
+        },
+        {
+            "chunk_id": "chunk-transport-congestion-001",
+            "knowledge_point_ids": ["kp-transport-congestion-control"],
+            "content": "TCP 拥塞控制包含慢启动、拥塞避免、快速恢复三个阶段。Reno 算法通过丢包信号调整窗口大小，BBR 则基于带宽和时延模型主动探测。",
+            "chapter": "第 3 章 运输层",
+            "page_start": 248,
+            "page_end": 256,
+        },
+        {
+            "chunk_id": "chunk-network-ip-001",
+            "knowledge_point_ids": ["kp-network-addressing"],
+            "content": "IPv4 地址 32 位，采用点分十进制表示。子网掩码用于区分网络前缀和主机号，路由器通过最长前缀匹配进行转发决策。",
+            "chapter": "第 4 章 网络层",
+            "page_start": 298,
+            "page_end": 306,
+        },
+        {
+            "chunk_id": "chunk-network-routing-001",
+            "knowledge_point_ids": ["kp-network-routing"],
+            "content": "路由选择算法分为距离向量和链路状态两类。RIP 使用距离向量，OSPF 使用链路状态。BGP 是自治系统间的路由协议。",
+            "chapter": "第 4 章 网络层",
+            "page_start": 338,
+            "page_end": 348,
+        },
+        {
+            "chunk_id": "chunk-link-ethernet-001",
+            "knowledge_point_ids": ["kp-link-ethernet"],
+            "content": "以太网是最流行的有线接入技术，使用 CSMA/CD 协议解决共享介质的碰撞问题。MAC 地址 48 位，帧结构包含前导码、目的地址、源地址、类型、数据和 CRC。",
+            "chapter": "第 5 章 链路层",
+            "page_start": 412,
+            "page_end": 422,
+        },
+    ],
+    "计算机网络实验指导书": [
+        {
+            "chunk_id": "chunk-lab-wireshark-001",
+            "knowledge_point_ids": ["kp-transport-tcp-handshake"],
+            "content": "使用 Wireshark 捕获 TCP 三次握手报文：过滤条件 tcp.flags.syn==1，观察 SYN、SYN-ACK、ACK 的序列号和确认号变化。",
+            "chapter": "实验 3 TCP 协议分析",
+            "page_start": 28,
+            "page_end": 33,
+        },
+        {
+            "chunk_id": "chunk-lab-dns-001",
+            "knowledge_point_ids": ["kp-application-dns"],
+            "content": "使用 nslookup 命令进行 DNS 查询，观察递归查询过程。通过 Wireshark 捕获 DNS 报文，分析查询类型 A 和响应记录。",
+            "chapter": "实验 2 DNS 协议分析",
+            "page_start": 18,
+            "page_end": 24,
+        },
+    ],
+}
+
 MOCK_CHUNKS = [
     ChunkMetadata(
-        chunk_id="chunk-tcp-handshake-001",
-        resource_id="resource-cn-textbook-001",
-        knowledge_point_ids=["kp-transport-tcp-handshake"],
-        title="计算机网络：自顶向下方法",
-        content=(
-            "TCP 使用三次握手同步双方的初始序列号，并确认客户端与服务器两个方向的"
-            "发送和接收能力都可用。"
-        ),
-        chapter="第 3 章 运输层",
-        page_start=214,
-        page_end=215,
+        chunk_id=item["chunk_id"],
+        resource_id=f"resource-{resource_idx:03d}",
+        knowledge_point_ids=item["knowledge_point_ids"],
+        title=resource_title,
+        content=item["content"],
+        chapter=item["chapter"],
+        page_start=item["page_start"],
+        page_end=item["page_end"],
         language=Language.ZH,
         content_type=ContentType.PDF,
         source_url=None,
@@ -41,7 +125,13 @@ MOCK_CHUNKS = [
         parse_status=ParseStatus.PARSED,
         updated_at=datetime(2026, 7, 28, tzinfo=UTC),
     )
+    for resource_idx, (resource_title, chunks) in enumerate(MOCK_RESOURCES.items())
+    for item in chunks
 ]
+
+RESOURCE_INDEX: dict[str, int] = {
+    title: idx for idx, title in enumerate(MOCK_RESOURCES.keys())
+}
 
 
 def _task(
@@ -126,26 +216,55 @@ MOCK_TASKS = [
 
 
 class MockResourceImporter:
+    """B 模块：课程资料导入适配器。
+
+    将课程资料拆分为带元数据的 Chunk，每个 Chunk 携带章节、页码和
+    知识点关联信息，保证检索片段可追溯到原始材料。
+    """
+
     def import_resource(self, request: ResourceImportRequest) -> ResourceImportResponse:
         resource_key = f"{request.course_id}:{request.title}:{request.version}"
         resource_id = f"resource-{uuid5(NAMESPACE_URL, resource_key).hex[:12]}"
-        metadata = ChunkMetadata(
-            chunk_id=f"chunk-{uuid5(NAMESPACE_URL, resource_id).hex[:12]}",
-            resource_id=resource_id,
-            knowledge_point_ids=["kp-pending-review"],
-            title=request.title,
-            content="这是骨架生成的离线模拟 Chunk，正式解析由知识库与语料模块实现。",
-            chapter="待人工审核",
-            page_start=1,
-            page_end=1,
-            language=request.language,
-            content_type=request.content_type,
-            source_url=request.source_url,
-            version=request.version,
-            access_level=AccessLevel.COURSE,
-            parse_status=ParseStatus.PARSED,
-            updated_at=datetime.now(UTC),
-        )
+
+        known_chunks = MOCK_RESOURCES.get(request.title)
+        if known_chunks:
+            chunk = known_chunks[0]
+            metadata = ChunkMetadata(
+                chunk_id=chunk["chunk_id"],
+                resource_id=resource_id,
+                knowledge_point_ids=chunk["knowledge_point_ids"],
+                title=request.title,
+                content=chunk["content"],
+                chapter=chunk["chapter"],
+                page_start=chunk["page_start"],
+                page_end=chunk["page_end"],
+                language=request.language,
+                content_type=request.content_type,
+                source_url=request.source_url,
+                version=request.version,
+                access_level=AccessLevel.COURSE,
+                parse_status=ParseStatus.PARSED,
+                updated_at=datetime.now(UTC),
+            )
+        else:
+            metadata = ChunkMetadata(
+                chunk_id=f"chunk-{uuid5(NAMESPACE_URL, resource_id).hex[:12]}",
+                resource_id=resource_id,
+                knowledge_point_ids=["kp-pending-review"],
+                title=request.title,
+                content="该资料尚未录入课程知识库，待人工审核后生成结构化 Chunk。",
+                chapter="待人工审核",
+                page_start=1,
+                page_end=1,
+                language=request.language,
+                content_type=request.content_type,
+                source_url=request.source_url,
+                version=request.version,
+                access_level=AccessLevel.COURSE,
+                parse_status=ParseStatus.PENDING,
+                updated_at=datetime.now(UTC),
+            )
+
         return ResourceImportResponse(
             resource_id=resource_id,
             sync_status=SyncStatus.COMPLETED,
@@ -153,11 +272,67 @@ class MockResourceImporter:
             error=None,
         )
 
+    def import_all_chunks(self, request: ResourceImportRequest) -> list[ChunkMetadata]:
+        """导入一份资料的全部 Chunk，用于批量构建知识库。"""
+        resource_key = f"{request.course_id}:{request.title}:{request.version}"
+        resource_id = f"resource-{uuid5(NAMESPACE_URL, resource_key).hex[:12]}"
+
+        known_chunks = MOCK_RESOURCES.get(request.title)
+        if not known_chunks:
+            return []
+
+        return [
+            ChunkMetadata(
+                chunk_id=chunk["chunk_id"],
+                resource_id=resource_id,
+                knowledge_point_ids=chunk["knowledge_point_ids"],
+                title=request.title,
+                content=chunk["content"],
+                chapter=chunk["chapter"],
+                page_start=chunk["page_start"],
+                page_end=chunk["page_end"],
+                language=request.language,
+                content_type=request.content_type,
+                source_url=request.source_url,
+                version=request.version,
+                access_level=AccessLevel.COURSE,
+                parse_status=ParseStatus.PARSED,
+                updated_at=datetime.now(UTC),
+            )
+            for chunk in known_chunks
+        ]
+
 
 class MockRetriever:
+    """B 模块：模拟检索适配器。
+
+    根据问题关键词匹配最相关的 Chunk，模拟真实检索行为。
+    """
+
+    _KEYWORD_MAP: dict[str, str] = {
+        "TCP": "chunk-transport-tcp-001",
+        "握手": "chunk-transport-tcp-001",
+        "拥塞": "chunk-transport-congestion-001",
+        "UDP": "chunk-transport-udp-001",
+        "DNS": "chunk-app-dns-001",
+        "HTTP": "chunk-app-http-001",
+        "IP": "chunk-network-ip-001",
+        "地址": "chunk-network-ip-001",
+        "路由": "chunk-network-routing-001",
+        "以太网": "chunk-link-ethernet-001",
+        "Wireshark": "chunk-lab-wireshark-001",
+    }
+
     def retrieve(self, question: str, course_id: str) -> list[ChunkMetadata]:
-        del question, course_id
-        return MOCK_CHUNKS.copy()
+        del course_id
+        for keyword, chunk_id in self._KEYWORD_MAP.items():
+            if keyword.lower() in question.lower():
+                match = next(
+                    (c for c in MOCK_CHUNKS if c.chunk_id == chunk_id), None
+                )
+                if match:
+                    return [match]
+        return MOCK_CHUNKS[:1]
 
 
 class MockAnswerGenerator:
