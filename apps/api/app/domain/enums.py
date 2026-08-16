@@ -13,6 +13,10 @@ class ContentType(StrEnum):
     SUBTITLE = "subtitle"
     TEXT = "text"
     RFC = "rfc"
+    TABLE = "table"
+    FORMULA = "formula"
+    IMAGE = "image"
+    DIAGRAM = "diagram"
     OTHER = "other"
 
 

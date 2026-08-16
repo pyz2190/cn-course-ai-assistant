@@ -1,0 +1,6 @@
+{"review_id":"review-sample-001","chunk_id":"chunk-transport-tcp-001","resource_id":"resource-000","reviewer":"张三","score":4,"issues":["第219页的实际内容在第217页"],"notes":"TCP三次握手的描述准确，序列号同步解释清晰。页码需微调。","reviewed_at":"2026-08-17T10:00:00Z"}
+{"review_id":"review-sample-002","chunk_id":"chunk-transport-congestion-001","resource_id":"resource-000","reviewer":"张三","score":5,"issues":[],"notes":"拥塞控制三阶段描述完整，Reno和BBR对比准确。","reviewed_at":"2026-08-17T10:15:00Z"}
+{"review_id":"review-sample-003","chunk_id":"chunk-app-dns-001","resource_id":"resource-000","reviewer":"李四","score":4,"issues":["缺少迭代查询的具体示例"],"notes":"DNS基础概念正确，建议补充迭代查询流程图说明。","reviewed_at":"2026-08-17T10:30:00Z"}
+{"review_id":"review-sample-004","chunk_id":"chunk-network-ip-001","resource_id":"resource-000","reviewer":"李四","score":3,"issues":["子网掩码示例不完整","缺少CIDR表示法说明"],"notes":"IPv4地址描述基本正确，但子网划分部分需要补充。","reviewed_at":"2026-08-17T10:45:00Z"}
+{"review_id":"review-sample-005","chunk_id":"chunk-link-ethernet-001","resource_id":"resource-000","reviewer":"王五","score":5,"issues":[],"notes":"以太网帧结构描述清晰完整，CSMA/CD解释准确。","reviewed_at":"2026-08-17T11:00:00Z"}
+{"review_id":"review-sample-006","chunk_id":"chunk-lab-wireshark-001","resource_id":"resource-001","reviewer":"王五","score":4,"issues":["过滤条件可以更详细"],"notes":"Wireshark实验步骤清晰，建议补充更多过滤表达式示例。","reviewed_at":"2026-08-17T11:15:00Z"}

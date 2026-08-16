@@ -11,6 +11,11 @@ dependencies = [
   "fastapi==0.140.9",
   "pydantic==2.13.4",
   "uvicorn[standard]>=0.40,<1",
+  "python-multipart>=0.0.9,<1",  # 文件上传
+  # 文档解析
+  "pymupdf>=1.24,<2",  # PDF 解析
+  "python-pptx>=1.0,<2",  # PPT 解析
+  "pysrt>=1.1,<2",  # 字幕解析
 ]
 
 [project.optional-dependencies]

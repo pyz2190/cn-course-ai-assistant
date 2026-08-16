@@ -4,7 +4,7 @@ from fastapi import FastAPI, HTTPException, Request
 from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
 
-from app.api.routes import events, health, qa, resources, tasks
+from app.api.routes import events, health, qa, quality, resources, tasks
 from app.core.config import get_settings
 from app.core.errors import http_exception_handler, validation_exception_handler
 
@@ -41,6 +41,7 @@ def create_app() -> FastAPI:
     app.include_router(qa.router, prefix=prefix)
     app.include_router(tasks.router, prefix=prefix)
     app.include_router(events.router, prefix=prefix)
+    app.include_router(quality.router, prefix=prefix)
     return app
 
 
