@@ -1,8 +1,8 @@
 # D-006｜RAG 框架与平台对比表
 
-> 版本：v1.0  
-> 调研日期：2026-08-16  
-> 路线：开发框架（LangChain、LlamaIndex）与开箱平台（Dify、FastGPT、RAGFlow、MaxKB）  
+> 版本：v1.0
+> 调研日期：2026-08-16
+> 路线：开发框架（LangChain、LlamaIndex）与开箱平台（Dify、FastGPT、RAGFlow、MaxKB）
 > 结论：本轮采用原生轻量编排，不新增上述运行时依赖。
 
 ## 1. 两条技术路线
@@ -68,4 +68,3 @@ Embedding → Qdrant → Reranker → GroundedGenerator → CitationAssembler
 ## 参考来源
 
 来源 ID 与链接见 [research-sources.md](research-sources.md)。
-
