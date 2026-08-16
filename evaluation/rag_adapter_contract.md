@@ -1,6 +1,6 @@
 # RAG Evaluation Adapter Contract
 
-> Status: Awaiting Member D Confirmation
+> Status: Confirmed by Member D on 2026-08-16
 
 ## Boundary
 
@@ -60,11 +60,12 @@ Each citation must provide:
 - Chapter and page range when present in the source
 - Retrieval score when available
 
-The citation mapping must make it possible to compare returned citations with
-an Annotation's `ExpectedCitation`: `resource_id` is required, while
-`chunk_id`, chapter, and page fields are compared whenever the expected
-citation specifies them. Citation fields not yet confirmed are **待成员 D 确认**;
-they must not be fabricated.
+The citation mapping makes it possible to compare returned citations with an
+Annotation's `ExpectedCitation`: `resource_id` and `chunk_id` are returned;
+`title`, `quote`, `chapter`, `page_start`, `page_end`, `source_url`,
+`retrieval_score`, and `rerank_score` are returned when available. All source
+fields are filled by `CitationAssembler` from a Chunk in the current retrieval
+result. A generator cannot create these fields.
 
 ## Error Handling
 
@@ -86,22 +87,35 @@ consistent execution plan. A process-wide interface outage may be represented
 as per-item failures so the report remains complete; the final exit code must
 indicate execution failure. No error path may invent an answer or citation.
 
-## Member D Integration Checklist
+## Member D Integration
 
-The following details are **待成员 D 确认**:
+- Invocation: in-process Python function.
+- Adapter: `app.adapters.evaluation.InProcessRagAdapter`.
+- Service: the same cached `app.core.dependencies.get_rag_service()` used by
+  the API.
+- CLI selection: `python scripts/evaluate.py --adapter rag`.
+- Authentication: none for the in-process adapter. Optional external model and
+  remote Qdrant secrets use `CN_AI_MODEL_API_KEY` and
+  `CN_AI_QDRANT_API_KEY`; no secret is accepted in an evaluation item.
+- Default test environment: offline embedding, in-memory Qdrant, offline
+  reranker and extractive generator; no credentials, network, paid call, or
+  model download.
+- External HTTP policy: connect/read/write/pool timeouts default to
+  3/30/10/3 seconds, with one retry. A final failure falls back to offline
+  extraction when degradation is enabled.
+- Runtime resolution: `RagRuntime` reports the actual model, embedding,
+  reranker, vector store, `top_k`, `fetch_k`, stage timings, and corpus
+  version. The runner separately preserves the requested values and Git
+  commit.
+- Partial retrieval: no result or low relevance returns a grounded refusal
+  with no citations; an unavailable reranker may return initial retrieval
+  results with a degraded marker.
+- Response validation: external generation must return strict JSON sentences
+  and evidence IDs. Unknown evidence IDs are discarded and cannot create a
+  Citation.
 
-- Invocation type: Python function or HTTP API.
-- Python module path, callable name, or HTTP endpoint.
-- Authentication method and secret injection mechanism.
-- Request and response examples.
-- Timeout, retry, and retryable-error policy.
-- Citation field mapping, including quote, title, chapter, page, and score.
-- How resolved model, embedding, reranker, and `top_k` values are obtained.
-- How to start the test environment and provide test-only credentials.
-- Response schema validation and handling of partial retrieval results.
-
-Until these details are supplied, use `UnconfiguredRagAdapter`, which raises
-`NotImplementedError` and produces no fabricated model output.
+`UnconfiguredRagAdapter` remains available only when the CLI explicitly uses
+`--adapter unconfigured` (the compatibility default).
 
 ## Acceptance Criteria
 
@@ -112,4 +126,4 @@ Until these details are supplied, use `UnconfiguredRagAdapter`, which raises
 - Interface failures record errors without fabricating a response.
 - Given the same request, runtime parameters, corpus version, and adapter
   configuration, the adapter provides a basically reproducible result.
-- Every unresolved field is marked **待成员 D 确认** rather than guessed.
+- No unresolved citation or invocation field is guessed.

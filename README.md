@@ -1,12 +1,13 @@
 # 计算机网络 AI 助教
 
-面向《计算机网络》课程的 AI 助教原型。仓库提供一套可直接联调的前后端骨架、稳定的数据契约和本地 Mock，使五位成员可以在 Canvas 接口尚未开放的情况下并行开发。
+面向《计算机网络》课程的 AI 助教原型。仓库提供可直接联调的前后端、稳定数据契约和默认离线 RAG，使五位成员可以在 Canvas 接口尚未开放的情况下并行开发。
 
 当前骨架包含：
 
 - React + TypeScript + Vite 学生端工作台
 - FastAPI + Pydantic 后端 API
 - 课程资料导入、引用式问答、六类教学任务、学习事件接口
+- Qdrant 向量检索、元数据过滤、可选重排、按句引用与安全降级
 - RAG、模型、资源导入和任务存储的可替换端口
 - OpenAPI 与 JSON Schema 契约自动生成
 - 前后端单元测试、静态检查和 GitHub Actions
@@ -46,19 +47,34 @@ npm run dev
 - API 文档：<http://127.0.0.1:8000/docs>
 - 健康检查：<http://127.0.0.1:8000/api/v1/health>
 
-当前 API 使用内存 Mock，不需要数据库、向量库或模型密钥。复制 `.env.example` 为 `.env` 后可调整本地配置。
+当前 API 默认使用 Qdrant 内存模式和确定性离线组件，不需要外部数据库、模型密钥或网络。复制 `.env.example` 为 `.env` 后可切换本地持久化、BGE 或 OpenAI-compatible 生成服务。
 
 ## 常用命令
 
 ```bash
 npm run dev              # 同时启动前后端
 npm run contracts        # 生成 OpenAPI、JSON Schema 和前端类型
+npm run rag:benchmark    # 运行 10 个示例 Chunk 的本地 RAG 基准
 npm run test             # 运行前后端测试
 npm run lint             # 运行 Ruff 和 ESLint
 npm run typecheck        # TypeScript 类型检查
 npm run build            # 构建前端
 npm run check            # 执行提交前完整检查
 ```
+
+评测模块通过同进程适配器调用相同的 `RagService`，不会把标准答案或标注要点传给生成链路：
+
+```bash
+python scripts/evaluate.py --adapter rag --dry-run
+```
+
+可选安装本地 BGE 模型适配依赖：
+
+```bash
+python -m pip install -e "apps/api[models]"
+```
+
+默认测试不会安装该可选项或下载模型权重。
 
 ## 项目结构
 
@@ -76,6 +92,8 @@ plan.md                   已确认技术方案
 task.md                   已确认开发任务
 checklist.md              已确认验收清单
 ```
+
+角色 D 的技术方案与对比文档位于 `docs/d-rag/` 下的 D-004 至 D-007。
 
 ## 协作入口
 

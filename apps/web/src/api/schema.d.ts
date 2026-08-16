@@ -148,7 +148,7 @@ export interface components {
             /** Answer */
             answer: string;
             /** Citations */
-            citations?: components["schemas"]["Citation"][];
+            citations: components["schemas"]["Citation"][];
             /** Confidence */
             confidence: number;
             /**
