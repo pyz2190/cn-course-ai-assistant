@@ -1,10 +1,7 @@
 """文件上传端点测试：覆盖 PDF、PPT、字幕文件的上传解析流程。"""
 
 import io
-import tempfile
-from pathlib import Path
 
-import pytest
 from fastapi.testclient import TestClient
 
 
@@ -73,7 +70,7 @@ class TestUploadEndpoint:
         pptx_bytes = self._make_pptx_bytes()
         response = client.post(
             "/api/v1/resources/upload",
-            files={"file": ("test.pptx", pptx_bytes, "application/vnd.openxmlformats-officedocument.presentationml.presentation")},
+            files={"file": ("test.pptx", pptx_bytes, "application/vnd.ms-powerpoint")},
             data={
                 "course_id": "course-cn-2026",
                 "title": "测试课件",

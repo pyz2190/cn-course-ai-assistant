@@ -1,6 +1,5 @@
 """B 模块测试：真实文档解析器。"""
 
-import tempfile
 from pathlib import Path
 
 import pytest
