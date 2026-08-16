@@ -132,8 +132,14 @@ export interface components {
         AskRequest: {
             /** Course Id */
             course_id: string;
+            /** Knowledge Point Ids */
+            knowledge_point_ids?: string[];
             /** Question */
             question: string;
+            /** Resource Ids */
+            resource_ids?: string[];
+            /** Task Id */
+            task_id?: string | null;
             /** User Id */
             user_id: string;
         };
@@ -142,9 +148,20 @@ export interface components {
             /** Answer */
             answer: string;
             /** Citations */
-            citations: components["schemas"]["Citation"][];
+            citations?: components["schemas"]["Citation"][];
             /** Confidence */
             confidence: number;
+            /**
+             * Degraded
+             * @default false
+             */
+            degraded: boolean;
+            /**
+             * Mode
+             * @default offline
+             * @enum {string}
+             */
+            mode: "offline" | "external";
             /** Request Id */
             request_id: string;
         };
@@ -194,8 +211,12 @@ export interface components {
             page_start?: number | null;
             /** Quote */
             quote: string;
+            /** Rerank Score */
+            rerank_score?: number | null;
             /** Resource Id */
             resource_id: string;
+            /** Retrieval Score */
+            retrieval_score?: number | null;
             /** Source Url */
             source_url?: string | null;
             /** Title */
