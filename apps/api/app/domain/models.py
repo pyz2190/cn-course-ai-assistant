@@ -126,7 +126,7 @@ class AskRequest(ContractModel):
 
 class AskResponse(ContractModel):
     answer: str = Field(min_length=1)
-    citations: list[Citation] = Field(default_factory=list)
+    citations: list[Citation]
     confidence: float = Field(ge=0, le=1)
     request_id: str = Field(min_length=1)
     degraded: bool = False

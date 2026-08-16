@@ -148,6 +148,7 @@
         },
         "required": [
           "answer",
+          "citations",
           "confidence",
           "request_id"
         ],
