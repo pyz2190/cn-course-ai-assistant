@@ -187,5 +187,6 @@ def test_w2_evaluation_jsonl_is_valid_and_relationally_consistent() -> None:
         for item in validated_annotations
         if item.review_status.value == "pending_review"
     )
-    assert all(item.expected_citations == [] for item in validated_annotations)
+    # B 已补充引用映射，所有 annotation 都应有 expected_citations
+    assert all(item.expected_citations for item in validated_annotations)
     assert (EVALUATION_DIRECTORY / "evaluation_set.jsonl").read_text(encoding="utf-8") == ""
