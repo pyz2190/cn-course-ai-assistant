@@ -1,8 +1,8 @@
 # D-005｜向量数据库对比表
 
-> 版本：v1.0  
-> 调研日期：2026-08-16  
-> 对比对象：Chroma、Qdrant、Milvus  
+> 版本：v1.0
+> 调研日期：2026-08-16
+> 对比对象：Chroma、Qdrant、Milvus
 > 结论：本项目选择 Qdrant；通过 `VectorStore` 端口保留替换能力。
 
 ## 1. 结论先行
@@ -57,4 +57,3 @@ Chroma 更适合最快速的嵌入式原型；Milvus 的分布式架构更适合
 ## 参考来源
 
 来源 ID 与链接见 [research-sources.md](research-sources.md)。
-

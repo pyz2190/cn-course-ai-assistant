@@ -1,8 +1,8 @@
 # D-007｜模型微调与部署可行性分析
 
-> 版本：v1.0  
-> 调研日期：2026-08-16  
-> 范围：Embedding、Reranker、RAG/LoRA 边界；本地 GPU、云端 API、校内 AI 平台  
+> 版本：v1.0
+> 调研日期：2026-08-16
+> 范围：Embedding、Reranker、RAG/LoRA 边界；本地 GPU、云端 API、校内 AI 平台
 > 本轮不实施 LoRA 训练，不承诺校内平台能力。
 
 ## 1. 模型选型
@@ -93,4 +93,3 @@ RAG 将外部非参数知识在查询时取回并提供给生成模型；LoRA �
 ## 参考来源
 
 来源 ID 与链接见 [research-sources.md](research-sources.md)。
-

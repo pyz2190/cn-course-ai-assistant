@@ -1,8 +1,8 @@
 # D-004｜AI + 向量数据库 + RAG 技术方案
 
-> 版本：v1.0  
-> 定稿日期：2026-08-16  
-> 代码分支：`feat/d-rag-backend`  
+> 版本：v1.0
+> 定稿日期：2026-08-16
+> 代码分支：`feat/d-rag-backend`
 > 技术基线：原生轻量编排、Qdrant、默认离线、可选 BGE 与 OpenAI-compatible 生成
 
 ## 1. 目标与边界
@@ -189,4 +189,3 @@ python scripts/evaluate.py --adapter rag --dry-run
 ## 参考来源
 
 来源 ID 与链接见 [research-sources.md](research-sources.md)。
-
