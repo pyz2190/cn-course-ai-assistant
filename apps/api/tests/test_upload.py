@@ -254,3 +254,34 @@ Today we learn TCP
         assert response.status_code == 201
         chunk = response.json()["chunks"][0]
         assert chunk["knowledge_point_ids"] == ["kp-pending-review"]
+
+    def test_upload_other_content_type_returns_422_not_500(self, client: TestClient) -> None:
+        """content_type=other 应返回 422 而非 500（修复 KeyError bug）。"""
+        response = client.post(
+            "/api/v1/resources/upload",
+            files={"file": ("test.txt", b"content", "text/plain")},
+            data={
+                "course_id": "course-cn-2026",
+                "title": "测试",
+                "version": "v1",
+                "language": "zh",
+                "content_type": "other",
+            },
+        )
+        assert response.status_code == 422
+        assert "暂不支持" in response.json()["message"]
+
+    def test_upload_rfc_content_type(self, client: TestClient) -> None:
+        """RFC 类型应支持 .txt 文件。"""
+        response = client.post(
+            "/api/v1/resources/upload",
+            files={"file": ("rfc791.txt", b"RFC 791 content", "text/plain")},
+            data={
+                "course_id": "course-cn-2026",
+                "title": "RFC 791",
+                "version": "v1",
+                "language": "en",
+                "content_type": "rfc",
+            },
+        )
+        assert response.status_code == 201
