@@ -16,6 +16,10 @@
         "subtitle",
         "text",
         "rfc",
+        "table",
+        "formula",
+        "image",
+        "diagram",
         "other"
       ],
       "title": "ContentType",
@@ -63,6 +67,17 @@
     "content_type": {
       "$ref": "#/$defs/ContentType"
     },
+    "extracted_content_type": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/ContentType"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    },
     "knowledge_point_ids": {
       "items": {
         "type": "string"
@@ -107,6 +122,18 @@
       "minLength": 1,
       "title": "Resource Id",
       "type": "string"
+    },
+    "source_path": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Source Path"
     },
     "source_url": {
       "anyOf": [

@@ -76,7 +76,8 @@ def test_prepare_creates_blank_human_score_file(tmp_path: Path) -> None:
     assert prepared[0]["generated_answer"] == "generated answer"
     assert prepared[0]["citations"] == [{"chunk_id": "chunk-test"}]
     assert prepared[0]["key_points"]
-    assert prepared[0]["expected_citations"] == []
+    # B 已补充引用，expected_citations 应非空
+    assert prepared[0]["expected_citations"]
     assert all(record[field] is None for record in prepared for field in (
         "correctness",
         "citation_accuracy",

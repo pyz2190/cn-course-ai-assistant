@@ -116,6 +116,57 @@
         "title": "AskResponse",
         "type": "object"
       },
+      "Body_upload_and_parse_api_v1_resources_upload_post": {
+        "properties": {
+          "content_type": {
+            "description": "文件类型：pdf/ppt/subtitle",
+            "title": "Content Type",
+            "type": "string"
+          },
+          "course_id": {
+            "description": "课程 ID",
+            "title": "Course Id",
+            "type": "string"
+          },
+          "file": {
+            "contentMediaType": "application/octet-stream",
+            "description": "课程文件（PDF/PPT/SRT/VTT）",
+            "title": "File",
+            "type": "string"
+          },
+          "knowledge_point_ids": {
+            "default": "",
+            "description": "知识点 ID，逗号分隔",
+            "title": "Knowledge Point Ids",
+            "type": "string"
+          },
+          "language": {
+            "default": "zh",
+            "description": "语言：zh/en/bilingual",
+            "title": "Language",
+            "type": "string"
+          },
+          "title": {
+            "description": "资料标题",
+            "title": "Title",
+            "type": "string"
+          },
+          "version": {
+            "default": "v1",
+            "description": "版本号",
+            "title": "Version",
+            "type": "string"
+          }
+        },
+        "required": [
+          "file",
+          "course_id",
+          "title",
+          "content_type"
+        ],
+        "title": "Body_upload_and_parse_api_v1_resources_upload_post",
+        "type": "object"
+      },
       "ChunkMetadata": {
         "additionalProperties": false,
         "properties": {
@@ -139,6 +190,16 @@
           },
           "content_type": {
             "$ref": "#/components/schemas/ContentType"
+          },
+          "extracted_content_type": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ContentType"
+              },
+              {
+                "type": "null"
+              }
+            ]
           },
           "knowledge_point_ids": {
             "items": {
@@ -182,6 +243,17 @@
             "minLength": 1,
             "title": "Resource Id",
             "type": "string"
+          },
+          "source_path": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Source Path"
           },
           "source_url": {
             "anyOf": [
@@ -314,6 +386,10 @@
           "subtitle",
           "text",
           "rfc",
+          "table",
+          "formula",
+          "image",
+          "diagram",
           "other"
         ],
         "title": "ContentType",
@@ -435,6 +511,110 @@
         "title": "ParseStatus",
         "type": "string"
       },
+      "QualityReview": {
+        "additionalProperties": false,
+        "properties": {
+          "chunk_id": {
+            "minLength": 1,
+            "title": "Chunk Id",
+            "type": "string"
+          },
+          "issues": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Issues",
+            "type": "array"
+          },
+          "notes": {
+            "default": "",
+            "title": "Notes",
+            "type": "string"
+          },
+          "resource_id": {
+            "minLength": 1,
+            "title": "Resource Id",
+            "type": "string"
+          },
+          "review_id": {
+            "minLength": 1,
+            "title": "Review Id",
+            "type": "string"
+          },
+          "reviewed_at": {
+            "format": "date-time",
+            "title": "Reviewed At",
+            "type": "string"
+          },
+          "reviewer": {
+            "minLength": 1,
+            "title": "Reviewer",
+            "type": "string"
+          },
+          "score": {
+            "maximum": 5.0,
+            "minimum": 1.0,
+            "title": "Score",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "review_id",
+          "chunk_id",
+          "resource_id",
+          "reviewer",
+          "score",
+          "reviewed_at"
+        ],
+        "title": "QualityReview",
+        "type": "object"
+      },
+      "QualityReviewRequest": {
+        "additionalProperties": false,
+        "properties": {
+          "chunk_id": {
+            "minLength": 1,
+            "title": "Chunk Id",
+            "type": "string"
+          },
+          "issues": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Issues",
+            "type": "array"
+          },
+          "notes": {
+            "default": "",
+            "title": "Notes",
+            "type": "string"
+          },
+          "resource_id": {
+            "minLength": 1,
+            "title": "Resource Id",
+            "type": "string"
+          },
+          "reviewer": {
+            "minLength": 1,
+            "title": "Reviewer",
+            "type": "string"
+          },
+          "score": {
+            "maximum": 5.0,
+            "minimum": 1.0,
+            "title": "Score",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "chunk_id",
+          "resource_id",
+          "reviewer",
+          "score"
+        ],
+        "title": "QualityReviewRequest",
+        "type": "object"
+      },
       "ResourceImportRequest": {
         "additionalProperties": false,
         "properties": {
@@ -536,6 +716,55 @@
         ],
         "title": "ResourceType",
         "type": "string"
+      },
+      "ResourceUploadResponse": {
+        "additionalProperties": false,
+        "properties": {
+          "chunk_count": {
+            "minimum": 0.0,
+            "title": "Chunk Count",
+            "type": "integer"
+          },
+          "chunks": {
+            "items": {
+              "$ref": "#/components/schemas/ChunkMetadata"
+            },
+            "title": "Chunks",
+            "type": "array"
+          },
+          "error": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Error"
+          },
+          "filename": {
+            "minLength": 1,
+            "title": "Filename",
+            "type": "string"
+          },
+          "parse_status": {
+            "$ref": "#/components/schemas/ParseStatus"
+          },
+          "resource_id": {
+            "minLength": 1,
+            "title": "Resource Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "resource_id",
+          "filename",
+          "chunk_count",
+          "parse_status"
+        ],
+        "title": "ResourceUploadResponse",
+        "type": "object"
       },
       "SyncStatus": {
         "enum": [
@@ -797,6 +1026,143 @@
         ]
       }
     },
+    "/api/v1/quality/reviews": {
+      "get": {
+        "description": "列出所有质量审查记录，可按 chunk_id 过滤。",
+        "operationId": "list_reviews_api_v1_quality_reviews_get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "chunk_id",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Chunk Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/QualityReview"
+                  },
+                  "title": "Response List Reviews Api V1 Quality Reviews Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "List Reviews",
+        "tags": [
+          "quality"
+        ]
+      },
+      "post": {
+        "description": "创建质量审查记录。",
+        "operationId": "create_review_api_v1_quality_reviews_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/QualityReviewRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/QualityReview"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Create Review",
+        "tags": [
+          "quality"
+        ]
+      }
+    },
+    "/api/v1/quality/reviews/{review_id}": {
+      "get": {
+        "description": "获取单条质量审查记录。",
+        "operationId": "get_review_api_v1_quality_reviews__review_id__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "review_id",
+            "required": true,
+            "schema": {
+              "title": "Review Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/QualityReview"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Get Review",
+        "tags": [
+          "quality"
+        ]
+      }
+    },
     "/api/v1/resources/import": {
       "post": {
         "operationId": "import_resource_api_v1_resources_import_post",
@@ -833,6 +1199,48 @@
           }
         },
         "summary": "Import Resource",
+        "tags": [
+          "resources"
+        ]
+      }
+    },
+    "/api/v1/resources/upload": {
+      "post": {
+        "description": "上传课程文件，自动解析、切块并入库。\n\n支持 PDF、PPT（.pptx）、SRT 和 VTT 字幕文件。\n解析后的 Chunk 会自动存储到 ChunkStore 中。",
+        "operationId": "upload_and_parse_api_v1_resources_upload_post",
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "$ref": "#/components/schemas/Body_upload_and_parse_api_v1_resources_upload_post"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResourceUploadResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Upload And Parse",
         "tags": [
           "resources"
         ]
