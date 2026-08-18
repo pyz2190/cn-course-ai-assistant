@@ -59,11 +59,37 @@
             "title": "Course Id",
             "type": "string"
           },
+          "knowledge_point_ids": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Knowledge Point Ids",
+            "type": "array"
+          },
           "question": {
             "maxLength": 2000,
             "minLength": 1,
             "title": "Question",
             "type": "string"
+          },
+          "resource_ids": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Resource Ids",
+            "type": "array"
+          },
+          "task_id": {
+            "anyOf": [
+              {
+                "minLength": 1,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Task Id"
           },
           "user_id": {
             "minLength": 1,
@@ -91,7 +117,6 @@
             "items": {
               "$ref": "#/components/schemas/Citation"
             },
-            "minItems": 1,
             "title": "Citations",
             "type": "array"
           },
@@ -100,6 +125,20 @@
             "minimum": 0.0,
             "title": "Confidence",
             "type": "number"
+          },
+          "degraded": {
+            "default": false,
+            "title": "Degraded",
+            "type": "boolean"
+          },
+          "mode": {
+            "default": "offline",
+            "enum": [
+              "offline",
+              "external"
+            ],
+            "title": "Mode",
+            "type": "string"
           },
           "request_id": {
             "minLength": 1,
@@ -274,10 +313,34 @@
             "title": "Quote",
             "type": "string"
           },
+          "rerank_score": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Rerank Score"
+          },
           "resource_id": {
             "minLength": 1,
             "title": "Resource Id",
             "type": "string"
+          },
+          "retrieval_score": {
+            "anyOf": [
+              {
+                "maximum": 1.0,
+                "minimum": -1.0,
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Retrieval Score"
           },
           "source_url": {
             "anyOf": [

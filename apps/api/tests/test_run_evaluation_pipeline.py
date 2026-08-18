@@ -2,6 +2,7 @@ from pathlib import Path
 from types import SimpleNamespace
 
 import pytest
+
 from scripts import run_evaluation_pipeline as pipeline
 
 PROJECT_ROOT = Path(__file__).resolve().parents[3]
