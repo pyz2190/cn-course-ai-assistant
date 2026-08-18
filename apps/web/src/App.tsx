@@ -1,9 +1,16 @@
+import { useState } from "react";
+
 import { SystemStatus } from "./components/SystemStatus";
 import { ChatPanel } from "./features/ChatPanel";
 import { TaskWorkspace } from "./features/TaskWorkspace";
+import { TeacherDashboard } from "./features/teacher/TeacherDashboard";
 import "./styles.css";
 
+type View = "student" | "teacher";
+
 export default function App() {
+  const [view, setView] = useState<View>("student");
+
   return (
     <main className="app-shell">
       <header className="hero">
@@ -30,10 +37,31 @@ export default function App() {
         <span>Qdrant 检索 · 按句引用 · 六类任务 · 完全独立</span>
       </div>
 
-      <div className="workspace-grid">
-        <ChatPanel />
-        <TaskWorkspace />
-      </div>
+      <nav className="view-switcher" aria-label="视图切换">
+        <button
+          type="button"
+          className={view === "student" ? "view-switcher__active" : ""}
+          onClick={() => setView("student")}
+        >
+          学生视图
+        </button>
+        <button
+          type="button"
+          className={view === "teacher" ? "view-switcher__active" : ""}
+          onClick={() => setView("teacher")}
+        >
+          教师 / 助教视图
+        </button>
+      </nav>
+
+      {view === "student" ? (
+        <div className="workspace-grid">
+          <ChatPanel />
+          <TaskWorkspace />
+        </div>
+      ) : (
+        <TeacherDashboard />
+      )}
     </main>
   );
 }
