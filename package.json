@@ -17,6 +17,7 @@
     "contracts:types": "openapi-typescript contracts/openapi.json -o apps/web/src/api/schema.d.ts",
     "contracts": "npm run contracts:export && npm run contracts:types",
     "check:contracts": "python scripts/check_contracts.py",
+    "rag:benchmark": "python apps/api/scripts/benchmark_rag.py",
     "format:api": "python -m ruff format apps/api scripts",
     "lint:api": "python -m ruff check apps/api scripts",
     "test:api": "python -m pytest apps/api",
@@ -36,6 +37,7 @@
   },
   "overrides": {
     "brace-expansion": "5.0.9",
-    "js-yaml": "4.3.0"
+    "js-yaml": "4.3.1",
+    "nanoid": "3.3.18"
   }
 }

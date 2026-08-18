@@ -47,10 +47,36 @@
       "title": "Quote",
       "type": "string"
     },
+    "rerank_score": {
+      "anyOf": [
+        {
+          "type": "number"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Rerank Score"
+    },
     "resource_id": {
       "minLength": 1,
       "title": "Resource Id",
       "type": "string"
+    },
+    "retrieval_score": {
+      "anyOf": [
+        {
+          "maximum": 1,
+          "minimum": -1,
+          "type": "number"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Retrieval Score"
     },
     "source_url": {
       "anyOf": [

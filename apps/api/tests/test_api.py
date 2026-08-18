@@ -7,7 +7,7 @@ def test_health(client: TestClient) -> None:
     response = client.get("/api/v1/health")
     assert response.status_code == 200
     assert response.json()["status"] == "ok"
-    assert response.json()["mode"] == "mock"
+    assert response.json()["mode"] == "offline"
     assert response.headers["X-Request-ID"].startswith("req-")
 
 
@@ -42,9 +42,11 @@ def test_ask_returns_traceable_citation(client: TestClient) -> None:
     )
     assert response.status_code == 200
     payload = response.json()
-    assert payload["confidence"] == 0.92
+    assert 0 < payload["confidence"] <= 1
     assert payload["citations"][0]["chapter"] == "第 3 章 运输层"
     assert payload["citations"][0]["page_start"] == 214
+    assert "[1]" in payload["answer"]
+    assert payload["mode"] == "offline"
 
 
 def test_empty_question_uses_stable_error_shape(client: TestClient) -> None:
