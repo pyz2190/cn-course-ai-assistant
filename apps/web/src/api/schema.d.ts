@@ -55,6 +55,50 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/quality/reviews": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List Reviews
+         * @description 列出所有质量审查记录，可按 chunk_id 过滤。
+         */
+        get: operations["list_reviews_api_v1_quality_reviews_get"];
+        put?: never;
+        /**
+         * Create Review
+         * @description 创建质量审查记录。
+         */
+        post: operations["create_review_api_v1_quality_reviews_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/quality/reviews/{review_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Review
+         * @description 获取单条质量审查记录。
+         */
+        get: operations["get_review_api_v1_quality_reviews__review_id__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/resources/import": {
         parameters: {
             query?: never;
@@ -66,6 +110,29 @@ export interface paths {
         put?: never;
         /** Import Resource */
         post: operations["import_resource_api_v1_resources_import_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/resources/upload": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Upload And Parse
+         * @description 上传课程文件，自动解析、切块并入库。
+         *
+         *     支持 PDF、PPT（.pptx）、SRT 和 VTT 字幕文件。
+         *     解析后的 Chunk 会自动存储到 ChunkStore 中。
+         */
+        post: operations["upload_and_parse_api_v1_resources_upload_post"];
         delete?: never;
         options?: never;
         head?: never;
@@ -165,6 +232,47 @@ export interface components {
             /** Request Id */
             request_id: string;
         };
+        /** Body_upload_and_parse_api_v1_resources_upload_post */
+        Body_upload_and_parse_api_v1_resources_upload_post: {
+            /**
+             * Content Type
+             * @description 文件类型：pdf/ppt/subtitle/rfc/text/other
+             */
+            content_type: string;
+            /**
+             * Course Id
+             * @description 课程 ID
+             */
+            course_id: string;
+            /**
+             * File
+             * @description 课程文件（PDF/PPT/SRT/VTT）
+             */
+            file: string;
+            /**
+             * Knowledge Point Ids
+             * @description 知识点 ID，逗号分隔
+             * @default
+             */
+            knowledge_point_ids: string;
+            /**
+             * Language
+             * @description 语言：zh/en/bilingual
+             * @default zh
+             */
+            language: string;
+            /**
+             * Title
+             * @description 资料标题
+             */
+            title: string;
+            /**
+             * Version
+             * @description 版本号
+             * @default v1
+             */
+            version: string;
+        };
         /** ChunkMetadata */
         ChunkMetadata: {
             access_level: components["schemas"]["AccessLevel"];
@@ -175,6 +283,7 @@ export interface components {
             /** Content */
             content: string;
             content_type: components["schemas"]["ContentType"];
+            extracted_content_type?: components["schemas"]["ContentType"] | null;
             /** Knowledge Point Ids */
             knowledge_point_ids: string[];
             language: components["schemas"]["Language"];
@@ -185,6 +294,8 @@ export interface components {
             parse_status: components["schemas"]["ParseStatus"];
             /** Resource Id */
             resource_id: string;
+            /** Source Path */
+            source_path?: string | null;
             /** Source Url */
             source_url?: string | null;
             /** Title */
@@ -226,7 +337,7 @@ export interface components {
          * ContentType
          * @enum {string}
          */
-        ContentType: "pdf" | "ppt" | "subtitle" | "text" | "rfc" | "other";
+        ContentType: "pdf" | "ppt" | "subtitle" | "text" | "rfc" | "table" | "formula" | "image" | "diagram" | "other";
         /**
          * EventType
          * @enum {string}
@@ -278,6 +389,49 @@ export interface components {
          * @enum {string}
          */
         ParseStatus: "pending" | "parsed" | "failed";
+        /** QualityReview */
+        QualityReview: {
+            /** Chunk Id */
+            chunk_id: string;
+            /** Issues */
+            issues?: string[];
+            /**
+             * Notes
+             * @default
+             */
+            notes: string;
+            /** Resource Id */
+            resource_id: string;
+            /** Review Id */
+            review_id: string;
+            /**
+             * Reviewed At
+             * Format: date-time
+             */
+            reviewed_at: string;
+            /** Reviewer */
+            reviewer: string;
+            /** Score */
+            score: number;
+        };
+        /** QualityReviewRequest */
+        QualityReviewRequest: {
+            /** Chunk Id */
+            chunk_id: string;
+            /** Issues */
+            issues?: string[];
+            /**
+             * Notes
+             * @default
+             */
+            notes: string;
+            /** Resource Id */
+            resource_id: string;
+            /** Reviewer */
+            reviewer: string;
+            /** Score */
+            score: number;
+        };
         /** ResourceImportRequest */
         ResourceImportRequest: {
             content_type: components["schemas"]["ContentType"];
@@ -306,6 +460,20 @@ export interface components {
          * @enum {string}
          */
         ResourceType: "textbook" | "slide" | "lab_guide" | "video_subtitle" | "rfc" | "other";
+        /** ResourceUploadResponse */
+        ResourceUploadResponse: {
+            /** Chunk Count */
+            chunk_count: number;
+            /** Chunks */
+            chunks?: components["schemas"]["ChunkMetadata"][];
+            /** Error */
+            error?: string | null;
+            /** Filename */
+            filename: string;
+            parse_status: components["schemas"]["ParseStatus"];
+            /** Resource Id */
+            resource_id: string;
+        };
         /**
          * SyncStatus
          * @enum {string}
@@ -450,6 +618,101 @@ export interface operations {
             };
         };
     };
+    list_reviews_api_v1_quality_reviews_get: {
+        parameters: {
+            query?: {
+                chunk_id?: string | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["QualityReview"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    create_review_api_v1_quality_reviews_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["QualityReviewRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["QualityReview"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_review_api_v1_quality_reviews__review_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                review_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["QualityReview"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
     import_resource_api_v1_resources_import_post: {
         parameters: {
             query?: never;
@@ -470,6 +733,39 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["ResourceImportResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    upload_and_parse_api_v1_resources_upload_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "multipart/form-data": components["schemas"]["Body_upload_and_parse_api_v1_resources_upload_post"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceUploadResponse"];
                 };
             };
             /** @description Validation Error */
