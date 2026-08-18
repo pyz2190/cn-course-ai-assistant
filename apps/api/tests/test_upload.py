@@ -255,11 +255,11 @@ Today we learn TCP
         chunk = response.json()["chunks"][0]
         assert chunk["knowledge_point_ids"] == ["kp-pending-review"]
 
-    def test_upload_other_content_type_returns_422_not_500(self, client: TestClient) -> None:
-        """content_type=other 应返回 422 而非 500（修复 KeyError bug）。"""
+    def test_upload_other_content_type_success(self, client: TestClient) -> None:
+        """content_type=other 现在支持 .txt 文件上传。"""
         response = client.post(
             "/api/v1/resources/upload",
-            files={"file": ("test.txt", b"content", "text/plain")},
+            files={"file": ("test.txt", b"some content here", "text/plain")},
             data={
                 "course_id": "course-cn-2026",
                 "title": "测试",
@@ -268,8 +268,24 @@ Today we learn TCP
                 "content_type": "other",
             },
         )
+        assert response.status_code == 201
+        assert response.json()["parse_status"] == "parsed"
+
+    def test_upload_unsupported_extension_returns_422(self, client: TestClient) -> None:
+        """不支持的文件扩展名应返回 422。"""
+        response = client.post(
+            "/api/v1/resources/upload",
+            files={"file": ("test.xyz", b"content", "application/octet-stream")},
+            data={
+                "course_id": "course-cn-2026",
+                "title": "测试",
+                "version": "v1",
+                "language": "zh",
+                "content_type": "pdf",
+            },
+        )
         assert response.status_code == 422
-        assert "暂不支持" in response.json()["message"]
+        assert "不匹配" in response.json()["message"]
 
     def test_upload_rfc_content_type(self, client: TestClient) -> None:
         """RFC 类型应支持 .txt 文件。"""
@@ -285,3 +301,20 @@ Today we learn TCP
             },
         )
         assert response.status_code == 201
+
+    def test_upload_text_content_type(self, client: TestClient) -> None:
+        """TEXT 类型应支持 .txt 和 .md 文件。"""
+        response = client.post(
+            "/api/v1/resources/upload",
+            files={"file": ("notes.md", b"# Chapter 1\n\nThis is content.", "text/markdown")},
+            data={
+                "course_id": "course-cn-2026",
+                "title": "课程笔记",
+                "version": "v1",
+                "language": "zh",
+                "content_type": "text",
+            },
+        )
+        assert response.status_code == 201
+        assert response.json()["parse_status"] == "parsed"
+        assert response.json()["chunk_count"] > 0

@@ -29,7 +29,7 @@ def upload_and_parse(
     title: str = Form(..., description="资料标题"),
     version: str = Form("v1", description="版本号"),
     language: str = Form("zh", description="语言：zh/en/bilingual"),
-    content_type: str = Form(..., description="文件类型：pdf/ppt/subtitle"),
+    content_type: str = Form(..., description="文件类型：pdf/ppt/subtitle/rfc/text/other"),
     knowledge_point_ids: str = Form("", description="知识点 ID，逗号分隔"),
     chunk_store: Annotated[ChunkStore, Depends(get_chunk_store)] = None,
 ) -> ResourceUploadResponse:
@@ -70,17 +70,11 @@ def upload_and_parse(
         ContentType.PDF: [".pdf"],
         ContentType.PPT: [".pptx", ".ppt"],
         ContentType.SUBTITLE: [".srt", ".vtt"],
-        ContentType.RFC: [".txt"],
+        ContentType.RFC: [".txt", ".md"],
         ContentType.TEXT: [".txt", ".md"],
-        ContentType.OTHER: [],
+        ContentType.OTHER: [".txt", ".md"],
     }
     allowed = expected_suffixes.get(ct, [])
-    if not allowed:
-        raise HTTPException(
-            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
-            detail=f"content_type {content_type} 暂不支持文件上传，"
-            f"仅支持: pdf/ppt/subtitle/rfc/text",
-        )
     if suffix not in allowed:
         raise HTTPException(
             status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
