@@ -9,7 +9,10 @@ description = "计算机网络课程 AI 助教独立 API 骨架"
 requires-python = ">=3.11"
 dependencies = [
   "fastapi==0.140.9",
+  "httpx2==2.10.0",
   "pydantic==2.13.4",
+  "pydantic-settings==2.15.0",
+  "qdrant-client==1.19.0",
   "uvicorn[standard]>=0.40,<1",
   "python-multipart>=0.0.9,<1",  # 文件上传
   # 文档解析
@@ -20,9 +23,11 @@ dependencies = [
 
 [project.optional-dependencies]
 dev = [
-  "httpx2>=2.9,<3",
   "pytest==9.1.1",
   "ruff==0.16.0",
+]
+models = [
+  "FlagEmbedding==1.4.0",
 ]
 
 [tool.setuptools.packages.find]

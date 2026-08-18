@@ -1,4 +1,5 @@
 from datetime import datetime
+from typing import Literal
 
 from pydantic import (
     BaseModel,
@@ -88,6 +89,8 @@ class Citation(ContractModel):
     page_end: int | None = Field(default=None, ge=1)
     quote: str = Field(min_length=1)
     source_url: str | None = None
+    retrieval_score: float | None = Field(default=None, ge=-1, le=1)
+    rerank_score: float | None = None
 
 
 class ResourceImportRequest(ContractModel):
@@ -120,6 +123,9 @@ class AskRequest(ContractModel):
     course_id: str = Field(min_length=1)
     user_id: str = Field(min_length=1)
     question: str = Field(min_length=1, max_length=2000)
+    knowledge_point_ids: list[str] = Field(default_factory=list)
+    resource_ids: list[str] = Field(default_factory=list)
+    task_id: str | None = Field(default=None, min_length=1)
 
     @field_validator("question")
     @classmethod
@@ -131,9 +137,11 @@ class AskRequest(ContractModel):
 
 class AskResponse(ContractModel):
     answer: str = Field(min_length=1)
-    citations: list[Citation] = Field(min_length=1)
+    citations: list[Citation]
     confidence: float = Field(ge=0, le=1)
     request_id: str = Field(min_length=1)
+    degraded: bool = False
+    mode: Literal["offline", "external"] = "offline"
 
 
 class TaskTemplate(ContractModel):

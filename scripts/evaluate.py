@@ -350,10 +350,23 @@ def main() -> int:
     parser.add_argument("--embedding", default=None)
     parser.add_argument("--reranker", default=None)
     parser.add_argument("--top-k", type=int, default=None)
+    parser.add_argument(
+        "--adapter",
+        choices=("unconfigured", "rag"),
+        default="unconfigured",
+        help="select the in-process D RAG adapter or the explicit unconfigured stub",
+    )
     args = parser.parse_args()
+    adapter: RagAdapter | None = None
+    if args.adapter == "rag":
+        from app.adapters.evaluation import InProcessRagAdapter
+        from app.core.dependencies import get_rag_service
+
+        adapter = InProcessRagAdapter(get_rag_service())
     run = run_evaluation(
         args.evaluation_dir,
         args.reports_dir,
+        adapter=adapter,
         dry_run=args.dry_run,
         model=args.model,
         embedding=args.embedding,
