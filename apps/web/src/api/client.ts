@@ -9,9 +9,15 @@ import type {
   HealthResponse,
   KnowledgeBaseChangeQuery,
   KnowledgeBaseChangeTask,
+  KnowledgeBaseChangeUpdateRequest,
+  KnowledgePoint,
+  KnowledgePointQuery,
   LearningEvent,
   LearningEventQuery,
+  ResourceSummary,
   TaskPublishRequest,
+  TaskStatus,
+  TaskStatusUpdateRequest,
   TaskTemplate,
 } from "./types";
 
@@ -108,3 +114,27 @@ export const getKnowledgeBaseChange = (changeId: string) =>
   request<KnowledgeBaseChangeTask>(
     `/knowledge-base/changes/${encodeURIComponent(changeId)}`,
   );
+
+export const updateKnowledgeBaseChange = (
+  changeId: string,
+  payload: KnowledgeBaseChangeUpdateRequest,
+) =>
+  request<KnowledgeBaseChangeTask>(
+    `/knowledge-base/changes/${encodeURIComponent(changeId)}`,
+    { method: "PATCH", body: JSON.stringify(payload) },
+  );
+
+export const listKnowledgePoints = (params: KnowledgePointQuery = {}) =>
+  request<KnowledgePoint[]>(`/knowledge-points${queryString(params)}`);
+
+export const getKnowledgePoint = (knowledgePointId: string) =>
+  request<KnowledgePoint>(`/knowledge-points/${encodeURIComponent(knowledgePointId)}`);
+
+export const listResources = (courseId?: string) =>
+  request<ResourceSummary[]>(`/resources${queryString(courseId ? { course_id: courseId } : {})}`);
+
+export const updateTaskStatus = (taskId: string, status: TaskStatus) =>
+  request<TaskTemplate>(`/tasks/${encodeURIComponent(taskId)}/status`, {
+    method: "PATCH",
+    body: JSON.stringify({ status } satisfies TaskStatusUpdateRequest),
+  });

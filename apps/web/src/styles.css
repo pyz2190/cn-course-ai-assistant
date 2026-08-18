@@ -745,6 +745,20 @@ button {
   color: #ffb7a8;
 }
 
+/* 知识点条目：显示名称、章节与先修关系，而不是裸 ID */
+.knowledge-point__name {
+  display: block;
+  color: #e8efe9;
+  font-weight: 600;
+}
+
+.knowledge-point__chapter,
+.knowledge-point__prereq {
+  display: block;
+  color: #93a39a;
+  font-size: 0.76rem;
+}
+
 @media (max-width: 900px) {
   .workspace-grid,
   .hero {

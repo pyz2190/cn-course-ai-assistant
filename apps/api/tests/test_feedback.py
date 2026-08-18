@@ -70,6 +70,10 @@ def test_approve_feedback_creates_structured_change_task(client: TestClient) -> 
         "suggested_action": "补充三次握手对初始序列号与双向能力的说明。",
         "status": "pending",
         "created_at": change.json()["created_at"],
+        "handler": None,
+        "updated_at": None,
+        "resolution_notes": "",
+        "resource_ids": [],
     }
 
     filtered = client.get(

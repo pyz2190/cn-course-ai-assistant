@@ -2,7 +2,7 @@ import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { describe, expect, it, vi } from "vitest";
 
-import type { TaskTemplate } from "../api/types";
+import type { KnowledgePoint, TaskTemplate } from "../api/types";
 import { TaskWorkspace } from "./TaskWorkspace";
 
 const task: TaskTemplate = {
@@ -30,7 +30,56 @@ const troubleshootingTask: TaskTemplate = {
   ai_feedback_points: ["检查排查顺序。"],
 };
 
+const handshakePoint: KnowledgePoint = {
+  knowledge_point_id: "kp-transport-tcp-handshake",
+  name: "TCP 三次握手",
+  chapter: "第 3 章 运输层",
+  parent_id: "kp-network-overview",
+  kind: "protocol",
+  difficulty: "intermediate",
+  keywords_zh: ["三次握手"],
+  keywords_en: ["three-way handshake"],
+  prerequisite_ids: ["kp-transport-udp"],
+  summary: "TCP 通过三次握手同步初始序列号。",
+  review_status: "approved",
+  maintainer: "course-team",
+};
+
+const udpPoint: KnowledgePoint = {
+  ...handshakePoint,
+  knowledge_point_id: "kp-transport-udp",
+  name: "UDP 协议",
+  prerequisite_ids: [],
+};
+
 describe("TaskWorkspace", () => {
+  it("shows knowledge point names and prerequisites instead of raw ids", async () => {
+    render(
+      <TaskWorkspace
+        loadTasks={vi.fn().mockResolvedValue([task])}
+        loadTask={vi.fn().mockResolvedValue(task)}
+        loadKnowledgePoints={vi.fn().mockResolvedValue([handshakePoint, udpPoint])}
+      />,
+    );
+
+    expect(await screen.findByText("TCP 三次握手")).toBeInTheDocument();
+    expect(screen.getByText("第 3 章 运输层")).toBeInTheDocument();
+    expect(screen.getByText("先修：UDP 协议")).toBeInTheDocument();
+    expect(screen.queryByText("kp-transport-tcp-handshake")).not.toBeInTheDocument();
+  });
+
+  it("falls back to the raw id when knowledge points cannot be loaded", async () => {
+    render(
+      <TaskWorkspace
+        loadTasks={vi.fn().mockResolvedValue([task])}
+        loadTask={vi.fn().mockResolvedValue(task)}
+        loadKnowledgePoints={vi.fn().mockRejectedValue(new Error("离线"))}
+      />,
+    );
+
+    expect(await screen.findByText("kp-transport-tcp-handshake")).toBeInTheDocument();
+  });
+
   it("loads and shows task details", async () => {
     render(
       <TaskWorkspace

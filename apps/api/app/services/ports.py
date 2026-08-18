@@ -1,15 +1,18 @@
 from pathlib import Path
 from typing import Protocol
 
+from app.domain.enums import TaskStatus
 from app.domain.models import (
     AnswerFeedback,
     AskResponse,
     ChunkMetadata,
     KnowledgeBaseChangeTask,
+    KnowledgePoint,
     LearningEvent,
     QualityReview,
     ResourceImportRequest,
     ResourceImportResponse,
+    ResourceSummary,
     TaskTemplate,
 )
 
@@ -32,11 +35,13 @@ class FileResourceImporter(Protocol):
 
 
 class ChunkStore(Protocol):
-    def save(self, chunks: list[ChunkMetadata]) -> int: ...
+    def save(self, chunks: list[ChunkMetadata], course_id: str | None = None) -> int: ...
 
     def list_by_resource(self, resource_id: str) -> list[ChunkMetadata]: ...
 
     def list_all(self) -> list[ChunkMetadata]: ...
+
+    def list_resources(self, course_id: str | None = None) -> list[ResourceSummary]: ...
 
     def count(self) -> int: ...
 
@@ -49,12 +54,24 @@ class AnswerGenerator(Protocol):
     def generate(self, question: str, chunks: list[ChunkMetadata]) -> AskResponse: ...
 
 
+class KnowledgePointRepository(Protocol):
+    def list_knowledge_points(
+        self,
+        chapter: str | None = None,
+        parent_id: str | None = None,
+    ) -> list[KnowledgePoint]: ...
+
+    def get_knowledge_point(self, knowledge_point_id: str) -> KnowledgePoint | None: ...
+
+
 class TaskRepository(Protocol):
     def create(self, task: TaskTemplate) -> TaskTemplate: ...
 
     def list_tasks(self) -> list[TaskTemplate]: ...
 
     def get_task(self, task_id: str) -> TaskTemplate | None: ...
+
+    def update_status(self, task_id: str, status: TaskStatus) -> TaskTemplate | None: ...
 
 
 class EventSink(Protocol):
@@ -86,6 +103,8 @@ class KnowledgeBaseChangeStore(Protocol):
     def get(self, change_id: str) -> KnowledgeBaseChangeTask | None: ...
 
     def list_all(self) -> list[KnowledgeBaseChangeTask]: ...
+
+    def replace(self, change: KnowledgeBaseChangeTask) -> KnowledgeBaseChangeTask: ...
 
 
 class QualityReviewStore(Protocol):

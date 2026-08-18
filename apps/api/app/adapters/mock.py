@@ -20,6 +20,7 @@ from app.domain.models import (
     QualityReview,
     ResourceImportRequest,
     ResourceImportResponse,
+    ResourceSummary,
     TaskTemplate,
 )
 
@@ -683,6 +684,14 @@ class InMemoryTaskRepository:
     def get_task(self, task_id: str) -> TaskTemplate | None:
         return self._tasks.get(task_id)
 
+    def update_status(self, task_id: str, status: TaskStatus) -> TaskTemplate | None:
+        task = self._tasks.get(task_id)
+        if task is None:
+            return None
+        updated = task.model_copy(update={"status": status})
+        self._tasks[task_id] = updated
+        return updated
+
 
 class InMemoryEventSink:
     def __init__(self) -> None:
@@ -747,15 +756,28 @@ class InMemoryKnowledgeBaseChangeStore:
     def list_all(self) -> list[KnowledgeBaseChangeTask]:
         return list(self._changes.values())
 
+    def replace(self, change: KnowledgeBaseChangeTask) -> KnowledgeBaseChangeTask:
+        if change.change_id not in self._changes:
+            raise KeyError(change.change_id)
+        self._changes[change.change_id] = change
+        return change
+
 
 class InMemoryChunkStore:
-    """内存 Chunk 存储，用于测试和离线演示。"""
+    """内存 Chunk 存储，用于测试和离线演示。
+
+    `ChunkMetadata` 本身不含 `course_id`，因此课程归属在存储层单独记录。
+    """
 
     def __init__(self) -> None:
         self._chunks: list[ChunkMetadata] = []
+        self._course_by_resource: dict[str, str] = {}
 
-    def save(self, chunks: list[ChunkMetadata]) -> int:
+    def save(self, chunks: list[ChunkMetadata], course_id: str | None = None) -> int:
         self._chunks.extend(chunks)
+        if course_id:
+            for chunk in chunks:
+                self._course_by_resource[chunk.resource_id] = course_id
         return len(chunks)
 
     def list_by_resource(self, resource_id: str) -> list[ChunkMetadata]:
@@ -763,6 +785,33 @@ class InMemoryChunkStore:
 
     def list_all(self) -> list[ChunkMetadata]:
         return self._chunks.copy()
+
+    def list_resources(self, course_id: str | None = None) -> list[ResourceSummary]:
+        summaries: dict[str, ResourceSummary] = {}
+        for chunk in self._chunks:
+            owner = self._course_by_resource.get(chunk.resource_id, "unknown")
+            if course_id is not None and owner != course_id:
+                continue
+            existing = summaries.get(chunk.resource_id)
+            if existing is None:
+                summaries[chunk.resource_id] = ResourceSummary(
+                    resource_id=chunk.resource_id,
+                    course_id=owner,
+                    title=chunk.title,
+                    chunk_count=1,
+                    language=chunk.language,
+                    content_type=chunk.content_type,
+                    version=chunk.version,
+                    updated_at=chunk.updated_at,
+                )
+            else:
+                summaries[chunk.resource_id] = existing.model_copy(
+                    update={
+                        "chunk_count": existing.chunk_count + 1,
+                        "updated_at": max(existing.updated_at, chunk.updated_at),
+                    }
+                )
+        return sorted(summaries.values(), key=lambda item: item.resource_id)
 
     def count(self) -> int:
         return len(self._chunks)

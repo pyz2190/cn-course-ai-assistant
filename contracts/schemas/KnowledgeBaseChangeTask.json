@@ -2,7 +2,10 @@
   "$defs": {
     "KnowledgeBaseChangeStatus": {
       "enum": [
-        "pending"
+        "pending",
+        "in_progress",
+        "done",
+        "wont_fix"
       ],
       "title": "KnowledgeBaseChangeStatus",
       "type": "string"
@@ -30,6 +33,18 @@
       "title": "Feedback Id",
       "type": "string"
     },
+    "handler": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Handler"
+    },
     "question": {
       "minLength": 1,
       "title": "Question",
@@ -45,6 +60,19 @@
       "title": "Request Id",
       "type": "string"
     },
+    "resolution_notes": {
+      "default": "",
+      "title": "Resolution Notes",
+      "type": "string"
+    },
+    "resource_ids": {
+      "description": "本次优化实际新增或修订的课程资料标识。",
+      "items": {
+        "type": "string"
+      },
+      "title": "Resource Ids",
+      "type": "array"
+    },
     "status": {
       "$ref": "#/$defs/KnowledgeBaseChangeStatus"
     },
@@ -52,6 +80,19 @@
       "minLength": 1,
       "title": "Suggested Action",
       "type": "string"
+    },
+    "updated_at": {
+      "anyOf": [
+        {
+          "format": "date-time",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Updated At"
     }
   },
   "required": [

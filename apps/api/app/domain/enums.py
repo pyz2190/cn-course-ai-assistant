@@ -112,3 +112,6 @@ class FeedbackStatus(StrEnum):
 
 class KnowledgeBaseChangeStatus(StrEnum):
     PENDING = "pending"
+    IN_PROGRESS = "in_progress"
+    DONE = "done"
+    WONT_FIX = "wont_fix"

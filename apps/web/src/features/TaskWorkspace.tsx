@@ -1,12 +1,13 @@
 import { useEffect, useState } from "react";
 
-import { getTask, listTasks, recordEvent } from "../api/client";
-import type { LearningEvent, TaskTemplate } from "../api/types";
+import { getTask, listKnowledgePoints, listTasks, recordEvent } from "../api/client";
+import type { KnowledgePoint, LearningEvent, TaskTemplate } from "../api/types";
 import { taskTypeLabel, TASK_TYPE_META } from "./taskMeta";
 
 type Props = {
   loadTasks?: () => Promise<TaskTemplate[]>;
   loadTask?: (taskId: string) => Promise<TaskTemplate>;
+  loadKnowledgePoints?: () => Promise<KnowledgePoint[]>;
   recordLearningEvent?: (event: LearningEvent) => Promise<LearningEvent>;
 };
 
@@ -42,8 +43,10 @@ async function recordTaskOpened(
 export function TaskWorkspace({
   loadTasks = listTasks,
   loadTask = getTask,
+  loadKnowledgePoints = listKnowledgePoints,
   recordLearningEvent = recordEvent,
 }: Props) {
+  const [knowledgePoints, setKnowledgePoints] = useState<Record<string, KnowledgePoint>>({});
   const [tasks, setTasks] = useState<TaskTemplate[]>([]);
   const [selected, setSelected] = useState<TaskTemplate | null>(null);
   const [error, setError] = useState("");
@@ -51,6 +54,23 @@ export function TaskWorkspace({
   const [completedTaskIds, setCompletedTaskIds] = useState<Set<string>>(new Set());
   const [completionSubmitting, setCompletionSubmitting] = useState<string | null>(null);
   const [completionError, setCompletionError] = useState("");
+
+  useEffect(() => {
+    let active = true;
+    loadKnowledgePoints()
+      .then((items) => {
+        if (!active) return;
+        setKnowledgePoints(
+          Object.fromEntries(items.map((item) => [item.knowledge_point_id, item])),
+        );
+      })
+      .catch(() => {
+        // 知识点加载失败时回退为显示原始 ID，不影响任务浏览。
+      });
+    return () => {
+      active = false;
+    };
+  }, [loadKnowledgePoints]);
 
   useEffect(() => {
     let active = true;
@@ -149,6 +169,7 @@ export function TaskWorkspace({
           {selected ? (
             <TaskDetail
               task={selected}
+              knowledgePoints={knowledgePoints}
               completed={completedTaskIds.has(selected.task_id)}
               submitting={completionSubmitting === selected.task_id}
               completionError={completionError}
@@ -165,12 +186,14 @@ export function TaskWorkspace({
 
 function TaskDetail({
   task,
+  knowledgePoints,
   completed,
   submitting,
   completionError,
   onComplete,
 }: {
   task: TaskTemplate;
+  knowledgePoints: Record<string, KnowledgePoint>;
   completed: boolean;
   submitting: boolean;
   completionError: string;
@@ -192,7 +215,10 @@ function TaskDetail({
       <FlowSteps steps={meta?.flow ?? []} />
 
       <div className="task-detail__grid">
-        <DetailList title="关联知识点" items={task.knowledge_point_ids} />
+        <KnowledgePointList
+          knowledgePointIds={task.knowledge_point_ids}
+          knowledgePoints={knowledgePoints}
+        />
         <DetailList title="关联资料" items={task.resource_ids} />
         <DetailList title="完成判据" items={task.completion_criteria} />
         <DetailList title="AI 反馈介入点" items={task.ai_feedback_points} />
@@ -221,6 +247,41 @@ function FlowSteps({ steps }: { steps: string[] }) {
           </li>
         ))}
       </ol>
+    </div>
+  );
+}
+
+/** 把任务引用的知识点 ID 解析为可读的知识点名称、章节与先修关系。 */
+function KnowledgePointList({
+  knowledgePointIds,
+  knowledgePoints,
+}: {
+  knowledgePointIds: string[];
+  knowledgePoints: Record<string, KnowledgePoint>;
+}) {
+  return (
+    <div className="detail-list">
+      <h4>关联知识点</h4>
+      <ul>
+        {knowledgePointIds.map((id) => {
+          const point = knowledgePoints[id];
+          if (!point) {
+            return <li key={id}>{id}</li>;
+          }
+          const prerequisites = (point.prerequisite_ids ?? [])
+            .map((prerequisiteId) => knowledgePoints[prerequisiteId]?.name ?? prerequisiteId)
+            .join("、");
+          return (
+            <li key={id}>
+              <strong className="knowledge-point__name">{point.name}</strong>
+              <span className="knowledge-point__chapter">{point.chapter}</span>
+              {prerequisites && (
+                <span className="knowledge-point__prereq">先修：{prerequisites}</span>
+              )}
+            </li>
+          );
+        })}
+      </ul>
     </div>
   );
 }

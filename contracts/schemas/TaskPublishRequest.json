@@ -1,5 +1,14 @@
 {
   "$defs": {
+    "TaskStatus": {
+      "enum": [
+        "draft",
+        "published",
+        "completed"
+      ],
+      "title": "TaskStatus",
+      "type": "string"
+    },
     "TaskType": {
       "enum": [
         "foundation",
@@ -58,6 +67,11 @@
       "minItems": 1,
       "title": "Resource Ids",
       "type": "array"
+    },
+    "status": {
+      "$ref": "#/$defs/TaskStatus",
+      "default": "published",
+      "description": "发布状态；传 draft 可先存为草稿，稍后再发布。"
     },
     "task_id": {
       "minLength": 1,

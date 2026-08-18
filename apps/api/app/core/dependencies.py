@@ -2,6 +2,7 @@ from functools import lru_cache
 
 import httpx2
 
+from app.adapters.knowledge_points import InMemoryKnowledgePointRepository
 from app.adapters.mock import (
     MOCK_CHUNKS,
     InMemoryChunkStore,
@@ -22,6 +23,7 @@ from app.services.ports import (
     EventSink,
     FeedbackStore,
     KnowledgeBaseChangeStore,
+    KnowledgePointRepository,
     QualityReviewStore,
     ResourceImporter,
     TaskRepository,
@@ -29,7 +31,6 @@ from app.services.ports import (
 from app.services.qa import QaService
 from app.services.rag import IndexManager, RagService, RetrievalPipeline
 
-_chunk_store = InMemoryChunkStore()
 _quality_review_store = InMemoryQualityReviewStore()
 
 
@@ -100,7 +101,7 @@ def get_rag_service() -> RagService:
 
 @lru_cache
 def get_chunk_store() -> ChunkStore:
-    return _chunk_store
+    return InMemoryChunkStore()
 
 
 @lru_cache
@@ -116,6 +117,11 @@ def get_file_importer():
 @lru_cache
 def get_qa_service() -> QaService:
     return QaService(get_rag_service())
+
+
+@lru_cache
+def get_knowledge_point_repository() -> KnowledgePointRepository:
+    return InMemoryKnowledgePointRepository()
 
 
 @lru_cache

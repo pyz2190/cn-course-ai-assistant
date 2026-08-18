@@ -122,6 +122,47 @@ export interface paths {
         delete?: never;
         options?: never;
         head?: never;
+        /**
+         * Update Change
+         * @description 推进或关闭知识库变更任务，完成知识库持续优化的闭环。
+         */
+        patch: operations["update_change_api_v1_knowledge_base_changes__change_id__patch"];
+        trace?: never;
+    };
+    "/api/v1/knowledge-points": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List Knowledge Points
+         * @description 列出课程知识点，支持按章节或父知识点浏览知识图谱。
+         */
+        get: operations["list_knowledge_points_api_v1_knowledge_points_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/knowledge-points/{knowledge_point_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Knowledge Point */
+        get: operations["get_knowledge_point_api_v1_knowledge_points__knowledge_point_id__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
         patch?: never;
         trace?: never;
     };
@@ -186,6 +227,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/resources": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List Resources
+         * @description 列出已导入的课程资料，便于确认解析结果是否入库。
+         */
+        get: operations["list_resources_api_v1_resources_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/resources/import": {
         parameters: {
             query?: never;
@@ -214,12 +275,33 @@ export interface paths {
         put?: never;
         /**
          * Upload And Parse
-         * @description 上传课程文件，自动解析、切块并入库。
+         * @description 上传课程文件，自动解析、切块、向量化入库。
          *
          *     支持 PDF、PPT（.pptx）、SRT 和 VTT 字幕文件。
-         *     解析后的 Chunk 会自动存储到 ChunkStore 中。
+         *     解析后的 Chunk 会存入 ChunkStore，并增量写入向量库，
+         *     使新导入的资料可以立即被问答检索和引用。
          */
         post: operations["upload_and_parse_api_v1_resources_upload_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/resources/{resource_id}/chunks": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List Resource Chunks
+         * @description 读取某份资料解析出的全部 Chunk，用于人工核对切块与引用定位。
+         */
+        get: operations["list_resource_chunks_api_v1_resources__resource_id__chunks_get"];
+        put?: never;
+        post?: never;
         delete?: never;
         options?: never;
         head?: never;
@@ -259,6 +341,26 @@ export interface paths {
         options?: never;
         head?: never;
         patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tasks/{task_id}/status": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /**
+         * Update Task Status
+         * @description 在草稿、已发布和已完成之间流转任务状态。
+         */
+        patch: operations["update_task_status_api_v1_tasks__task_id__status_patch"];
         trace?: never;
     };
 }
@@ -480,6 +582,11 @@ export interface components {
          */
         ContentType: "pdf" | "ppt" | "subtitle" | "text" | "rfc" | "table" | "formula" | "image" | "diagram" | "other";
         /**
+         * Difficulty
+         * @enum {string}
+         */
+        Difficulty: "introductory" | "intermediate" | "advanced";
+        /**
          * EventType
          * @enum {string}
          */
@@ -525,7 +632,7 @@ export interface components {
          * KnowledgeBaseChangeStatus
          * @enum {string}
          */
-        KnowledgeBaseChangeStatus: "pending";
+        KnowledgeBaseChangeStatus: "pending" | "in_progress" | "done" | "wont_fix";
         /** KnowledgeBaseChangeTask */
         KnowledgeBaseChangeTask: {
             /** Change Id */
@@ -539,15 +646,70 @@ export interface components {
             created_at: string;
             /** Feedback Id */
             feedback_id: string;
+            /** Handler */
+            handler?: string | null;
             /** Question */
             question: string;
             /** Reason */
             reason: string;
             /** Request Id */
             request_id: string;
+            /**
+             * Resolution Notes
+             * @default
+             */
+            resolution_notes: string;
+            /**
+             * Resource Ids
+             * @description 本次优化实际新增或修订的课程资料标识。
+             */
+            resource_ids?: string[];
             status: components["schemas"]["KnowledgeBaseChangeStatus"];
             /** Suggested Action */
             suggested_action: string;
+            /** Updated At */
+            updated_at?: string | null;
+        };
+        /**
+         * KnowledgeBaseChangeUpdateRequest
+         * @description 推进或关闭知识库变更任务，构成“审核无效回答 → 优化知识库”的收尾环节。
+         */
+        KnowledgeBaseChangeUpdateRequest: {
+            /** Handler */
+            handler: string;
+            /**
+             * Resolution Notes
+             * @default
+             */
+            resolution_notes: string;
+            /** Resource Ids */
+            resource_ids?: string[];
+            status: components["schemas"]["KnowledgeBaseChangeStatus"];
+        };
+        /** KnowledgePoint */
+        KnowledgePoint: {
+            /** Chapter */
+            chapter: string;
+            difficulty: components["schemas"]["Difficulty"];
+            /** Keywords En */
+            keywords_en?: string[];
+            /** Keywords Zh */
+            keywords_zh?: string[];
+            /** Kind */
+            kind: string;
+            /** Knowledge Point Id */
+            knowledge_point_id: string;
+            /** Maintainer */
+            maintainer: string;
+            /** Name */
+            name: string;
+            /** Parent Id */
+            parent_id?: string | null;
+            /** Prerequisite Ids */
+            prerequisite_ids?: string[];
+            review_status: components["schemas"]["ReviewStatus"];
+            /** Summary */
+            summary: string;
         };
         /**
          * Language
@@ -647,6 +809,29 @@ export interface components {
             sync_status: components["schemas"]["SyncStatus"];
         };
         /**
+         * ResourceSummary
+         * @description 已导入资料的概览，用于确认解析与入库结果。
+         */
+        ResourceSummary: {
+            /** Chunk Count */
+            chunk_count: number;
+            content_type: components["schemas"]["ContentType"];
+            /** Course Id */
+            course_id: string;
+            language: components["schemas"]["Language"];
+            /** Resource Id */
+            resource_id: string;
+            /** Title */
+            title: string;
+            /**
+             * Updated At
+             * Format: date-time
+             */
+            updated_at: string;
+            /** Version */
+            version: string;
+        };
+        /**
          * ResourceType
          * @enum {string}
          */
@@ -661,10 +846,20 @@ export interface components {
             error?: string | null;
             /** Filename */
             filename: string;
+            /**
+             * Indexed Chunks
+             * @description 向量库在本次导入后的 Chunk 总数；为空表示未执行向量化。
+             */
+            indexed_chunks?: number | null;
             parse_status: components["schemas"]["ParseStatus"];
             /** Resource Id */
             resource_id: string;
         };
+        /**
+         * ReviewStatus
+         * @enum {string}
+         */
+        ReviewStatus: "draft" | "reviewed" | "approved";
         /**
          * SyncStatus
          * @enum {string}
@@ -684,6 +879,11 @@ export interface components {
             prerequisite_ids?: string[];
             /** Resource Ids */
             resource_ids: string[];
+            /**
+             * @description 发布状态；传 draft 可先存为草稿，稍后再发布。
+             * @default published
+             */
+            status: components["schemas"]["TaskStatus"];
             /** Task Id */
             task_id: string;
             task_type: components["schemas"]["TaskType"];
@@ -695,6 +895,13 @@ export interface components {
          * @enum {string}
          */
         TaskStatus: "draft" | "published" | "completed";
+        /**
+         * TaskStatusUpdateRequest
+         * @description 任务状态流转请求，用于发布草稿或标记任务完成。
+         */
+        TaskStatusUpdateRequest: {
+            status: components["schemas"]["TaskStatus"];
+        };
         /** TaskTemplate */
         TaskTemplate: {
             /** Ai Feedback Points */
@@ -968,6 +1175,7 @@ export interface operations {
             query?: {
                 course_id?: string | null;
                 feedback_id?: string | null;
+                change_status?: components["schemas"]["KnowledgeBaseChangeStatus"] | null;
             };
             header?: never;
             path?: never;
@@ -1013,6 +1221,106 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["KnowledgeBaseChangeTask"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    update_change_api_v1_knowledge_base_changes__change_id__patch: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                change_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["KnowledgeBaseChangeUpdateRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["KnowledgeBaseChangeTask"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_knowledge_points_api_v1_knowledge_points_get: {
+        parameters: {
+            query?: {
+                /** @description 按章节过滤 */
+                chapter?: string | null;
+                /** @description 按父知识点过滤 */
+                parent_id?: string | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["KnowledgePoint"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_knowledge_point_api_v1_knowledge_points__knowledge_point_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                knowledge_point_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["KnowledgePoint"];
                 };
             };
             /** @description Validation Error */
@@ -1154,6 +1462,37 @@ export interface operations {
             };
         };
     };
+    list_resources_api_v1_resources_get: {
+        parameters: {
+            query?: {
+                course_id?: string | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceSummary"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
     import_resource_api_v1_resources_import_post: {
         parameters: {
             query?: never;
@@ -1220,9 +1559,45 @@ export interface operations {
             };
         };
     };
-    list_tasks_api_v1_tasks_get: {
+    list_resource_chunks_api_v1_resources__resource_id__chunks_get: {
         parameters: {
             query?: never;
+            header?: never;
+            path: {
+                resource_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ChunkMetadata"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_tasks_api_v1_tasks_get: {
+        parameters: {
+            query?: {
+                /** @description 按任务状态过滤 */
+                status?: components["schemas"]["TaskStatus"] | null;
+                /** @description 按六类任务类型过滤 */
+                task_type?: components["schemas"]["TaskType"] | null;
+            };
             header?: never;
             path?: never;
             cookie?: never;
@@ -1236,6 +1611,15 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["TaskTemplate"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
                 };
             };
         };
@@ -1283,6 +1667,41 @@ export interface operations {
             cookie?: never;
         };
         requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TaskTemplate"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    update_task_status_api_v1_tasks__task_id__status_patch: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                task_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["TaskStatusUpdateRequest"];
+            };
+        };
         responses: {
             /** @description Successful Response */
             200: {
