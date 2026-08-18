@@ -68,4 +68,55 @@ describe("TaskWorkspace", () => {
     ).toBeInTheDocument();
     expect(screen.getByText("resource-dns-lab-001")).toBeInTheDocument();
   });
+
+  it("records task_completed once and disables the completion button", async () => {
+    const user = userEvent.setup();
+    const recordLearningEvent = vi.fn().mockImplementation((event) => Promise.resolve(event));
+
+    render(
+      <TaskWorkspace
+        loadTasks={vi.fn().mockResolvedValue([task])}
+        loadTask={vi.fn().mockResolvedValue(task)}
+        recordLearningEvent={recordLearningEvent}
+      />,
+    );
+
+    const completeButton = await screen.findByRole("button", { name: "标记完成" });
+    await user.click(completeButton);
+
+    expect(await screen.findByRole("button", { name: "已完成" })).toBeDisabled();
+    expect(recordLearningEvent).toHaveBeenCalledTimes(1);
+    expect(recordLearningEvent).toHaveBeenCalledWith(
+      expect.objectContaining({
+        course_id: "computer-networks",
+        user_id: "student-demo",
+        event_type: "task_completed",
+        object_id: task.task_id,
+        payload: { task_type: task.task_type },
+      }),
+    );
+  });
+
+  it("shows a retryable error when task completion recording fails", async () => {
+    const user = userEvent.setup();
+    const recordLearningEvent = vi
+      .fn()
+      .mockRejectedValueOnce(new Error("事件服务暂时不可用。"))
+      .mockImplementation((event) => Promise.resolve(event));
+
+    render(
+      <TaskWorkspace
+        loadTasks={vi.fn().mockResolvedValue([task])}
+        loadTask={vi.fn().mockResolvedValue(task)}
+        recordLearningEvent={recordLearningEvent}
+      />,
+    );
+
+    await user.click(await screen.findByRole("button", { name: "标记完成" }));
+    expect(await screen.findByText("事件服务暂时不可用。")).toBeInTheDocument();
+
+    await user.click(screen.getByRole("button", { name: "标记完成" }));
+    expect(await screen.findByRole("button", { name: "已完成" })).toBeDisabled();
+    expect(recordLearningEvent).toHaveBeenCalledTimes(2);
+  });
 });

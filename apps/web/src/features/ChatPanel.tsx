@@ -1,8 +1,14 @@
 import { useEffect, useRef, useState } from "react";
 import type { FormEvent } from "react";
 
-import { askQuestion, recordEvent } from "../api/client";
-import type { AskRequest, AskResponse } from "../api/types";
+import { askQuestion, createFeedback, recordEvent } from "../api/client";
+import type {
+  AnswerFeedback,
+  AnswerFeedbackCreate,
+  AskRequest,
+  AskResponse,
+  LearningEvent,
+} from "../api/types";
 import {
   CitationList,
   parseAnswerSegments,
@@ -10,12 +16,15 @@ import {
 
 type Props = {
   ask?: (request: AskRequest) => Promise<AskResponse>;
+  createAnswerFeedback?: (request: AnswerFeedbackCreate) => Promise<AnswerFeedback>;
+  recordLearningEvent?: (event: LearningEvent) => Promise<LearningEvent>;
 };
 
 type Message = {
   id: string;
   role: "user" | "assistant";
   text: string;
+  question?: string;
   response?: AskResponse;
 };
 
@@ -38,9 +47,13 @@ function newId(): string {
 }
 
 /** 尽力而为地记录学习行为事件，失败不影响问答主流程。 */
-async function recordQaEvent(question: string, response: AskResponse): Promise<void> {
+async function recordQaEvent(
+  question: string,
+  response: AskResponse,
+  saveEvent: (event: LearningEvent) => Promise<LearningEvent>,
+): Promise<void> {
   try {
-    await recordEvent({
+    await saveEvent({
       course_id: COURSE_ID,
       user_id: USER_ID,
       event_id: newId(),
@@ -54,7 +67,11 @@ async function recordQaEvent(question: string, response: AskResponse): Promise<v
   }
 }
 
-export function ChatPanel({ ask = askQuestion }: Props) {
+export function ChatPanel({
+  ask = askQuestion,
+  createAnswerFeedback = createFeedback,
+  recordLearningEvent = recordEvent,
+}: Props) {
   const [messages, setMessages] = useState<Message[]>([
     {
       id: "welcome",
@@ -93,9 +110,15 @@ export function ChatPanel({ ask = askQuestion }: Props) {
       });
       setMessages((prev) => [
         ...prev,
-        { id: newId(), role: "assistant", text: response.answer, response },
+        {
+          id: newId(),
+          role: "assistant",
+          text: response.answer,
+          question: trimmed,
+          response,
+        },
       ]);
-      void recordQaEvent(trimmed, response);
+      void recordQaEvent(trimmed, response, recordLearningEvent);
     } catch (caught) {
       setMessages((prev) => [
         ...prev,
@@ -152,6 +175,8 @@ export function ChatPanel({ ask = askQuestion }: Props) {
               message={message}
               highlighted={highlighted}
               onSelectMarker={setHighlighted}
+              createAnswerFeedback={createAnswerFeedback}
+              recordLearningEvent={recordLearningEvent}
             />
           ) : (
             <div key={message.id} className="chat-message chat-message--assistant">
@@ -191,14 +216,63 @@ function AnswerBubble({
   message,
   highlighted,
   onSelectMarker,
+  createAnswerFeedback,
+  recordLearningEvent,
 }: {
   message: Message;
   highlighted: number | null;
   onSelectMarker: (number: number | null) => void;
+  createAnswerFeedback: (request: AnswerFeedbackCreate) => Promise<AnswerFeedback>;
+  recordLearningEvent: (event: LearningEvent) => Promise<LearningEvent>;
 }) {
   const response = message.response!;
   const segments = parseAnswerSegments(response.answer);
   const hasMarkers = segments.some((segment) => segment.kind === "marker");
+  const [feedbackOpen, setFeedbackOpen] = useState(false);
+  const [feedbackReason, setFeedbackReason] = useState("");
+  const [feedbackSubmitting, setFeedbackSubmitting] = useState(false);
+  const [feedbackSubmitted, setFeedbackSubmitted] = useState(false);
+  const [feedbackError, setFeedbackError] = useState("");
+
+  async function submitFeedback(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    const reason = feedbackReason.trim();
+    if (!reason || feedbackSubmitting || feedbackSubmitted) return;
+
+    setFeedbackSubmitting(true);
+    setFeedbackError("");
+    try {
+      const feedback = await createAnswerFeedback({
+        course_id: COURSE_ID,
+        user_id: USER_ID,
+        request_id: response.request_id,
+        question: message.question ?? "",
+        answer: response.answer,
+        reason,
+        citation_ids: response.citations.map((citation) => citation.citation_id),
+      });
+      setFeedbackSubmitted(true);
+      try {
+        await recordLearningEvent({
+          course_id: COURSE_ID,
+          user_id: USER_ID,
+          event_id: newId(),
+          event_type: "feedback_submitted",
+          object_id: feedback.feedback_id,
+          occurred_at: new Date().toISOString(),
+          payload: { request_id: response.request_id },
+        });
+      } catch {
+        setFeedbackError("反馈已提交审核，但学习事件记录失败。");
+      }
+    } catch (caught) {
+      setFeedbackError(
+        caught instanceof Error ? caught.message : "反馈提交失败，请重试。",
+      );
+    } finally {
+      setFeedbackSubmitting(false);
+    }
+  }
 
   return (
     <div className="chat-message chat-message--assistant">
@@ -247,6 +321,45 @@ function AnswerBubble({
             }
           }}
         />
+
+        <div className="answer-feedback">
+          {feedbackSubmitted ? (
+            <span className="answer-feedback__submitted">已提交审核</span>
+          ) : (
+            <button
+              type="button"
+              className="answer-feedback__trigger"
+              onClick={() => {
+                setFeedbackOpen((open) => !open);
+                setFeedbackError("");
+              }}
+              aria-expanded={feedbackOpen}
+            >
+              回答无效
+            </button>
+          )}
+
+          {feedbackOpen && !feedbackSubmitted && (
+            <form className="answer-feedback__form" onSubmit={submitFeedback}>
+              <label htmlFor={`feedback-reason-${message.id}`}>请说明回答存在的问题</label>
+              <textarea
+                id={`feedback-reason-${message.id}`}
+                value={feedbackReason}
+                onChange={(event) => setFeedbackReason(event.target.value)}
+                disabled={feedbackSubmitting}
+                rows={3}
+              />
+              <button
+                type="submit"
+                disabled={feedbackSubmitting || !feedbackReason.trim()}
+              >
+                {feedbackSubmitting ? "正在提交…" : "提交反馈"}
+              </button>
+            </form>
+          )}
+
+          {feedbackError && <p className="answer-feedback__error">{feedbackError}</p>}
+        </div>
       </div>
     </div>
   );

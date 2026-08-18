@@ -16,6 +16,8 @@ from app.domain.enums import (
     Difficulty,
     EvaluationReviewStatus,
     EventType,
+    FeedbackStatus,
+    KnowledgeBaseChangeStatus,
     Language,
     ParseStatus,
     QuestionCategory,
@@ -155,6 +157,80 @@ class TaskTemplate(ContractModel):
     completion_criteria: list[str] = Field(min_length=1)
     ai_feedback_points: list[str] = Field(min_length=1)
     status: TaskStatus
+
+
+class TaskPublishRequest(ContractModel):
+    task_id: str = Field(min_length=1)
+    title: str = Field(min_length=1)
+    description: str = Field(min_length=1)
+    task_type: TaskType
+    knowledge_point_ids: list[str] = Field(min_length=1)
+    resource_ids: list[str] = Field(min_length=1)
+    prerequisite_ids: list[str] = Field(default_factory=list)
+    completion_criteria: list[str] = Field(min_length=1)
+    ai_feedback_points: list[str] = Field(min_length=1)
+
+
+class AnswerFeedbackCreate(ContractModel):
+    course_id: str = Field(min_length=1)
+    user_id: str = Field(min_length=1)
+    request_id: str = Field(min_length=1)
+    question: str = Field(min_length=1)
+    answer: str = Field(min_length=1)
+    reason: str = Field(min_length=1)
+    citation_ids: list[str] = Field(default_factory=list)
+
+
+class AnswerFeedback(AnswerFeedbackCreate):
+    feedback_id: str = Field(min_length=1)
+    status: FeedbackStatus
+    created_at: datetime
+    reviewer: str | None = Field(default=None, min_length=1)
+    reviewed_at: datetime | None = None
+    review_notes: str = ""
+    knowledge_base_change_id: str | None = Field(default=None, min_length=1)
+
+    @model_validator(mode="after")
+    def validate_review_state(self) -> "AnswerFeedback":
+        if self.status == FeedbackStatus.PENDING_REVIEW:
+            if self.reviewer is not None or self.reviewed_at is not None:
+                raise ValueError("pending feedback must not contain review metadata")
+            if self.knowledge_base_change_id is not None:
+                raise ValueError("pending feedback must not reference a knowledge-base change")
+            return self
+
+        if self.reviewer is None or self.reviewed_at is None:
+            raise ValueError("reviewer and reviewed_at are required after review")
+        if self.status != FeedbackStatus.APPROVED and self.knowledge_base_change_id is not None:
+            raise ValueError("only approved feedback may reference a knowledge-base change")
+        return self
+
+
+class FeedbackReviewRequest(ContractModel):
+    decision: Literal["approved", "rejected"]
+    reviewer: str = Field(min_length=1)
+    review_notes: str = ""
+    suggested_action: str | None = Field(default=None, min_length=1)
+
+    @model_validator(mode="after")
+    def validate_suggested_action(self) -> "FeedbackReviewRequest":
+        if self.decision == "approved" and self.suggested_action is None:
+            raise ValueError("suggested_action is required when approving feedback")
+        if self.decision == "rejected" and self.suggested_action is not None:
+            raise ValueError("suggested_action is only allowed when approving feedback")
+        return self
+
+
+class KnowledgeBaseChangeTask(ContractModel):
+    change_id: str = Field(min_length=1)
+    feedback_id: str = Field(min_length=1)
+    course_id: str = Field(min_length=1)
+    request_id: str = Field(min_length=1)
+    question: str = Field(min_length=1)
+    reason: str = Field(min_length=1)
+    suggested_action: str = Field(min_length=1)
+    status: KnowledgeBaseChangeStatus
+    created_at: datetime
 
 
 class LearningEvent(ContractModel):
