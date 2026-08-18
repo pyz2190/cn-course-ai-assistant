@@ -363,6 +363,79 @@ button {
   font-weight: 600;
 }
 
+.answer-feedback {
+  display: grid;
+  justify-items: start;
+  gap: 8px;
+  margin-top: 14px;
+  padding-top: 12px;
+  border-top: 1px solid var(--line);
+}
+
+.answer-feedback__trigger {
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--muted);
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+
+.answer-feedback__trigger:hover {
+  color: #912f1d;
+}
+
+.answer-feedback__form {
+  display: grid;
+  gap: 8px;
+  width: 100%;
+}
+
+.answer-feedback__form label {
+  color: var(--muted);
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+
+.answer-feedback__form textarea {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid var(--line);
+  border-radius: 9px;
+  resize: vertical;
+  font: inherit;
+}
+
+.answer-feedback__form button,
+.task-completion button {
+  width: fit-content;
+  padding: 9px 14px;
+  border: 0;
+  border-radius: 9px;
+  background: var(--green);
+  color: white;
+  font-weight: 800;
+}
+
+.answer-feedback__form button:disabled,
+.task-completion button:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
+.answer-feedback__submitted {
+  color: var(--green);
+  font-size: 0.8rem;
+  font-weight: 800;
+}
+
+.answer-feedback__error,
+.task-completion__error {
+  margin: 0;
+  color: #912f1d;
+  font-size: 0.78rem;
+}
+
 /* 行内引用角标 */
 .citation-marker {
   padding: 0 3px;
@@ -652,6 +725,24 @@ button {
   margin: 5px 0;
   line-height: 1.5;
   color: #d5ded8;
+}
+
+.task-completion {
+  display: grid;
+  justify-items: start;
+  gap: 8px;
+  margin-top: 22px;
+  padding-top: 18px;
+  border-top: 1px solid #30443a;
+}
+
+.task-completion button {
+  background: var(--lime);
+  color: #243517;
+}
+
+.task-completion__error {
+  color: #ffb7a8;
 }
 
 @media (max-width: 900px) {

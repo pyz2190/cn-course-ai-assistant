@@ -102,3 +102,13 @@ class EventType(StrEnum):
     TASK_OPENED = "task_opened"
     TASK_COMPLETED = "task_completed"
     FEEDBACK_SUBMITTED = "feedback_submitted"
+
+
+class FeedbackStatus(StrEnum):
+    PENDING_REVIEW = "pending_review"
+    APPROVED = "approved"
+    REJECTED = "rejected"
+
+
+class KnowledgeBaseChangeStatus(StrEnum):
+    PENDING = "pending"

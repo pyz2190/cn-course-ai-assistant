@@ -2,8 +2,10 @@ from pathlib import Path
 from typing import Protocol
 
 from app.domain.models import (
+    AnswerFeedback,
     AskResponse,
     ChunkMetadata,
+    KnowledgeBaseChangeTask,
     LearningEvent,
     QualityReview,
     ResourceImportRequest,
@@ -48,6 +50,8 @@ class AnswerGenerator(Protocol):
 
 
 class TaskRepository(Protocol):
+    def create(self, task: TaskTemplate) -> TaskTemplate: ...
+
     def list_tasks(self) -> list[TaskTemplate]: ...
 
     def get_task(self, task_id: str) -> TaskTemplate | None: ...
@@ -55,6 +59,33 @@ class TaskRepository(Protocol):
 
 class EventSink(Protocol):
     def record(self, event: LearningEvent) -> LearningEvent: ...
+
+    def query(
+        self,
+        *,
+        course_id: str | None = None,
+        user_id: str | None = None,
+        event_type: str | None = None,
+        object_id: str | None = None,
+    ) -> list[LearningEvent]: ...
+
+
+class FeedbackStore(Protocol):
+    def create(self, feedback: AnswerFeedback) -> AnswerFeedback: ...
+
+    def get(self, feedback_id: str) -> AnswerFeedback | None: ...
+
+    def list_all(self) -> list[AnswerFeedback]: ...
+
+    def replace(self, feedback: AnswerFeedback) -> AnswerFeedback: ...
+
+
+class KnowledgeBaseChangeStore(Protocol):
+    def create(self, change: KnowledgeBaseChangeTask) -> KnowledgeBaseChangeTask: ...
+
+    def get(self, change_id: str) -> KnowledgeBaseChangeTask | None: ...
+
+    def list_all(self) -> list[KnowledgeBaseChangeTask]: ...
 
 
 class QualityReviewStore(Protocol):

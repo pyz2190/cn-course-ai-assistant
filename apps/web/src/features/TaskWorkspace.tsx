@@ -1,12 +1,13 @@
 import { useEffect, useState } from "react";
 
 import { getTask, listTasks, recordEvent } from "../api/client";
-import type { TaskTemplate } from "../api/types";
+import type { LearningEvent, TaskTemplate } from "../api/types";
 import { taskTypeLabel, TASK_TYPE_META } from "./taskMeta";
 
 type Props = {
   loadTasks?: () => Promise<TaskTemplate[]>;
   loadTask?: (taskId: string) => Promise<TaskTemplate>;
+  recordLearningEvent?: (event: LearningEvent) => Promise<LearningEvent>;
 };
 
 const COURSE_ID = "computer-networks";
@@ -19,9 +20,12 @@ function newId(): string {
   return `evt-${Date.now()}-${Math.random().toString(36).slice(2)}`;
 }
 
-async function recordTaskOpened(task: TaskTemplate): Promise<void> {
+async function recordTaskOpened(
+  task: TaskTemplate,
+  saveEvent: (event: LearningEvent) => Promise<LearningEvent>,
+): Promise<void> {
   try {
-    await recordEvent({
+    await saveEvent({
       course_id: COURSE_ID,
       user_id: USER_ID,
       event_id: newId(),
@@ -38,11 +42,15 @@ async function recordTaskOpened(task: TaskTemplate): Promise<void> {
 export function TaskWorkspace({
   loadTasks = listTasks,
   loadTask = getTask,
+  recordLearningEvent = recordEvent,
 }: Props) {
   const [tasks, setTasks] = useState<TaskTemplate[]>([]);
   const [selected, setSelected] = useState<TaskTemplate | null>(null);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(true);
+  const [completedTaskIds, setCompletedTaskIds] = useState<Set<string>>(new Set());
+  const [completionSubmitting, setCompletionSubmitting] = useState<string | null>(null);
+  const [completionError, setCompletionError] = useState("");
 
   useEffect(() => {
     let active = true;
@@ -70,12 +78,37 @@ export function TaskWorkspace({
 
   async function selectTask(taskId: string) {
     setError("");
+    setCompletionError("");
     try {
       const detail = await loadTask(taskId);
       setSelected(detail);
-      void recordTaskOpened(detail);
+      void recordTaskOpened(detail, recordLearningEvent);
     } catch (caught) {
       setError(caught instanceof Error ? caught.message : "任务加载失败。");
+    }
+  }
+
+  async function completeTask(task: TaskTemplate) {
+    if (completionSubmitting || completedTaskIds.has(task.task_id)) return;
+    setCompletionSubmitting(task.task_id);
+    setCompletionError("");
+    try {
+      await recordLearningEvent({
+        course_id: COURSE_ID,
+        user_id: USER_ID,
+        event_id: newId(),
+        event_type: "task_completed",
+        object_id: task.task_id,
+        occurred_at: new Date().toISOString(),
+        payload: { task_type: task.task_type },
+      });
+      setCompletedTaskIds((current) => new Set(current).add(task.task_id));
+    } catch (caught) {
+      setCompletionError(
+        caught instanceof Error ? caught.message : "任务完成状态提交失败，请重试。",
+      );
+    } finally {
+      setCompletionSubmitting(null);
     }
   }
 
@@ -114,7 +147,13 @@ export function TaskWorkspace({
 
         <div className="task-detail">
           {selected ? (
-            <TaskDetail task={selected} />
+            <TaskDetail
+              task={selected}
+              completed={completedTaskIds.has(selected.task_id)}
+              submitting={completionSubmitting === selected.task_id}
+              completionError={completionError}
+              onComplete={() => void completeTask(selected)}
+            />
           ) : (
             <div className="empty-state">正在读取任务详情…</div>
           )}
@@ -124,7 +163,19 @@ export function TaskWorkspace({
   );
 }
 
-function TaskDetail({ task }: { task: TaskTemplate }) {
+function TaskDetail({
+  task,
+  completed,
+  submitting,
+  completionError,
+  onComplete,
+}: {
+  task: TaskTemplate;
+  completed: boolean;
+  submitting: boolean;
+  completionError: string;
+  onComplete: () => void;
+}) {
   const meta = TASK_TYPE_META[task.task_type];
   return (
     <>
@@ -145,6 +196,13 @@ function TaskDetail({ task }: { task: TaskTemplate }) {
         <DetailList title="关联资料" items={task.resource_ids} />
         <DetailList title="完成判据" items={task.completion_criteria} />
         <DetailList title="AI 反馈介入点" items={task.ai_feedback_points} />
+      </div>
+
+      <div className="task-completion">
+        <button type="button" onClick={onComplete} disabled={completed || submitting}>
+          {completed ? "已完成" : submitting ? "正在提交…" : "标记完成"}
+        </button>
+        {completionError && <p className="task-completion__error">{completionError}</p>}
       </div>
     </>
   );

@@ -1,0 +1,70 @@
+{
+  "$defs": {
+    "KnowledgeBaseChangeStatus": {
+      "enum": [
+        "pending"
+      ],
+      "title": "KnowledgeBaseChangeStatus",
+      "type": "string"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "change_id": {
+      "minLength": 1,
+      "title": "Change Id",
+      "type": "string"
+    },
+    "course_id": {
+      "minLength": 1,
+      "title": "Course Id",
+      "type": "string"
+    },
+    "created_at": {
+      "format": "date-time",
+      "title": "Created At",
+      "type": "string"
+    },
+    "feedback_id": {
+      "minLength": 1,
+      "title": "Feedback Id",
+      "type": "string"
+    },
+    "question": {
+      "minLength": 1,
+      "title": "Question",
+      "type": "string"
+    },
+    "reason": {
+      "minLength": 1,
+      "title": "Reason",
+      "type": "string"
+    },
+    "request_id": {
+      "minLength": 1,
+      "title": "Request Id",
+      "type": "string"
+    },
+    "status": {
+      "$ref": "#/$defs/KnowledgeBaseChangeStatus"
+    },
+    "suggested_action": {
+      "minLength": 1,
+      "title": "Suggested Action",
+      "type": "string"
+    }
+  },
+  "required": [
+    "change_id",
+    "feedback_id",
+    "course_id",
+    "request_id",
+    "question",
+    "reason",
+    "suggested_action",
+    "status",
+    "created_at"
+  ],
+  "title": "KnowledgeBaseChangeTask",
+  "type": "object"
+}

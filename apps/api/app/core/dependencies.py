@@ -6,6 +6,8 @@ from app.adapters.mock import (
     MOCK_CHUNKS,
     InMemoryChunkStore,
     InMemoryEventSink,
+    InMemoryFeedbackStore,
+    InMemoryKnowledgeBaseChangeStore,
     InMemoryQualityReviewStore,
     InMemoryTaskRepository,
     MockResourceImporter,
@@ -18,6 +20,8 @@ from app.core.config import get_settings
 from app.services.ports import (
     ChunkStore,
     EventSink,
+    FeedbackStore,
+    KnowledgeBaseChangeStore,
     QualityReviewStore,
     ResourceImporter,
     TaskRepository,
@@ -122,6 +126,16 @@ def get_task_repository() -> TaskRepository:
 @lru_cache
 def get_event_sink() -> EventSink:
     return InMemoryEventSink()
+
+
+@lru_cache
+def get_feedback_store() -> FeedbackStore:
+    return InMemoryFeedbackStore()
+
+
+@lru_cache
+def get_knowledge_base_change_store() -> KnowledgeBaseChangeStore:
+    return InMemoryKnowledgeBaseChangeStore()
 
 
 @lru_cache
