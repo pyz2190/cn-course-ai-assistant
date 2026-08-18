@@ -1,21 +1,39 @@
 import { useEffect, useState } from "react";
 
-import { getTask, listTasks } from "../api/client";
+import { getTask, listTasks, recordEvent } from "../api/client";
 import type { TaskTemplate } from "../api/types";
-
-const taskTypeLabels: Record<string, string> = {
-  foundation: "基础学习",
-  protocol_analysis: "协议分析与仿真",
-  case_study: "案例分析",
-  innovation_challenge: "创新挑战",
-  project_practice: "项目实践",
-  troubleshooting: "排错",
-};
+import { taskTypeLabel, TASK_TYPE_META } from "./taskMeta";
 
 type Props = {
   loadTasks?: () => Promise<TaskTemplate[]>;
   loadTask?: (taskId: string) => Promise<TaskTemplate>;
 };
+
+const COURSE_ID = "computer-networks";
+const USER_ID = "student-demo";
+
+function newId(): string {
+  if (typeof crypto !== "undefined" && "randomUUID" in crypto) {
+    return crypto.randomUUID();
+  }
+  return `evt-${Date.now()}-${Math.random().toString(36).slice(2)}`;
+}
+
+async function recordTaskOpened(task: TaskTemplate): Promise<void> {
+  try {
+    await recordEvent({
+      course_id: COURSE_ID,
+      user_id: USER_ID,
+      event_id: newId(),
+      event_type: "task_opened",
+      object_id: task.task_id,
+      occurred_at: new Date().toISOString(),
+      payload: { task_type: task.task_type },
+    });
+  } catch {
+    // 事件记录失败静默忽略。
+  }
+}
 
 export function TaskWorkspace({
   loadTasks = listTasks,
@@ -24,6 +42,7 @@ export function TaskWorkspace({
   const [tasks, setTasks] = useState<TaskTemplate[]>([]);
   const [selected, setSelected] = useState<TaskTemplate | null>(null);
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     let active = true;
@@ -40,6 +59,9 @@ export function TaskWorkspace({
         if (active) {
           setError(caught instanceof Error ? caught.message : "任务加载失败。");
         }
+      })
+      .finally(() => {
+        if (active) setLoading(false);
       });
     return () => {
       active = false;
@@ -49,7 +71,9 @@ export function TaskWorkspace({
   async function selectTask(taskId: string) {
     setError("");
     try {
-      setSelected(await loadTask(taskId));
+      const detail = await loadTask(taskId);
+      setSelected(detail);
+      void recordTaskOpened(detail);
     } catch (caught) {
       setError(caught instanceof Error ? caught.message : "任务加载失败。");
     }
@@ -59,10 +83,10 @@ export function TaskWorkspace({
     <section className="panel tasks-panel" aria-labelledby="tasks-title">
       <div className="panel__heading">
         <div>
-          <span className="eyebrow">任务引擎骨架</span>
+          <span className="eyebrow">任务引擎</span>
           <h2 id="tasks-title">六类教学任务</h2>
         </div>
-        <span className="badge badge--warm">{tasks.length || "…"}</span>
+        <span className="badge badge--warm">{loading ? "…" : tasks.length}</span>
       </div>
 
       {error && <p className="error-message">{error}</p>}
@@ -73,12 +97,16 @@ export function TaskWorkspace({
             <button
               key={task.task_id}
               type="button"
-              className={`task-card ${
-                selected?.task_id === task.task_id ? "task-card--selected" : ""
+              className={`task-card${
+                selected?.task_id === task.task_id ? " task-card--selected" : ""
               }`}
               onClick={() => void selectTask(task.task_id)}
             >
-              <span>{taskTypeLabels[task.task_type] ?? task.task_type}</span>
+              <span
+                className={`task-type-badge task-type-badge--${TASK_TYPE_META[task.task_type]?.tone ?? "green"}`}
+              >
+                {taskTypeLabel(task.task_type)}
+              </span>
               <strong>{task.title}</strong>
             </button>
           ))}
@@ -86,23 +114,56 @@ export function TaskWorkspace({
 
         <div className="task-detail">
           {selected ? (
-            <>
-              <span className="task-detail__type">
-                {taskTypeLabels[selected.task_type] ?? selected.task_type}
-              </span>
-              <h3>{selected.title}</h3>
-              <p>{selected.description}</p>
-              <DetailList title="关联知识点" items={selected.knowledge_point_ids} />
-              <DetailList title="关联资料" items={selected.resource_ids} />
-              <DetailList title="完成判据" items={selected.completion_criteria} />
-              <DetailList title="AI 反馈介入点" items={selected.ai_feedback_points} />
-            </>
+            <TaskDetail task={selected} />
           ) : (
             <div className="empty-state">正在读取任务详情…</div>
           )}
         </div>
       </div>
     </section>
+  );
+}
+
+function TaskDetail({ task }: { task: TaskTemplate }) {
+  const meta = TASK_TYPE_META[task.task_type];
+  return (
+    <>
+      <div className="task-detail__head">
+        <span className={`task-type-badge task-type-badge--${meta?.tone ?? "green"}`}>
+          {taskTypeLabel(task.task_type)}
+        </span>
+        <h3>{task.title}</h3>
+        <p className="task-detail__goal">{meta?.goal}</p>
+      </div>
+
+      <p className="task-detail__desc">{task.description}</p>
+
+      <FlowSteps steps={meta?.flow ?? []} />
+
+      <div className="task-detail__grid">
+        <DetailList title="关联知识点" items={task.knowledge_point_ids} />
+        <DetailList title="关联资料" items={task.resource_ids} />
+        <DetailList title="完成判据" items={task.completion_criteria} />
+        <DetailList title="AI 反馈介入点" items={task.ai_feedback_points} />
+      </div>
+    </>
+  );
+}
+
+function FlowSteps({ steps }: { steps: string[] }) {
+  if (steps.length === 0) return null;
+  return (
+    <div className="flow-steps" aria-label="任务流程">
+      <h4>任务流程</h4>
+      <ol>
+        {steps.map((step, index) => (
+          <li key={step}>
+            <span className="flow-steps__index">{index + 1}</span>
+            <span>{step}</span>
+          </li>
+        ))}
+      </ol>
+    </div>
   );
 }
 
