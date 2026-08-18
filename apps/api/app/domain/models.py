@@ -42,7 +42,9 @@ class ChunkMetadata(ContractModel):
     page_end: int | None = Field(default=None, ge=1)
     language: Language
     content_type: ContentType
+    extracted_content_type: ContentType | None = None
     source_url: str | None = None
+    source_path: str | None = None
     version: str = Field(min_length=1)
     access_level: AccessLevel
     parse_status: ParseStatus
@@ -102,6 +104,15 @@ class ResourceImportResponse(ContractModel):
     resource_id: str = Field(min_length=1)
     sync_status: SyncStatus
     metadata: ChunkMetadata | None = None
+    error: str | None = None
+
+
+class ResourceUploadResponse(ContractModel):
+    resource_id: str = Field(min_length=1)
+    filename: str = Field(min_length=1)
+    chunk_count: int = Field(ge=0)
+    parse_status: ParseStatus
+    chunks: list[ChunkMetadata] = Field(default_factory=list)
     error: str | None = None
 
 
@@ -205,6 +216,26 @@ class EvaluationAnnotation(ContractModel):
             if self.reviewed_at is None:
                 raise ValueError("reviewed_at is required for approved or rejected annotations")
         return self
+
+
+class QualityReview(ContractModel):
+    review_id: str = Field(min_length=1)
+    chunk_id: str = Field(min_length=1)
+    resource_id: str = Field(min_length=1)
+    reviewer: str = Field(min_length=1)
+    score: int = Field(ge=1, le=5)
+    issues: list[str] = Field(default_factory=list)
+    notes: str = ""
+    reviewed_at: datetime
+
+
+class QualityReviewRequest(ContractModel):
+    chunk_id: str = Field(min_length=1)
+    resource_id: str = Field(min_length=1)
+    reviewer: str = Field(min_length=1)
+    score: int = Field(ge=1, le=5)
+    issues: list[str] = Field(default_factory=list)
+    notes: str = ""
 
 
 class ApiError(ContractModel):

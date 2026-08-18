@@ -15,10 +15,161 @@ from app.domain.models import (
     ChunkMetadata,
     Citation,
     LearningEvent,
+    QualityReview,
     ResourceImportRequest,
     ResourceImportResponse,
     TaskTemplate,
 )
+
+MOCK_RESOURCES_EN: dict[str, list[dict]] = {
+    "Computer Networking: A Top-Down Approach": [
+        {
+            "chunk_id": "chunk-app-http-001-en",
+            "knowledge_point_ids": ["kp-application-http"],
+            "content": (
+                "HTTP uses TCP as its transport-layer protocol. "
+                "After the client establishes a connection, "
+                "messages are exchanged in a request-response pattern. "
+                "A request message consists of a request line, "
+                "header lines, and an entity body."
+            ),
+            "chapter": "Chapter 2 Application Layer",
+            "page_start": 68,
+            "page_end": 72,
+        },
+        {
+            "chunk_id": "chunk-app-dns-001-en",
+            "knowledge_point_ids": ["kp-application-dns"],
+            "content": (
+                "DNS is a distributed database with a hierarchical "
+                "namespace. Recursive and iterative queries are the "
+                "two main resolution methods. Local DNS servers "
+                "typically cache query results to reduce latency."
+            ),
+            "chapter": "Chapter 2 Application Layer",
+            "page_start": 93,
+            "page_end": 98,
+        },
+        {
+            "chunk_id": "chunk-transport-udp-001-en",
+            "knowledge_point_ids": ["kp-transport-udp"],
+            "content": (
+                "UDP is a connectionless transport-layer protocol "
+                "that provides multiplexing and error detection "
+                "but does not guarantee reliable delivery. "
+                "The UDP header is only 8 bytes, containing "
+                "source port, destination port, length, and checksum."
+            ),
+            "chapter": "Chapter 3 Transport Layer",
+            "page_start": 198,
+            "page_end": 204,
+        },
+        {
+            "chunk_id": "chunk-transport-tcp-001-en",
+            "knowledge_point_ids": ["kp-transport-tcp-handshake"],
+            "content": (
+                "TCP uses a three-way handshake to synchronize "
+                "the initial sequence numbers of both sides and "
+                "confirm that both client and server have their "
+                "send and receive capabilities available. "
+                "SYN, SYN-ACK, and ACK messages complete the "
+                "connection establishment."
+            ),
+            "chapter": "Chapter 3 Transport Layer",
+            "page_start": 214,
+            "page_end": 219,
+        },
+        {
+            "chunk_id": "chunk-transport-congestion-001-en",
+            "knowledge_point_ids": [
+                "kp-transport-congestion-control",
+            ],
+            "content": (
+                "TCP congestion control includes three phases: "
+                "slow start, congestion avoidance, and fast recovery. "
+                "The Reno algorithm adjusts the window size based on "
+                "packet loss signals, while BBR proactively probes "
+                "based on bandwidth and delay models."
+            ),
+            "chapter": "Chapter 3 Transport Layer",
+            "page_start": 248,
+            "page_end": 256,
+        },
+        {
+            "chunk_id": "chunk-network-ip-001-en",
+            "knowledge_point_ids": ["kp-network-addressing"],
+            "content": (
+                "IPv4 addresses are 32 bits, represented in "
+                "dotted-decimal notation. Subnet masks distinguish "
+                "the network prefix from the host number. "
+                "Routers make forwarding decisions using "
+                "longest prefix matching."
+            ),
+            "chapter": "Chapter 4 Network Layer",
+            "page_start": 298,
+            "page_end": 306,
+        },
+        {
+            "chunk_id": "chunk-network-routing-001-en",
+            "knowledge_point_ids": ["kp-network-routing"],
+            "content": (
+                "Routing algorithms fall into two categories: "
+                "distance-vector and link-state. RIP uses "
+                "distance-vector routing, OSPF uses link-state "
+                "routing. BGP is the inter-autonomous-system "
+                "routing protocol."
+            ),
+            "chapter": "Chapter 4 Network Layer",
+            "page_start": 338,
+            "page_end": 348,
+        },
+        {
+            "chunk_id": "chunk-link-ethernet-001-en",
+            "knowledge_point_ids": ["kp-link-ethernet"],
+            "content": (
+                "Ethernet is the most popular wired access technology, "
+                "using the CSMA/CD protocol to resolve collisions "
+                "on shared media. MAC addresses are 48 bits. "
+                "The frame structure includes preamble, destination "
+                "address, source address, type, data, and CRC."
+            ),
+            "chapter": "Chapter 5 Link Layer",
+            "page_start": 412,
+            "page_end": 422,
+        },
+    ],
+    "Computer Networks Lab Manual": [
+        {
+            "chunk_id": "chunk-lab-wireshark-001-en",
+            "knowledge_point_ids": [
+                "kp-transport-tcp-handshake",
+            ],
+            "content": (
+                "Capture TCP three-way handshake packets using "
+                "Wireshark: set the filter tcp.flags.syn==1, "
+                "observe the sequence and acknowledgment numbers "
+                "of SYN, SYN-ACK, and ACK messages."
+            ),
+            "chapter": "Lab 3 TCP Protocol Analysis",
+            "page_start": 28,
+            "page_end": 33,
+        },
+        {
+            "chunk_id": "chunk-lab-dns-001-en",
+            "knowledge_point_ids": ["kp-application-dns"],
+            "content": (
+                "Use the nslookup command for DNS queries and "
+                "observe the recursive resolution process. "
+                "Capture DNS packets with Wireshark and analyze "
+                "query type A and response records."
+            ),
+            "chapter": "Lab 2 DNS Protocol Analysis",
+            "page_start": 18,
+            "page_end": 24,
+        },
+    ],
+}
+
 
 MOCK_RESOURCES: dict[str, list[dict]] = {
     "计算机网络：自顶向下方法": [
@@ -157,7 +308,7 @@ MOCK_RESOURCES: dict[str, list[dict]] = {
     ],
 }
 
-MOCK_CHUNKS = [
+MOCK_CHUNKS_ZH = [
     ChunkMetadata(
         chunk_id=item["chunk_id"],
         resource_id=f"resource-{resource_idx:03d}",
@@ -178,6 +329,30 @@ MOCK_CHUNKS = [
     for resource_idx, (resource_title, chunks) in enumerate(MOCK_RESOURCES.items())
     for item in chunks
 ]
+
+MOCK_CHUNKS_EN = [
+    ChunkMetadata(
+        chunk_id=item["chunk_id"],
+        resource_id=f"resource-en-{resource_idx:03d}",
+        knowledge_point_ids=item["knowledge_point_ids"],
+        title=resource_title,
+        content=item["content"],
+        chapter=item["chapter"],
+        page_start=item["page_start"],
+        page_end=item["page_end"],
+        language=Language.EN,
+        content_type=ContentType.PDF,
+        source_url=None,
+        version="8e-en",
+        access_level=AccessLevel.COURSE,
+        parse_status=ParseStatus.PARSED,
+        updated_at=datetime(2026, 7, 28, tzinfo=UTC),
+    )
+    for resource_idx, (resource_title, chunks) in enumerate(MOCK_RESOURCES_EN.items())
+    for item in chunks
+]
+
+MOCK_CHUNKS = MOCK_CHUNKS_ZH + MOCK_CHUNKS_EN
 
 RESOURCE_INDEX: dict[str, int] = {
     title: idx for idx, title in enumerate(MOCK_RESOURCES.keys())
@@ -356,10 +531,10 @@ class MockResourceImporter:
 class MockRetriever:
     """B 模块：模拟检索适配器。
 
-    根据问题关键词匹配最相关的 Chunk，模拟真实检索行为。
+    根据问题关键词匹配最相关的 Chunk，支持中英双语检索。
     """
 
-    _KEYWORD_MAP: dict[str, str] = {
+    _KEYWORD_MAP_ZH: dict[str, str] = {
         "TCP": "chunk-transport-tcp-001",
         "握手": "chunk-transport-tcp-001",
         "拥塞": "chunk-transport-congestion-001",
@@ -373,22 +548,104 @@ class MockRetriever:
         "Wireshark": "chunk-lab-wireshark-001",
     }
 
+    _KEYWORD_MAP_EN: dict[str, str] = {
+        "handshake": "chunk-transport-tcp-001-en",
+        "three-way": "chunk-transport-tcp-001-en",
+        "congestion": "chunk-transport-congestion-001-en",
+        "UDP": "chunk-transport-udp-001-en",
+        "DNS": "chunk-app-dns-001-en",
+        "HTTP": "chunk-app-http-001-en",
+        "IP": "chunk-network-ip-001-en",
+        "address": "chunk-network-ip-001-en",
+        "routing": "chunk-network-routing-001-en",
+        "ethernet": "chunk-link-ethernet-001-en",
+        "Wireshark": "chunk-lab-wireshark-001-en",
+    }
+
+    @staticmethod
+    def _is_english_question(question: str) -> bool:
+        """简单判断提问语言：英文字符占比超过 50% 则为英文。"""
+        alpha_chars = [c for c in question if c.isalpha()]
+        if not alpha_chars:
+            return False
+        en_chars = [c for c in alpha_chars if ord(c) < 128]
+        return len(en_chars) / len(alpha_chars) > 0.5
+
     def retrieve(self, question: str, course_id: str) -> list[ChunkMetadata]:
         del course_id
-        for keyword, chunk_id in self._KEYWORD_MAP.items():
+        is_en = self._is_english_question(question)
+        keyword_map = self._KEYWORD_MAP_EN if is_en else self._KEYWORD_MAP_ZH
+        chunk_pool = MOCK_CHUNKS_EN if is_en else MOCK_CHUNKS_ZH
+
+        for keyword, chunk_id in keyword_map.items():
             if keyword.lower() in question.lower():
                 match = next(
-                    (c for c in MOCK_CHUNKS if c.chunk_id == chunk_id), None
+                    (c for c in chunk_pool if c.chunk_id == chunk_id), None
                 )
                 if match:
                     return [match]
-        return MOCK_CHUNKS[:1]
+        return chunk_pool[:1]
 
 
 class MockAnswerGenerator:
+    _ANSWERS_ZH = {
+        "kp-transport-tcp-handshake": (
+            "TCP 采用三次握手，是为了同步双方的初始序列号，并分别确认双向通信能力。"
+        ),
+        "kp-transport-congestion-control": (
+            "TCP 拥塞控制包含慢启动、拥塞避免和快速恢复三个阶段。"
+            "Reno 以丢包为信号，BBR 以带宽时延模型为信号。"
+        ),
+        "kp-application-dns": (
+            "DNS 是分布式层次数据库，支持递归和迭代两种查询方式。"
+        ),
+        "kp-application-http": (
+            "HTTP 使用 TCP 传输，采用请求-响应模式交换报文。"
+        ),
+    }
+
+    _ANSWERS_EN = {
+        "kp-transport-tcp-handshake": (
+            "TCP uses a three-way handshake to synchronize "
+            "initial sequence numbers and confirm bidirectional "
+            "communication capability."
+        ),
+        "kp-transport-congestion-control": (
+            "TCP congestion control includes slow start, "
+            "congestion avoidance, and fast recovery phases. "
+            "Reno uses packet loss signals, while BBR uses "
+            "bandwidth-delay models."
+        ),
+        "kp-application-dns": (
+            "DNS is a distributed hierarchical database that "
+            "supports both recursive and iterative queries."
+        ),
+        "kp-application-http": (
+            "HTTP uses TCP for transport and exchanges messages "
+            "in a request-response pattern."
+        ),
+    }
+
     def generate(self, question: str, chunks: list[ChunkMetadata]) -> AskResponse:
         del question
         chunk = chunks[0]
+        is_en = chunk.language == Language.EN
+        answers = self._ANSWERS_EN if is_en else self._ANSWERS_ZH
+
+        # 根据知识点选择回答
+        answer = None
+        for kp_id in chunk.knowledge_point_ids:
+            if kp_id in answers:
+                answer = answers[kp_id]
+                break
+
+        if answer is None:
+            answer = (
+                "This answer is generated from the offline mock retrieval pipeline."
+                if is_en
+                else "当前回答来自离线 Mock 检索链路。"
+            )
+
         citation = Citation(
             citation_id=f"citation-{chunk.chunk_id}",
             chunk_id=chunk.chunk_id,
@@ -401,10 +658,7 @@ class MockAnswerGenerator:
             source_url=chunk.source_url,
         )
         return AskResponse(
-            answer=(
-                "TCP 采用三次握手，是为了同步双方的初始序列号，并分别确认双向通信能力。"
-                "当前回答来自离线 Mock 检索链路。"
-            ),
+            answer=answer + (" [Mock]" if not is_en else " [Mock]"),
             citations=[citation],
             confidence=0.92,
             request_id=f"req-{uuid4().hex}",
@@ -426,3 +680,43 @@ class InMemoryEventSink:
     def record(self, event: LearningEvent) -> LearningEvent:
         self.events.append(event)
         return event
+
+
+class InMemoryChunkStore:
+    """内存 Chunk 存储，用于测试和离线演示。"""
+
+    def __init__(self) -> None:
+        self._chunks: list[ChunkMetadata] = []
+
+    def save(self, chunks: list[ChunkMetadata]) -> int:
+        self._chunks.extend(chunks)
+        return len(chunks)
+
+    def list_by_resource(self, resource_id: str) -> list[ChunkMetadata]:
+        return [c for c in self._chunks if c.resource_id == resource_id]
+
+    def list_all(self) -> list[ChunkMetadata]:
+        return self._chunks.copy()
+
+    def count(self) -> int:
+        return len(self._chunks)
+
+
+class InMemoryQualityReviewStore:
+    """内存质量审查存储。"""
+
+    def __init__(self) -> None:
+        self._reviews: list[QualityReview] = []
+
+    def save(self, review: QualityReview) -> QualityReview:
+        self._reviews.append(review)
+        return review
+
+    def list_all(self) -> list[QualityReview]:
+        return self._reviews.copy()
+
+    def list_by_chunk(self, chunk_id: str) -> list[QualityReview]:
+        return [r for r in self._reviews if r.chunk_id == chunk_id]
+
+    def get(self, review_id: str) -> QualityReview | None:
+        return next((r for r in self._reviews if r.review_id == review_id), None)

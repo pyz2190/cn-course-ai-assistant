@@ -17,7 +17,7 @@ ROOT = Path(__file__).resolve().parents[1]
 EXPECTED_CATEGORIES = set(QuestionCategory)
 EXPECTED_DIMENSIONS = set(ScoringDimension)
 PLACEHOLDER_PATTERN = re.compile(
-    r"^(?:res|resource|chunk)[-_]?(?:0*1|id|placeholder|example|test)$"
+    r"^(?:res|resource|chunk)[-_]?(?:1|01|id|placeholder|example|test)$"
 )
 
 
