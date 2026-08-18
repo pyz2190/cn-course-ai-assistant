@@ -6,3 +6,4 @@ export type AskResponse = components["schemas"]["AskResponse"];
 export type HealthResponse = components["schemas"]["HealthResponse"];
 export type LearningEvent = components["schemas"]["LearningEvent"];
 export type TaskTemplate = components["schemas"]["TaskTemplate"];
+export type TaskType = components["schemas"]["TaskType"];

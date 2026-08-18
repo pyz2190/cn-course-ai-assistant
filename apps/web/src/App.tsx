@@ -16,18 +16,18 @@ export default function App() {
           </h1>
           <p>
             面向课程资料、可追溯问答与任务驱动学习的独立原型。
-            当前骨架完全离线，不连接 Canvas 或真实模型服务。
+            默认离线运行：Qdrant 向量检索 + 确定性离线生成，不连接 Canvas 或外部模型。
           </p>
         </div>
         <div className="hero__status">
           <SystemStatus />
-          <span className="hero__version">Skeleton v0.1</span>
+          <span className="hero__version">Demo v0.2</span>
         </div>
       </header>
 
       <div className="notice">
-        <strong>开发基线</strong>
-        <span>契约先行 · Mock 可替换 · 五人并行开发</span>
+        <strong>离线 RAG</strong>
+        <span>Qdrant 检索 · 按句引用 · 六类任务 · 完全独立</span>
       </div>
 
       <div className="workspace-grid">
