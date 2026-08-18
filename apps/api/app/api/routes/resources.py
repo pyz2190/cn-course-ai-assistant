@@ -70,12 +70,22 @@ def upload_and_parse(
         ContentType.PDF: [".pdf"],
         ContentType.PPT: [".pptx", ".ppt"],
         ContentType.SUBTITLE: [".srt", ".vtt"],
+        ContentType.RFC: [".txt"],
+        ContentType.TEXT: [".txt", ".md"],
+        ContentType.OTHER: [],
     }
-    if suffix not in expected_suffixes.get(ct, []):
+    allowed = expected_suffixes.get(ct, [])
+    if not allowed:
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail=f"content_type {content_type} 暂不支持文件上传，"
+            f"仅支持: pdf/ppt/subtitle/rfc/text",
+        )
+    if suffix not in allowed:
         raise HTTPException(
             status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
             detail=f"文件扩展名 {suffix} 与 content_type {content_type} 不匹配，"
-            f"期望: {expected_suffixes[ct]}",
+            f"期望: {allowed}",
         )
 
     # 解析知识点 ID

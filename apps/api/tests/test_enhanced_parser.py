@@ -123,6 +123,50 @@ class TestPPTTableExtraction:
         assert "| --- | --- |" in table_chunks[0].content
 
 
+class TestPDFFormulaExtraction:
+    """PDF 公式提取测试。"""
+
+    def test_parse_pdf_with_formula(self, tmp_path):
+        """验证包含数学符号的 PDF 能检测出公式 chunk。"""
+        import pymupdf
+
+        pdf_path = tmp_path / "formula_test.pdf"
+        doc = pymupdf.open()
+        page = doc.new_page()
+        page.insert_text((72, 72), "Chapter 1 Overview", fontname="china-s")
+        page.insert_text((72, 100), "R = 10 + 20 * 5", fontname="china-s")
+        page.insert_text((72, 120), "Normal paragraph text.", fontname="china-s")
+        doc.save(str(pdf_path))
+        doc.close()
+
+        parser = DocumentParser()
+        chunks = parser.parse(pdf_path, ContentType.PDF)
+        formula_chunks = [
+            c for c in chunks if c.extracted_content_type == ContentType.FORMULA
+        ]
+        assert len(formula_chunks) > 0
+
+    def test_formula_chunk_has_title(self, tmp_path):
+        """公式 chunk 应有标题标注页码。"""
+        import pymupdf
+
+        pdf_path = tmp_path / "formula_title.pdf"
+        doc = pymupdf.open()
+        page = doc.new_page()
+        page.insert_text((72, 72), "α + β = γ", fontname="china-s")
+        doc.save(str(pdf_path))
+        doc.close()
+
+        parser = DocumentParser()
+        chunks = parser.parse(pdf_path, ContentType.PDF)
+        formula_chunks = [
+            c for c in chunks if c.extracted_content_type == ContentType.FORMULA
+        ]
+        assert len(formula_chunks) > 0
+        assert formula_chunks[0].title is not None
+        assert "公式" in formula_chunks[0].title
+
+
 class TestParsedChunkFields:
     """ParsedChunk 字段测试。"""
 
