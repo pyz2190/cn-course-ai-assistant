@@ -41,7 +41,7 @@ class Settings(BaseSettings):
     upload_temp_dir: Path = Path("data/uploads")
     top_k: int = Field(default=3, ge=1, le=10)
     fetch_k: int = Field(default=8, ge=1, le=50)
-    min_retrieval_score: float = Field(default=0.15, ge=0, le=1)
+    min_retrieval_score: float = Field(default=0.10, ge=0, le=1)
     allow_degraded: bool = True
     connect_timeout_seconds: float = Field(default=3, gt=0, le=60)
     read_timeout_seconds: float = Field(default=30, gt=0, le=300)

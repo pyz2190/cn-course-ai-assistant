@@ -31,6 +31,8 @@ _quality_review_store = InMemoryQualityReviewStore()
 
 @lru_cache
 def get_resource_importer() -> ResourceImporter:
+    # /resources/import 仅接收元数据，使用 Mock 适配器。
+    # 真实文件解析请使用 /resources/upload 端点。
     return MockResourceImporter()
 
 

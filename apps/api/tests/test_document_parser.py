@@ -106,9 +106,10 @@ class TestDocumentParser:
         with pytest.raises(FileNotFoundError):
             parser.parse(Path("nonexistent.pdf"), ContentType.PDF)
 
-    def test_parse_unsupported_type_raises_error(self, parser, sample_pdf):
-        with pytest.raises(ValueError):
-            parser.parse(sample_pdf, ContentType.TEXT)
+    def test_parse_text_type_now_supported(self, parser, sample_pdf):
+        """TEXT 类型现在已支持，应能正常解析。"""
+        chunks = parser.parse(sample_pdf, ContentType.TEXT)
+        assert isinstance(chunks, list)
 
 
 class TestRealResourceImporter:
