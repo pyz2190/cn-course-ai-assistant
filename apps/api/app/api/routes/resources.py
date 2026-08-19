@@ -145,6 +145,15 @@ def upload_and_parse(
     if chunk_store and chunks:
         chunk_store.save(chunks)
 
+    # 同步索引到 RAG
+    if chunks:
+        try:
+            from app.core.dependencies import get_rag_service
+            rag = get_rag_service()
+            rag.index_course(course_id, chunks)
+        except Exception:
+            pass  # RAG 索引失败不影响上传结果
+
     resource_id = chunks[0].resource_id if chunks else "no-chunks"
 
     return ResourceUploadResponse(
