@@ -68,4 +68,39 @@ describe("TaskWorkspace", () => {
     ).toBeInTheDocument();
     expect(screen.getByText("resource-dns-lab-001")).toBeInTheDocument();
   });
+
+  it("switches through all six task types using the same detail layout", async () => {
+    const user = userEvent.setup();
+    const taskTypes: TaskTemplate["task_type"][] = [
+      "foundation",
+      "protocol_analysis",
+      "case_study",
+      "innovation_challenge",
+      "project_practice",
+      "troubleshooting",
+    ];
+    const tasks = taskTypes.map((taskType, index) => ({
+      ...task,
+      task_id: `task-${taskType}`,
+      title: `任务详情 ${index + 1}`,
+      task_type: taskType,
+    }));
+    const loadTask = vi.fn((taskId: string) =>
+      Promise.resolve(tasks.find((item) => item.task_id === taskId) ?? tasks[0]),
+    );
+
+    render(<TaskWorkspace loadTasks={vi.fn().mockResolvedValue(tasks)} loadTask={loadTask} />);
+
+    await screen.findByRole("heading", { name: tasks[0].title });
+    expect(document.querySelectorAll(".task-card-content")).toHaveLength(6);
+    expect(document.querySelectorAll(".task-card-description")).toHaveLength(6);
+    expect(document.querySelectorAll(".task-card-footer")).toHaveLength(6);
+    expect(screen.getAllByText(/\d+ 个学习步骤/)).toHaveLength(6);
+    expect(document.querySelectorAll(".task-card-arrow")).toHaveLength(6);
+    for (const nextTask of tasks) {
+      await user.click(screen.getByRole("button", { name: new RegExp(nextTask.title) }));
+      expect(await screen.findByRole("heading", { name: nextTask.title })).toBeInTheDocument();
+    }
+    expect(loadTask).toHaveBeenCalledTimes(tasks.length + 1);
+  });
 });

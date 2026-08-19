@@ -121,9 +121,14 @@ export function ChatPanel({ ask = askQuestion }: Props) {
       <div className="panel__heading">
         <div>
           <span className="eyebrow">RAG 课程问答</span>
-          <h2 id="chat-title">带引用的课程问答</h2>
+          <h2 id="chat-title">现在就问问课程内容</h2>
         </div>
-        <span className="badge">离线 RAG</span>
+      </div>
+
+      <div className="chat-capabilities" aria-label="问答能力">
+        <span>Qdrant 检索</span>
+        <span>按句引用</span>
+        <span>课程资料优先</span>
       </div>
 
       <div className="suggestions" aria-label="建议问题">
@@ -155,7 +160,11 @@ export function ChatPanel({ ask = askQuestion }: Props) {
             />
           ) : (
             <div key={message.id} className="chat-message chat-message--assistant">
-              <div className="bubble bubble--error">{message.text}</div>
+              <div
+                className={`bubble${message.id === "welcome" ? " bubble--welcome" : " bubble--error"}`}
+              >
+                {message.text}
+              </div>
             </div>
           ),
         )}
