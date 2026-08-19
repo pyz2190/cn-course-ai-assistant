@@ -236,7 +236,7 @@ export interface components {
         Body_upload_and_parse_api_v1_resources_upload_post: {
             /**
              * Content Type
-             * @description 文件类型：pdf/ppt/subtitle
+             * @description 文件类型：pdf/ppt/subtitle/rfc/text/other
              */
             content_type: string;
             /**

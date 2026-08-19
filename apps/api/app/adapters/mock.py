@@ -96,6 +96,24 @@ MOCK_RESOURCES_EN: dict[str, list[dict]] = {
             "page_end": 256,
         },
         {
+            "chunk_id": "chunk-transport-compare-001-en",
+            "knowledge_point_ids": ["kp-transport-udp", "kp-transport-tcp-handshake"],
+            "content": (
+                "UDP and TCP are both transport-layer protocols "
+                "but differ significantly. UDP is connectionless, "
+                "lightweight, and does not guarantee delivery, "
+                "making it suitable for real-time applications "
+                "like video streaming and DNS queries. TCP is "
+                "connection-oriented, reliable, and uses flow "
+                "and congestion control, making it suitable for "
+                "applications requiring data integrity such as "
+                "web browsing and file transfer."
+            ),
+            "chapter": "Chapter 3 Transport Layer",
+            "page_start": 205,
+            "page_end": 212,
+        },
+        {
             "chunk_id": "chunk-network-ip-001-en",
             "knowledge_point_ids": ["kp-network-addressing"],
             "content": (
@@ -237,6 +255,21 @@ MOCK_RESOURCES: dict[str, list[dict]] = {
             "chapter": "第 3 章 运输层",
             "page_start": 248,
             "page_end": 256,
+        },
+        {
+            "chunk_id": "chunk-transport-compare-001",
+            "knowledge_point_ids": ["kp-transport-udp", "kp-transport-tcp-handshake"],
+            "content": (
+                "UDP 和 TCP 都是运输层协议，但有显著区别。"
+                "UDP 是无连接的，轻量级，不保证可靠交付，"
+                "适合实时应用如视频流和 DNS 查询。"
+                "TCP 是面向连接的，提供可靠传输、流量控制"
+                "和拥塞控制，适合需要数据完整性的应用"
+                "如网页浏览和文件传输。"
+            ),
+            "chapter": "第 3 章 运输层",
+            "page_start": 205,
+            "page_end": 212,
         },
         {
             "chunk_id": "chunk-network-ip-001",
@@ -535,6 +568,9 @@ class MockRetriever:
     """
 
     _KEYWORD_MAP_ZH: dict[str, str] = {
+        "区别": "chunk-transport-compare-001",
+        "不同": "chunk-transport-compare-001",
+        "对比": "chunk-transport-compare-001",
         "TCP": "chunk-transport-tcp-001",
         "握手": "chunk-transport-tcp-001",
         "拥塞": "chunk-transport-congestion-001",
@@ -549,6 +585,9 @@ class MockRetriever:
     }
 
     _KEYWORD_MAP_EN: dict[str, str] = {
+        "difference": "chunk-transport-compare-001-en",
+        "compare": "chunk-transport-compare-001-en",
+        "versus": "chunk-transport-compare-001-en",
         "handshake": "chunk-transport-tcp-001-en",
         "three-way": "chunk-transport-tcp-001-en",
         "congestion": "chunk-transport-congestion-001-en",
@@ -592,12 +631,22 @@ class MockAnswerGenerator:
         "kp-transport-tcp-handshake": (
             "TCP 采用三次握手，是为了同步双方的初始序列号，并分别确认双向通信能力。"
         ),
+        "kp-transport-udp": (
+            "UDP 和 TCP 都是运输层协议。UDP 无连接、不保证可靠交付，"
+            "适合实时应用；TCP 面向连接、提供可靠传输和拥塞控制，"
+            "适合需要数据完整性的应用。"
+        ),
         "kp-transport-congestion-control": (
             "TCP 拥塞控制包含慢启动、拥塞避免和快速恢复三个阶段。"
             "Reno 以丢包为信号，BBR 以带宽时延模型为信号。"
         ),
         "kp-application-dns": (
             "DNS 是分布式层次数据库，支持递归和迭代两种查询方式。"
+        ),
+        "kp-network-addressing": (
+            "IPv4 地址 32 位，采用点分十进制表示。"
+            "子网掩码区分网络前缀和主机号，"
+            "路由器通过最长前缀匹配进行转发决策。"
         ),
         "kp-application-http": (
             "HTTP 使用 TCP 传输，采用请求-响应模式交换报文。"
@@ -610,11 +659,25 @@ class MockAnswerGenerator:
             "initial sequence numbers and confirm bidirectional "
             "communication capability."
         ),
+        "kp-transport-udp": (
+            "UDP and TCP are both transport-layer protocols. "
+            "UDP is connectionless and does not guarantee "
+            "reliable delivery, suitable for real-time apps. "
+            "TCP is connection-oriented with reliable delivery "
+            "and congestion control, suitable for applications "
+            "requiring data integrity."
+        ),
         "kp-transport-congestion-control": (
             "TCP congestion control includes slow start, "
             "congestion avoidance, and fast recovery phases. "
             "Reno uses packet loss signals, while BBR uses "
             "bandwidth-delay models."
+        ),
+        "kp-network-addressing": (
+            "IPv4 addresses are 32 bits in dotted-decimal "
+            "notation. Subnet masks distinguish the network "
+            "prefix from the host number. Routers use longest "
+            "prefix matching for forwarding decisions."
         ),
         "kp-application-dns": (
             "DNS is a distributed hierarchical database that "

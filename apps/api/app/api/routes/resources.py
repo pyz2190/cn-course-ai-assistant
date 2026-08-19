@@ -29,7 +29,7 @@ def upload_and_parse(
     title: str = Form(..., description="资料标题"),
     version: str = Form("v1", description="版本号"),
     language: str = Form("zh", description="语言：zh/en/bilingual"),
-    content_type: str = Form(..., description="文件类型：pdf/ppt/subtitle"),
+    content_type: str = Form(..., description="文件类型：pdf/ppt/subtitle/rfc/text/other"),
     knowledge_point_ids: str = Form("", description="知识点 ID，逗号分隔"),
     chunk_store: Annotated[ChunkStore, Depends(get_chunk_store)] = None,
 ) -> ResourceUploadResponse:
@@ -70,12 +70,16 @@ def upload_and_parse(
         ContentType.PDF: [".pdf"],
         ContentType.PPT: [".pptx", ".ppt"],
         ContentType.SUBTITLE: [".srt", ".vtt"],
+        ContentType.RFC: [".txt", ".md"],
+        ContentType.TEXT: [".txt", ".md"],
+        ContentType.OTHER: [".txt", ".md"],
     }
-    if suffix not in expected_suffixes.get(ct, []):
+    allowed = expected_suffixes.get(ct, [])
+    if suffix not in allowed:
         raise HTTPException(
             status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
             detail=f"文件扩展名 {suffix} 与 content_type {content_type} 不匹配，"
-            f"期望: {expected_suffixes[ct]}",
+            f"期望: {allowed}",
         )
 
     # 解析知识点 ID
@@ -140,6 +144,15 @@ def upload_and_parse(
     # 入库
     if chunk_store and chunks:
         chunk_store.save(chunks)
+
+    # 同步索引到 RAG
+    if chunks:
+        try:
+            from app.core.dependencies import get_rag_service
+            rag = get_rag_service()
+            rag.index_course(course_id, chunks)
+        except Exception:
+            pass  # RAG 索引失败不影响上传结果
 
     resource_id = chunks[0].resource_id if chunks else "no-chunks"
 
