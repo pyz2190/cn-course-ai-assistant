@@ -107,7 +107,20 @@ export function TaskWorkspace({
               >
                 {taskTypeLabel(task.task_type)}
               </span>
-              <strong>{task.title}</strong>
+              <div className="task-card-content">
+                <strong className="task-card-title">{task.title}</strong>
+                <p className="task-card-description">
+                  {task.description || TASK_TYPE_META[task.task_type]?.goal}
+                </p>
+              </div>
+              <div className="task-card-footer">
+                <span className="task-card-steps">
+                  {(TASK_TYPE_META[task.task_type]?.flow ?? []).length} 个学习步骤
+                </span>
+                <span className="task-card-arrow" aria-hidden="true">
+                  →
+                </span>
+              </div>
             </button>
           ))}
         </div>
@@ -145,6 +158,10 @@ function TaskDetail({ task }: { task: TaskTemplate }) {
         <DetailList title="关联资料" items={task.resource_ids} />
         <DetailList title="完成判据" items={task.completion_criteria} />
         <DetailList title="AI 反馈介入点" items={task.ai_feedback_points} />
+      </div>
+
+      <div className="task-detail__footer">
+        <span>准备好开始这项学习任务了吗？</span>
       </div>
     </>
   );
