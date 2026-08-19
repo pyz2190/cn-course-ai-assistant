@@ -158,7 +158,7 @@
       "Body_upload_and_parse_api_v1_resources_upload_post": {
         "properties": {
           "content_type": {
-            "description": "文件类型：pdf/ppt/subtitle",
+            "description": "文件类型：pdf/ppt/subtitle/rfc/text/other",
             "title": "Content Type",
             "type": "string"
           },
