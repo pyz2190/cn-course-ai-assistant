@@ -88,12 +88,12 @@ button { cursor: pointer; }
 .task-type-badge--slate { background: #e1e4e6; color: #3d4a52; }
 .task-detail { display: flex; height: 100%; min-height: 0; flex-direction: column; overflow: hidden; padding: 26px; border: 1px solid #31564a; border-radius: 18px; background: var(--deep-green); color: white; box-shadow: var(--shadow); }
 .task-detail__head { flex: 0 0 auto; }
-.task-detail__head h3 { display: -webkit-box; min-height: 2.4em; margin: 11px 0 6px; overflow: hidden; font-family: Georgia, "Noto Serif SC", serif; font-size: clamp(1.7rem, 3vw, 2.35rem); font-weight: 500; line-height: 1.2; -webkit-box-orient: vertical; -webkit-line-clamp: 2; }
-.task-detail__goal { min-height: 1.6em; margin: 0; overflow: hidden; color: #b7cbc0; font-size: .88rem; line-height: 1.6; }
-.task-detail__desc { min-height: 3.4em; margin: 20px 0 0; overflow: hidden; color: #d5e0d9; line-height: 1.7; }
-.flow-steps { flex: 0 0 116px; min-height: 116px; margin-top: 22px; overflow: hidden; padding: 16px 18px; border: 1px solid #31564a; border-radius: 12px; background: #1e4438; }
+.task-detail__head h3 { display: -webkit-box; min-height: 2.4em; margin: 6px 0 3px; overflow: hidden; font-family: Georgia, "Noto Serif SC", serif; font-size: clamp(1.7rem, 3vw, 2.35rem); font-weight: 500; line-height: 1.2; -webkit-box-orient: vertical; -webkit-line-clamp: 2; }
+.task-detail__goal { min-height: 1.4em; margin: 0; overflow: hidden; color: #b7cbc0; font-size: .88rem; line-height: 1.45; }
+.task-detail__desc { min-height: 3em; margin: 8px 0 0; overflow: hidden; color: #d5e0d9; line-height: 1.5; }
+.flow-steps { flex: 0 0 176px; min-height: 176px; max-height: 176px; margin-top: 10px; overflow: hidden; padding: 16px 18px; border: 1px solid #31564a; border-radius: 12px; background: #1e4438; }
 .flow-steps h4, .detail-list h4 { margin: 0 0 12px; color: #a9c6b6; font-size: .7rem; letter-spacing: .1em; text-transform: uppercase; }
-.flow-steps ol { display: flex; flex-wrap: wrap; align-content: flex-start; gap: 8px; height: 64px; overflow: hidden; margin: 0; padding: 0; list-style: none; }
+.flow-steps ol { display: flex; flex-wrap: wrap; align-content: flex-start; justify-content: flex-start; column-gap: 8px; row-gap: 12px; height: 88px; overflow: hidden; margin: 0; padding: 0; list-style: none; }
 .flow-steps li { display: inline-flex; gap: 7px; align-items: center; padding: 7px 10px; border-radius: 999px; background: #285044; color: #e1eae4; font-size: .78rem; }
 .flow-steps__index { display: inline-flex; align-items: center; justify-content: center; width: 18px; height: 18px; border-radius: 50%; background: var(--lime); color: #31461a; font-size: .68rem; font-weight: 900; }
 .task-detail__grid { display: grid; min-height: 92px; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px 28px; margin-top: 22px; overflow: hidden; }
@@ -128,7 +128,7 @@ button { cursor: pointer; }
   .task-list { height: auto; grid-template-rows: none; }
   .task-card { min-height: 126px; }
   .task-detail { height: auto; min-height: 0; overflow: visible; }
-  .flow-steps { flex-basis: auto; min-height: 0; }
+  .flow-steps { flex-basis: auto; min-height: 0; max-height: none; }
   .flow-steps ol { height: auto; overflow: visible; }
   .task-detail__grid { min-height: 0; overflow: visible; }
 }
