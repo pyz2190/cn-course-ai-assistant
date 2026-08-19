@@ -60,6 +60,8 @@ class DocumentParser:
             return self._parse_ppt(file_path)
         elif content_type == ContentType.SUBTITLE:
             return self._parse_subtitle(file_path)
+        elif content_type in (ContentType.TEXT, ContentType.RFC, ContentType.OTHER):
+            return self._parse_text(file_path)
         else:
             raise ValueError(f"不支持的文档类型: {content_type}")
 
@@ -350,6 +352,64 @@ class DocumentParser:
                         title=title if title else None,
                     )
                 )
+
+        return chunks
+
+    def _parse_text(self, file_path: Path) -> list[ParsedChunk]:
+        """解析纯文本/RFC/Markdown 文件。
+
+        按段落或章节标题切分为 Chunk。
+        """
+        import re
+
+        content = file_path.read_text(encoding="utf-8")
+        lines = content.split("\n")
+
+        chunks: list[ParsedChunk] = []
+        current_section = "正文"
+        section_lines: list[str] = []
+        page_num = 1
+
+        for line in lines:
+            stripped = line.strip()
+
+            # 检测章节标题（Markdown #、RFC Section X.X、空行分隔的段落）
+            is_header = bool(
+                re.match(r"^#{1,3}\s+", stripped)  # Markdown headers
+                or re.match(r"^(\d+\.?\s+|[A-Z]\.?\s+)", stripped)  # RFC numbered sections
+                or self._is_chapter_header(stripped)
+            )
+
+            if is_header and section_lines:
+                chunks.append(
+                    ParsedChunk(
+                        content="\n".join(section_lines),
+                        chapter=current_section,
+                        page_start=page_num,
+                        page_end=page_num,
+                    )
+                )
+                section_lines = []
+                page_num += 1
+
+            if is_header:
+                current_section = stripped
+
+            if stripped:
+                section_lines.append(stripped)
+            elif section_lines:
+                # 空行作为段落分隔
+                section_lines.append("")
+
+        if section_lines:
+            chunks.append(
+                ParsedChunk(
+                    content="\n".join(section_lines),
+                    chapter=current_section,
+                    page_start=page_num,
+                    page_end=page_num,
+                )
+            )
 
         return chunks
 
