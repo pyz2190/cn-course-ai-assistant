@@ -252,7 +252,7 @@ cp .env.example .env
 | `CN_AI_RERANKER_ENABLED` | `true` | 是否启用重排 |
 | `CN_AI_TOP_K` | `3` | 最终送入生成的 Chunk 数 |
 | `CN_AI_FETCH_K` | `8` | 向量召回候选数 |
-| `CN_AI_MIN_RETRIEVAL_SCORE` | `0.15` | 低于该分数的候选被丢弃 |
+| `CN_AI_MIN_RETRIEVAL_SCORE` | `0.10` | 低于该分数的候选被丢弃 |
 | `CN_AI_ALLOW_DEGRADED` | `true` | 组件不可用时是否降级而非报错 |
 | `CN_AI_CORS_ORIGINS` | 本地 5173 | 允许的浏览器来源 |
 | `VITE_API_BASE_URL` | 空 | 留空则走 Vite 的 `/api` 代理 |

@@ -1,0 +1,111 @@
+{
+  "$defs": {
+    "KnowledgeBaseChangeStatus": {
+      "enum": [
+        "pending",
+        "in_progress",
+        "done",
+        "wont_fix"
+      ],
+      "title": "KnowledgeBaseChangeStatus",
+      "type": "string"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "change_id": {
+      "minLength": 1,
+      "title": "Change Id",
+      "type": "string"
+    },
+    "course_id": {
+      "minLength": 1,
+      "title": "Course Id",
+      "type": "string"
+    },
+    "created_at": {
+      "format": "date-time",
+      "title": "Created At",
+      "type": "string"
+    },
+    "feedback_id": {
+      "minLength": 1,
+      "title": "Feedback Id",
+      "type": "string"
+    },
+    "handler": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Handler"
+    },
+    "question": {
+      "minLength": 1,
+      "title": "Question",
+      "type": "string"
+    },
+    "reason": {
+      "minLength": 1,
+      "title": "Reason",
+      "type": "string"
+    },
+    "request_id": {
+      "minLength": 1,
+      "title": "Request Id",
+      "type": "string"
+    },
+    "resolution_notes": {
+      "default": "",
+      "title": "Resolution Notes",
+      "type": "string"
+    },
+    "resource_ids": {
+      "description": "本次优化实际新增或修订的课程资料标识。",
+      "items": {
+        "type": "string"
+      },
+      "title": "Resource Ids",
+      "type": "array"
+    },
+    "status": {
+      "$ref": "#/$defs/KnowledgeBaseChangeStatus"
+    },
+    "suggested_action": {
+      "minLength": 1,
+      "title": "Suggested Action",
+      "type": "string"
+    },
+    "updated_at": {
+      "anyOf": [
+        {
+          "format": "date-time",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Updated At"
+    }
+  },
+  "required": [
+    "change_id",
+    "feedback_id",
+    "course_id",
+    "request_id",
+    "question",
+    "reason",
+    "suggested_action",
+    "status",
+    "created_at"
+  ],
+  "title": "KnowledgeBaseChangeTask",
+  "type": "object"
+}

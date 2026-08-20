@@ -6,10 +6,17 @@ from fastapi import File as FastAPIFile
 
 from app.adapters.document_parser import RealResourceImporter
 from app.core.config import get_settings
-from app.core.dependencies import get_chunk_store, get_resource_importer
+from app.core.dependencies import get_chunk_store, get_rag_service, get_resource_importer
 from app.domain.enums import ContentType, Language, ParseStatus
-from app.domain.models import ResourceImportRequest, ResourceImportResponse, ResourceUploadResponse
+from app.domain.models import (
+    ChunkMetadata,
+    ResourceImportRequest,
+    ResourceImportResponse,
+    ResourceSummary,
+    ResourceUploadResponse,
+)
 from app.services.ports import ChunkStore, ResourceImporter
+from app.services.rag import RagService
 
 router = APIRouter(prefix="/resources", tags=["resources"])
 
@@ -32,11 +39,13 @@ def upload_and_parse(
     content_type: str = Form(..., description="文件类型：pdf/ppt/subtitle/rfc/text/other"),
     knowledge_point_ids: str = Form("", description="知识点 ID，逗号分隔"),
     chunk_store: Annotated[ChunkStore, Depends(get_chunk_store)] = None,
+    rag_service: Annotated[RagService, Depends(get_rag_service)] = None,
 ) -> ResourceUploadResponse:
-    """上传课程文件，自动解析、切块并入库。
+    """上传课程文件，自动解析、切块、向量化入库。
 
     支持 PDF、PPT（.pptx）、SRT 和 VTT 字幕文件。
-    解析后的 Chunk 会自动存储到 ChunkStore 中。
+    解析后的 Chunk 会存入 ChunkStore，并增量写入向量库，
+    使新导入的资料可以立即被问答检索和引用。
     """
     settings = get_settings()
 
@@ -143,16 +152,14 @@ def upload_and_parse(
 
     # 入库
     if chunk_store and chunks:
-        chunk_store.save(chunks)
+        chunk_store.save(chunks, course_id=course_id)
 
-    # 同步索引到 RAG
-    if chunks:
-        try:
-            from app.core.dependencies import get_rag_service
-            rag = get_rag_service()
-            rag.index_course(course_id, chunks)
-        except Exception:
-            pass  # RAG 索引失败不影响上传结果
+    # 向量化入库：不做这一步，导入的资料就永远检索不到。
+    # 使用增量的 index_chunks 而非 index_course：后者是全量索引语义，
+    # 只传新 Chunk 会把该课程的语料指纹覆盖成仅反映最后一次上传。
+    indexed_chunks: int | None = None
+    if rag_service and chunks:
+        indexed_chunks = rag_service.index_chunks(course_id, chunks).indexed_chunks
 
     resource_id = chunks[0].resource_id if chunks else "no-chunks"
 
@@ -162,5 +169,30 @@ def upload_and_parse(
         chunk_count=len(chunks),
         parse_status=ParseStatus.PARSED if chunks else ParseStatus.FAILED,
         chunks=chunks,
+        indexed_chunks=indexed_chunks,
         error=None,
     )
+
+
+@router.get("", response_model=list[ResourceSummary])
+def list_resources(
+    chunk_store: Annotated[ChunkStore, Depends(get_chunk_store)],
+    course_id: str | None = None,
+) -> list[ResourceSummary]:
+    """列出已导入的课程资料，便于确认解析结果是否入库。"""
+    return chunk_store.list_resources(course_id=course_id)
+
+
+@router.get("/{resource_id}/chunks", response_model=list[ChunkMetadata])
+def list_resource_chunks(
+    resource_id: str,
+    chunk_store: Annotated[ChunkStore, Depends(get_chunk_store)],
+) -> list[ChunkMetadata]:
+    """读取某份资料解析出的全部 Chunk，用于人工核对切块与引用定位。"""
+    chunks = chunk_store.list_by_resource(resource_id)
+    if not chunks:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"未找到资料或该资料没有 Chunk: {resource_id}",
+        )
+    return chunks

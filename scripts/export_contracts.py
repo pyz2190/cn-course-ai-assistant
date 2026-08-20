@@ -5,12 +5,17 @@ from pathlib import Path
 from typing import Any
 
 from app.domain.models import (
+    AnswerFeedback,
+    AnswerFeedbackCreate,
     ChunkMetadata,
     Citation,
     EvaluationAnnotation,
     EvaluationItem,
+    FeedbackReviewRequest,
+    KnowledgeBaseChangeTask,
     KnowledgePoint,
     LearningEvent,
+    TaskPublishRequest,
     TaskTemplate,
 )
 from app.main import create_app
@@ -24,7 +29,12 @@ SCHEMA_MODELS = [
     EvaluationItem,
     EvaluationAnnotation,
     TaskTemplate,
+    TaskPublishRequest,
     LearningEvent,
+    AnswerFeedbackCreate,
+    AnswerFeedback,
+    FeedbackReviewRequest,
+    KnowledgeBaseChangeTask,
 ]
 
 

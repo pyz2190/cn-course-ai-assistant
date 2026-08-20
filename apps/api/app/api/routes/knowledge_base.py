@@ -1,0 +1,73 @@
+from datetime import UTC, datetime
+from typing import Annotated
+
+from fastapi import APIRouter, Depends, HTTPException, status
+
+from app.core.dependencies import get_knowledge_base_change_store
+from app.domain.enums import KnowledgeBaseChangeStatus
+from app.domain.models import KnowledgeBaseChangeTask, KnowledgeBaseChangeUpdateRequest
+from app.services.ports import KnowledgeBaseChangeStore
+
+router = APIRouter(prefix="/knowledge-base/changes", tags=["knowledge-base"])
+
+
+@router.get("", response_model=list[KnowledgeBaseChangeTask])
+def list_changes(
+    store: Annotated[KnowledgeBaseChangeStore, Depends(get_knowledge_base_change_store)],
+    course_id: str | None = None,
+    feedback_id: str | None = None,
+    change_status: KnowledgeBaseChangeStatus | None = None,
+) -> list[KnowledgeBaseChangeTask]:
+    changes = store.list_all()
+    if course_id is not None:
+        changes = [change for change in changes if change.course_id == course_id]
+    if feedback_id is not None:
+        changes = [change for change in changes if change.feedback_id == feedback_id]
+    if change_status is not None:
+        changes = [change for change in changes if change.status == change_status]
+    return sorted(changes, key=lambda change: (change.created_at, change.change_id))
+
+
+@router.get("/{change_id}", response_model=KnowledgeBaseChangeTask)
+def get_change(
+    change_id: str,
+    store: Annotated[KnowledgeBaseChangeStore, Depends(get_knowledge_base_change_store)],
+) -> KnowledgeBaseChangeTask:
+    change = store.get(change_id)
+    if change is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="未找到知识库变更任务。",
+        )
+    return change
+
+
+@router.patch("/{change_id}", response_model=KnowledgeBaseChangeTask)
+def update_change(
+    change_id: str,
+    request: KnowledgeBaseChangeUpdateRequest,
+    store: Annotated[KnowledgeBaseChangeStore, Depends(get_knowledge_base_change_store)],
+) -> KnowledgeBaseChangeTask:
+    """推进或关闭知识库变更任务，完成知识库持续优化的闭环。"""
+    change = store.get(change_id)
+    if change is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="未找到知识库变更任务。",
+        )
+    if change.status in {KnowledgeBaseChangeStatus.DONE, KnowledgeBaseChangeStatus.WONT_FIX}:
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail="该变更任务已经关闭。",
+        )
+
+    updated = change.model_copy(
+        update={
+            "status": request.status,
+            "handler": request.handler,
+            "updated_at": datetime.now(UTC),
+            "resolution_notes": request.resolution_notes,
+            "resource_ids": request.resource_ids,
+        }
+    )
+    return store.replace(updated)

@@ -10,6 +10,167 @@
         "title": "AccessLevel",
         "type": "string"
       },
+      "AnswerFeedback": {
+        "additionalProperties": false,
+        "properties": {
+          "answer": {
+            "minLength": 1,
+            "title": "Answer",
+            "type": "string"
+          },
+          "citation_ids": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Citation Ids",
+            "type": "array"
+          },
+          "course_id": {
+            "minLength": 1,
+            "title": "Course Id",
+            "type": "string"
+          },
+          "created_at": {
+            "format": "date-time",
+            "title": "Created At",
+            "type": "string"
+          },
+          "feedback_id": {
+            "minLength": 1,
+            "title": "Feedback Id",
+            "type": "string"
+          },
+          "knowledge_base_change_id": {
+            "anyOf": [
+              {
+                "minLength": 1,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Knowledge Base Change Id"
+          },
+          "question": {
+            "minLength": 1,
+            "title": "Question",
+            "type": "string"
+          },
+          "reason": {
+            "minLength": 1,
+            "title": "Reason",
+            "type": "string"
+          },
+          "request_id": {
+            "minLength": 1,
+            "title": "Request Id",
+            "type": "string"
+          },
+          "review_notes": {
+            "default": "",
+            "title": "Review Notes",
+            "type": "string"
+          },
+          "reviewed_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Reviewed At"
+          },
+          "reviewer": {
+            "anyOf": [
+              {
+                "minLength": 1,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Reviewer"
+          },
+          "status": {
+            "$ref": "#/components/schemas/FeedbackStatus"
+          },
+          "user_id": {
+            "minLength": 1,
+            "title": "User Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "course_id",
+          "user_id",
+          "request_id",
+          "question",
+          "answer",
+          "reason",
+          "feedback_id",
+          "status",
+          "created_at"
+        ],
+        "title": "AnswerFeedback",
+        "type": "object"
+      },
+      "AnswerFeedbackCreate": {
+        "additionalProperties": false,
+        "properties": {
+          "answer": {
+            "minLength": 1,
+            "title": "Answer",
+            "type": "string"
+          },
+          "citation_ids": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Citation Ids",
+            "type": "array"
+          },
+          "course_id": {
+            "minLength": 1,
+            "title": "Course Id",
+            "type": "string"
+          },
+          "question": {
+            "minLength": 1,
+            "title": "Question",
+            "type": "string"
+          },
+          "reason": {
+            "minLength": 1,
+            "title": "Reason",
+            "type": "string"
+          },
+          "request_id": {
+            "minLength": 1,
+            "title": "Request Id",
+            "type": "string"
+          },
+          "user_id": {
+            "minLength": 1,
+            "title": "User Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "course_id",
+          "user_id",
+          "request_id",
+          "question",
+          "answer",
+          "reason"
+        ],
+        "title": "AnswerFeedbackCreate",
+        "type": "object"
+      },
       "ApiError": {
         "additionalProperties": false,
         "properties": {
@@ -458,6 +619,15 @@
         "title": "ContentType",
         "type": "string"
       },
+      "Difficulty": {
+        "enum": [
+          "introductory",
+          "intermediate",
+          "advanced"
+        ],
+        "title": "Difficulty",
+        "type": "string"
+      },
       "EventType": {
         "enum": [
           "qa_asked",
@@ -466,6 +636,56 @@
           "feedback_submitted"
         ],
         "title": "EventType",
+        "type": "string"
+      },
+      "FeedbackReviewRequest": {
+        "additionalProperties": false,
+        "properties": {
+          "decision": {
+            "enum": [
+              "approved",
+              "rejected"
+            ],
+            "title": "Decision",
+            "type": "string"
+          },
+          "review_notes": {
+            "default": "",
+            "title": "Review Notes",
+            "type": "string"
+          },
+          "reviewer": {
+            "minLength": 1,
+            "title": "Reviewer",
+            "type": "string"
+          },
+          "suggested_action": {
+            "anyOf": [
+              {
+                "minLength": 1,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Suggested Action"
+          }
+        },
+        "required": [
+          "decision",
+          "reviewer"
+        ],
+        "title": "FeedbackReviewRequest",
+        "type": "object"
+      },
+      "FeedbackStatus": {
+        "enum": [
+          "pending_review",
+          "approved",
+          "rejected"
+        ],
+        "title": "FeedbackStatus",
         "type": "string"
       },
       "HTTPValidationError": {
@@ -506,6 +726,231 @@
         "type": "object"
       },
       "JsonValue": {},
+      "KnowledgeBaseChangeStatus": {
+        "enum": [
+          "pending",
+          "in_progress",
+          "done",
+          "wont_fix"
+        ],
+        "title": "KnowledgeBaseChangeStatus",
+        "type": "string"
+      },
+      "KnowledgeBaseChangeTask": {
+        "additionalProperties": false,
+        "properties": {
+          "change_id": {
+            "minLength": 1,
+            "title": "Change Id",
+            "type": "string"
+          },
+          "course_id": {
+            "minLength": 1,
+            "title": "Course Id",
+            "type": "string"
+          },
+          "created_at": {
+            "format": "date-time",
+            "title": "Created At",
+            "type": "string"
+          },
+          "feedback_id": {
+            "minLength": 1,
+            "title": "Feedback Id",
+            "type": "string"
+          },
+          "handler": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Handler"
+          },
+          "question": {
+            "minLength": 1,
+            "title": "Question",
+            "type": "string"
+          },
+          "reason": {
+            "minLength": 1,
+            "title": "Reason",
+            "type": "string"
+          },
+          "request_id": {
+            "minLength": 1,
+            "title": "Request Id",
+            "type": "string"
+          },
+          "resolution_notes": {
+            "default": "",
+            "title": "Resolution Notes",
+            "type": "string"
+          },
+          "resource_ids": {
+            "description": "本次优化实际新增或修订的课程资料标识。",
+            "items": {
+              "type": "string"
+            },
+            "title": "Resource Ids",
+            "type": "array"
+          },
+          "status": {
+            "$ref": "#/components/schemas/KnowledgeBaseChangeStatus"
+          },
+          "suggested_action": {
+            "minLength": 1,
+            "title": "Suggested Action",
+            "type": "string"
+          },
+          "updated_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Updated At"
+          }
+        },
+        "required": [
+          "change_id",
+          "feedback_id",
+          "course_id",
+          "request_id",
+          "question",
+          "reason",
+          "suggested_action",
+          "status",
+          "created_at"
+        ],
+        "title": "KnowledgeBaseChangeTask",
+        "type": "object"
+      },
+      "KnowledgeBaseChangeUpdateRequest": {
+        "additionalProperties": false,
+        "description": "推进或关闭知识库变更任务，构成“审核无效回答 → 优化知识库”的收尾环节。",
+        "properties": {
+          "handler": {
+            "minLength": 1,
+            "title": "Handler",
+            "type": "string"
+          },
+          "resolution_notes": {
+            "default": "",
+            "maxLength": 2000,
+            "title": "Resolution Notes",
+            "type": "string"
+          },
+          "resource_ids": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Resource Ids",
+            "type": "array"
+          },
+          "status": {
+            "$ref": "#/components/schemas/KnowledgeBaseChangeStatus"
+          }
+        },
+        "required": [
+          "status",
+          "handler"
+        ],
+        "title": "KnowledgeBaseChangeUpdateRequest",
+        "type": "object"
+      },
+      "KnowledgePoint": {
+        "additionalProperties": false,
+        "properties": {
+          "chapter": {
+            "minLength": 1,
+            "title": "Chapter",
+            "type": "string"
+          },
+          "difficulty": {
+            "$ref": "#/components/schemas/Difficulty"
+          },
+          "keywords_en": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Keywords En",
+            "type": "array"
+          },
+          "keywords_zh": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Keywords Zh",
+            "type": "array"
+          },
+          "kind": {
+            "minLength": 1,
+            "title": "Kind",
+            "type": "string"
+          },
+          "knowledge_point_id": {
+            "minLength": 1,
+            "title": "Knowledge Point Id",
+            "type": "string"
+          },
+          "maintainer": {
+            "minLength": 1,
+            "title": "Maintainer",
+            "type": "string"
+          },
+          "name": {
+            "minLength": 1,
+            "title": "Name",
+            "type": "string"
+          },
+          "parent_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Parent Id"
+          },
+          "prerequisite_ids": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Prerequisite Ids",
+            "type": "array"
+          },
+          "review_status": {
+            "$ref": "#/components/schemas/ReviewStatus"
+          },
+          "summary": {
+            "minLength": 1,
+            "title": "Summary",
+            "type": "string"
+          }
+        },
+        "required": [
+          "knowledge_point_id",
+          "name",
+          "chapter",
+          "kind",
+          "difficulty",
+          "summary",
+          "review_status",
+          "maintainer"
+        ],
+        "title": "KnowledgePoint",
+        "type": "object"
+      },
       "Language": {
         "enum": [
           "zh",
@@ -768,6 +1213,60 @@
         "title": "ResourceImportResponse",
         "type": "object"
       },
+      "ResourceSummary": {
+        "additionalProperties": false,
+        "description": "已导入资料的概览，用于确认解析与入库结果。",
+        "properties": {
+          "chunk_count": {
+            "minimum": 1.0,
+            "title": "Chunk Count",
+            "type": "integer"
+          },
+          "content_type": {
+            "$ref": "#/components/schemas/ContentType"
+          },
+          "course_id": {
+            "minLength": 1,
+            "title": "Course Id",
+            "type": "string"
+          },
+          "language": {
+            "$ref": "#/components/schemas/Language"
+          },
+          "resource_id": {
+            "minLength": 1,
+            "title": "Resource Id",
+            "type": "string"
+          },
+          "title": {
+            "minLength": 1,
+            "title": "Title",
+            "type": "string"
+          },
+          "updated_at": {
+            "format": "date-time",
+            "title": "Updated At",
+            "type": "string"
+          },
+          "version": {
+            "minLength": 1,
+            "title": "Version",
+            "type": "string"
+          }
+        },
+        "required": [
+          "resource_id",
+          "course_id",
+          "title",
+          "chunk_count",
+          "language",
+          "content_type",
+          "version",
+          "updated_at"
+        ],
+        "title": "ResourceSummary",
+        "type": "object"
+      },
       "ResourceType": {
         "enum": [
           "textbook",
@@ -811,6 +1310,19 @@
             "title": "Filename",
             "type": "string"
           },
+          "indexed_chunks": {
+            "anyOf": [
+              {
+                "minimum": 0.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "向量库在本次导入后的 Chunk 总数；为空表示未执行向量化。",
+            "title": "Indexed Chunks"
+          },
           "parse_status": {
             "$ref": "#/components/schemas/ParseStatus"
           },
@@ -829,6 +1341,15 @@
         "title": "ResourceUploadResponse",
         "type": "object"
       },
+      "ReviewStatus": {
+        "enum": [
+          "draft",
+          "reviewed",
+          "approved"
+        ],
+        "title": "ReviewStatus",
+        "type": "string"
+      },
       "SyncStatus": {
         "enum": [
           "accepted",
@@ -838,6 +1359,85 @@
         "title": "SyncStatus",
         "type": "string"
       },
+      "TaskPublishRequest": {
+        "additionalProperties": false,
+        "properties": {
+          "ai_feedback_points": {
+            "items": {
+              "type": "string"
+            },
+            "minItems": 1,
+            "title": "Ai Feedback Points",
+            "type": "array"
+          },
+          "completion_criteria": {
+            "items": {
+              "type": "string"
+            },
+            "minItems": 1,
+            "title": "Completion Criteria",
+            "type": "array"
+          },
+          "description": {
+            "minLength": 1,
+            "title": "Description",
+            "type": "string"
+          },
+          "knowledge_point_ids": {
+            "items": {
+              "type": "string"
+            },
+            "minItems": 1,
+            "title": "Knowledge Point Ids",
+            "type": "array"
+          },
+          "prerequisite_ids": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Prerequisite Ids",
+            "type": "array"
+          },
+          "resource_ids": {
+            "items": {
+              "type": "string"
+            },
+            "minItems": 1,
+            "title": "Resource Ids",
+            "type": "array"
+          },
+          "status": {
+            "$ref": "#/components/schemas/TaskStatus",
+            "default": "published",
+            "description": "发布状态；传 draft 可先存为草稿，稍后再发布。"
+          },
+          "task_id": {
+            "minLength": 1,
+            "title": "Task Id",
+            "type": "string"
+          },
+          "task_type": {
+            "$ref": "#/components/schemas/TaskType"
+          },
+          "title": {
+            "minLength": 1,
+            "title": "Title",
+            "type": "string"
+          }
+        },
+        "required": [
+          "task_id",
+          "title",
+          "description",
+          "task_type",
+          "knowledge_point_ids",
+          "resource_ids",
+          "completion_criteria",
+          "ai_feedback_points"
+        ],
+        "title": "TaskPublishRequest",
+        "type": "object"
+      },
       "TaskStatus": {
         "enum": [
           "draft",
@@ -846,6 +1446,20 @@
         ],
         "title": "TaskStatus",
         "type": "string"
+      },
+      "TaskStatusUpdateRequest": {
+        "additionalProperties": false,
+        "description": "任务状态流转请求，用于发布草稿或标记任务完成。",
+        "properties": {
+          "status": {
+            "$ref": "#/components/schemas/TaskStatus"
+          }
+        },
+        "required": [
+          "status"
+        ],
+        "title": "TaskStatusUpdateRequest",
+        "type": "object"
       },
       "TaskTemplate": {
         "additionalProperties": false,
@@ -987,6 +1601,105 @@
   "openapi": "3.1.0",
   "paths": {
     "/api/v1/events": {
+      "get": {
+        "operationId": "query_events_api_v1_events_get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "course_id",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Course Id"
+            }
+          },
+          {
+            "in": "query",
+            "name": "user_id",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "User Id"
+            }
+          },
+          {
+            "in": "query",
+            "name": "event_type",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "$ref": "#/components/schemas/EventType"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Event Type"
+            }
+          },
+          {
+            "in": "query",
+            "name": "object_id",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Object Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/LearningEvent"
+                  },
+                  "title": "Response Query Events Api V1 Events Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Query Events",
+        "tags": [
+          "events"
+        ]
+      },
       "post": {
         "operationId": "record_event_api_v1_events_post",
         "requestBody": {
@@ -1027,6 +1740,240 @@
         ]
       }
     },
+    "/api/v1/feedback": {
+      "get": {
+        "operationId": "list_feedback_api_v1_feedback_get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "course_id",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Course Id"
+            }
+          },
+          {
+            "in": "query",
+            "name": "user_id",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "User Id"
+            }
+          },
+          {
+            "in": "query",
+            "name": "request_id",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Request Id"
+            }
+          },
+          {
+            "in": "query",
+            "name": "status",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "$ref": "#/components/schemas/FeedbackStatus"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Status"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/AnswerFeedback"
+                  },
+                  "title": "Response List Feedback Api V1 Feedback Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "List Feedback",
+        "tags": [
+          "feedback"
+        ]
+      },
+      "post": {
+        "operationId": "create_feedback_api_v1_feedback_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AnswerFeedbackCreate"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AnswerFeedback"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Create Feedback",
+        "tags": [
+          "feedback"
+        ]
+      }
+    },
+    "/api/v1/feedback/{feedback_id}": {
+      "get": {
+        "operationId": "get_feedback_api_v1_feedback__feedback_id__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "feedback_id",
+            "required": true,
+            "schema": {
+              "title": "Feedback Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AnswerFeedback"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Get Feedback",
+        "tags": [
+          "feedback"
+        ]
+      }
+    },
+    "/api/v1/feedback/{feedback_id}/review": {
+      "patch": {
+        "operationId": "review_feedback_api_v1_feedback__feedback_id__review_patch",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "feedback_id",
+            "required": true,
+            "schema": {
+              "title": "Feedback Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/FeedbackReviewRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AnswerFeedback"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Review Feedback",
+        "tags": [
+          "feedback"
+        ]
+      }
+    },
     "/api/v1/health": {
       "get": {
         "operationId": "health_api_v1_health_get",
@@ -1045,6 +1992,300 @@
         "summary": "Health",
         "tags": [
           "system"
+        ]
+      }
+    },
+    "/api/v1/knowledge-base/changes": {
+      "get": {
+        "operationId": "list_changes_api_v1_knowledge_base_changes_get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "course_id",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Course Id"
+            }
+          },
+          {
+            "in": "query",
+            "name": "feedback_id",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Feedback Id"
+            }
+          },
+          {
+            "in": "query",
+            "name": "change_status",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "$ref": "#/components/schemas/KnowledgeBaseChangeStatus"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Change Status"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/KnowledgeBaseChangeTask"
+                  },
+                  "title": "Response List Changes Api V1 Knowledge Base Changes Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "List Changes",
+        "tags": [
+          "knowledge-base"
+        ]
+      }
+    },
+    "/api/v1/knowledge-base/changes/{change_id}": {
+      "get": {
+        "operationId": "get_change_api_v1_knowledge_base_changes__change_id__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "change_id",
+            "required": true,
+            "schema": {
+              "title": "Change Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/KnowledgeBaseChangeTask"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Get Change",
+        "tags": [
+          "knowledge-base"
+        ]
+      },
+      "patch": {
+        "description": "推进或关闭知识库变更任务，完成知识库持续优化的闭环。",
+        "operationId": "update_change_api_v1_knowledge_base_changes__change_id__patch",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "change_id",
+            "required": true,
+            "schema": {
+              "title": "Change Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/KnowledgeBaseChangeUpdateRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/KnowledgeBaseChangeTask"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Update Change",
+        "tags": [
+          "knowledge-base"
+        ]
+      }
+    },
+    "/api/v1/knowledge-points": {
+      "get": {
+        "description": "列出课程知识点，支持按章节或父知识点浏览知识图谱。",
+        "operationId": "list_knowledge_points_api_v1_knowledge_points_get",
+        "parameters": [
+          {
+            "description": "按章节过滤",
+            "in": "query",
+            "name": "chapter",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "按章节过滤",
+              "title": "Chapter"
+            }
+          },
+          {
+            "description": "按父知识点过滤",
+            "in": "query",
+            "name": "parent_id",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "按父知识点过滤",
+              "title": "Parent Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/KnowledgePoint"
+                  },
+                  "title": "Response List Knowledge Points Api V1 Knowledge Points Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "List Knowledge Points",
+        "tags": [
+          "knowledge-points"
+        ]
+      }
+    },
+    "/api/v1/knowledge-points/{knowledge_point_id}": {
+      "get": {
+        "operationId": "get_knowledge_point_api_v1_knowledge_points__knowledge_point_id__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "knowledge_point_id",
+            "required": true,
+            "schema": {
+              "title": "Knowledge Point Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/KnowledgePoint"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Get Knowledge Point",
+        "tags": [
+          "knowledge-points"
         ]
       }
     },
@@ -1226,6 +2467,60 @@
         ]
       }
     },
+    "/api/v1/resources": {
+      "get": {
+        "description": "列出已导入的课程资料，便于确认解析结果是否入库。",
+        "operationId": "list_resources_api_v1_resources_get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "course_id",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Course Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/ResourceSummary"
+                  },
+                  "title": "Response List Resources Api V1 Resources Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "List Resources",
+        "tags": [
+          "resources"
+        ]
+      }
+    },
     "/api/v1/resources/import": {
       "post": {
         "operationId": "import_resource_api_v1_resources_import_post",
@@ -1269,7 +2564,7 @@
     },
     "/api/v1/resources/upload": {
       "post": {
-        "description": "上传课程文件，自动解析、切块并入库。\n\n支持 PDF、PPT（.pptx）、SRT 和 VTT 字幕文件。\n解析后的 Chunk 会自动存储到 ChunkStore 中。",
+        "description": "上传课程文件，自动解析、切块、向量化入库。\n\n支持 PDF、PPT（.pptx）、SRT 和 VTT 字幕文件。\n解析后的 Chunk 会存入 ChunkStore，并增量写入向量库，\n使新导入的资料可以立即被问答检索和引用。",
         "operationId": "upload_and_parse_api_v1_resources_upload_post",
         "requestBody": {
           "content": {
@@ -1309,9 +2604,94 @@
         ]
       }
     },
+    "/api/v1/resources/{resource_id}/chunks": {
+      "get": {
+        "description": "读取某份资料解析出的全部 Chunk，用于人工核对切块与引用定位。",
+        "operationId": "list_resource_chunks_api_v1_resources__resource_id__chunks_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "resource_id",
+            "required": true,
+            "schema": {
+              "title": "Resource Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/ChunkMetadata"
+                  },
+                  "title": "Response List Resource Chunks Api V1 Resources  Resource Id  Chunks Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "List Resource Chunks",
+        "tags": [
+          "resources"
+        ]
+      }
+    },
     "/api/v1/tasks": {
       "get": {
         "operationId": "list_tasks_api_v1_tasks_get",
+        "parameters": [
+          {
+            "description": "按任务状态过滤",
+            "in": "query",
+            "name": "status",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "$ref": "#/components/schemas/TaskStatus"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "按任务状态过滤",
+              "title": "Status"
+            }
+          },
+          {
+            "description": "按六类任务类型过滤",
+            "in": "query",
+            "name": "task_type",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "$ref": "#/components/schemas/TaskType"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "按六类任务类型过滤",
+              "title": "Task Type"
+            }
+          }
+        ],
         "responses": {
           "200": {
             "content": {
@@ -1326,9 +2706,58 @@
               }
             },
             "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
           }
         },
         "summary": "List Tasks",
+        "tags": [
+          "tasks"
+        ]
+      },
+      "post": {
+        "operationId": "publish_task_api_v1_tasks_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TaskPublishRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TaskTemplate"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Publish Task",
         "tags": [
           "tasks"
         ]
@@ -1371,6 +2800,59 @@
           }
         },
         "summary": "Get Task",
+        "tags": [
+          "tasks"
+        ]
+      }
+    },
+    "/api/v1/tasks/{task_id}/status": {
+      "patch": {
+        "description": "在草稿、已发布和已完成之间流转任务状态。",
+        "operationId": "update_task_status_api_v1_tasks__task_id__status_patch",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "task_id",
+            "required": true,
+            "schema": {
+              "title": "Task Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TaskStatusUpdateRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TaskTemplate"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Update Task Status",
         "tags": [
           "tasks"
         ]

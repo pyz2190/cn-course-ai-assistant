@@ -39,6 +39,7 @@ class IndexManager:
         self._embedding = embedding
         self._store = store
         self._fingerprints: dict[str, str] = {}
+        self._corpora: dict[str, list[ChunkMetadata]] = {}
 
     def index_course(self, course_id: str, chunks: list[ChunkMetadata]) -> IndexSummary:
         fingerprint = corpus_fingerprint(chunks, self._embedding.model_id)
@@ -53,6 +54,7 @@ class IndexManager:
             )
             self._store.upsert(course_id, chunks, vectors)
             self._fingerprints[course_id] = fingerprint
+        self._corpora[course_id] = list(chunks)
         return IndexSummary(
             course_id=course_id,
             indexed_chunks=self._store.count(),
@@ -60,6 +62,33 @@ class IndexManager:
             corpus_version=fingerprint,
             embedding=self._embedding.model_id,
             reused_existing_index=reused,
+        )
+
+    def index_chunks(self, course_id: str, chunks: list[ChunkMetadata]) -> IndexSummary:
+        """增量向量化新导入的资料，使其立即可被检索，不重建既有索引。
+
+        点 ID 由 `course_id` 与 `chunk_id` 决定，重复导入同一 Chunk 会覆盖而非追加。
+        """
+        self._store.ensure_index(self._embedding.dimension)
+        if chunks:
+            vectors = self._embedding.embed_documents(
+                [self._embedding_text(chunk) for chunk in chunks]
+            )
+            self._store.upsert(course_id, chunks, vectors)
+
+        corpus = self._corpora.setdefault(course_id, [])
+        indexed_ids = {chunk.chunk_id for chunk in corpus}
+        corpus.extend(chunk for chunk in chunks if chunk.chunk_id not in indexed_ids)
+        fingerprint = corpus_fingerprint(corpus, self._embedding.model_id)
+        self._fingerprints[course_id] = fingerprint
+
+        return IndexSummary(
+            course_id=course_id,
+            indexed_chunks=self._store.count(),
+            collection_name=self._store.store_id,
+            corpus_version=fingerprint,
+            embedding=self._embedding.model_id,
+            reused_existing_index=False,
         )
 
     @staticmethod
@@ -233,6 +262,12 @@ class RagService:
 
     def index_course(self, course_id: str, chunks: list[ChunkMetadata]) -> IndexSummary:
         summary = self._index_manager.index_course(course_id, chunks)
+        self._corpus_versions[course_id] = summary.corpus_version
+        return summary
+
+    def index_chunks(self, course_id: str, chunks: list[ChunkMetadata]) -> IndexSummary:
+        """把新导入的课程资料增量写入向量库，使其可以立即被检索和引用。"""
+        summary = self._index_manager.index_chunks(course_id, chunks)
         self._corpus_versions[course_id] = summary.corpus_version
         return summary
 

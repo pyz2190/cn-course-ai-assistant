@@ -1,0 +1,102 @@
+{
+  "$defs": {
+    "TaskStatus": {
+      "enum": [
+        "draft",
+        "published",
+        "completed"
+      ],
+      "title": "TaskStatus",
+      "type": "string"
+    },
+    "TaskType": {
+      "enum": [
+        "foundation",
+        "protocol_analysis",
+        "case_study",
+        "innovation_challenge",
+        "project_practice",
+        "troubleshooting"
+      ],
+      "title": "TaskType",
+      "type": "string"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "ai_feedback_points": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Ai Feedback Points",
+      "type": "array"
+    },
+    "completion_criteria": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Completion Criteria",
+      "type": "array"
+    },
+    "description": {
+      "minLength": 1,
+      "title": "Description",
+      "type": "string"
+    },
+    "knowledge_point_ids": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Knowledge Point Ids",
+      "type": "array"
+    },
+    "prerequisite_ids": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Prerequisite Ids",
+      "type": "array"
+    },
+    "resource_ids": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Resource Ids",
+      "type": "array"
+    },
+    "status": {
+      "$ref": "#/$defs/TaskStatus",
+      "default": "published",
+      "description": "发布状态；传 draft 可先存为草稿，稍后再发布。"
+    },
+    "task_id": {
+      "minLength": 1,
+      "title": "Task Id",
+      "type": "string"
+    },
+    "task_type": {
+      "$ref": "#/$defs/TaskType"
+    },
+    "title": {
+      "minLength": 1,
+      "title": "Title",
+      "type": "string"
+    }
+  },
+  "required": [
+    "task_id",
+    "title",
+    "description",
+    "task_type",
+    "knowledge_point_ids",
+    "resource_ids",
+    "completion_criteria",
+    "ai_feedback_points"
+  ],
+  "title": "TaskPublishRequest",
+  "type": "object"
+}

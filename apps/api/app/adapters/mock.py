@@ -11,13 +11,16 @@ from app.domain.enums import (
     TaskType,
 )
 from app.domain.models import (
+    AnswerFeedback,
     AskResponse,
     ChunkMetadata,
     Citation,
+    KnowledgeBaseChangeTask,
     LearningEvent,
     QualityReview,
     ResourceImportRequest,
     ResourceImportResponse,
+    ResourceSummary,
     TaskTemplate,
 )
 
@@ -729,11 +732,28 @@ class MockAnswerGenerator:
 
 
 class InMemoryTaskRepository:
+    def __init__(self) -> None:
+        self._tasks = {task.task_id: task for task in MOCK_TASKS}
+
+    def create(self, task: TaskTemplate) -> TaskTemplate:
+        if task.task_id in self._tasks:
+            raise ValueError(f"task already exists: {task.task_id}")
+        self._tasks[task.task_id] = task
+        return task
+
     def list_tasks(self) -> list[TaskTemplate]:
-        return MOCK_TASKS.copy()
+        return list(self._tasks.values())
 
     def get_task(self, task_id: str) -> TaskTemplate | None:
-        return next((task for task in MOCK_TASKS if task.task_id == task_id), None)
+        return self._tasks.get(task_id)
+
+    def update_status(self, task_id: str, status: TaskStatus) -> TaskTemplate | None:
+        task = self._tasks.get(task_id)
+        if task is None:
+            return None
+        updated = task.model_copy(update={"status": status})
+        self._tasks[task_id] = updated
+        return updated
 
 
 class InMemoryEventSink:
@@ -744,15 +764,83 @@ class InMemoryEventSink:
         self.events.append(event)
         return event
 
+    def query(
+        self,
+        *,
+        course_id: str | None = None,
+        user_id: str | None = None,
+        event_type: str | None = None,
+        object_id: str | None = None,
+    ) -> list[LearningEvent]:
+        events = self.events
+        if course_id is not None:
+            events = [event for event in events if event.course_id == course_id]
+        if user_id is not None:
+            events = [event for event in events if event.user_id == user_id]
+        if event_type is not None:
+            events = [event for event in events if event.event_type == event_type]
+        if object_id is not None:
+            events = [event for event in events if event.object_id == object_id]
+        return sorted(events, key=lambda event: (event.occurred_at, event.event_id))
+
+
+class InMemoryFeedbackStore:
+    def __init__(self) -> None:
+        self._feedback: dict[str, AnswerFeedback] = {}
+
+    def create(self, feedback: AnswerFeedback) -> AnswerFeedback:
+        self._feedback[feedback.feedback_id] = feedback
+        return feedback
+
+    def get(self, feedback_id: str) -> AnswerFeedback | None:
+        return self._feedback.get(feedback_id)
+
+    def list_all(self) -> list[AnswerFeedback]:
+        return list(self._feedback.values())
+
+    def replace(self, feedback: AnswerFeedback) -> AnswerFeedback:
+        if feedback.feedback_id not in self._feedback:
+            raise KeyError(feedback.feedback_id)
+        self._feedback[feedback.feedback_id] = feedback
+        return feedback
+
+
+class InMemoryKnowledgeBaseChangeStore:
+    def __init__(self) -> None:
+        self._changes: dict[str, KnowledgeBaseChangeTask] = {}
+
+    def create(self, change: KnowledgeBaseChangeTask) -> KnowledgeBaseChangeTask:
+        self._changes[change.change_id] = change
+        return change
+
+    def get(self, change_id: str) -> KnowledgeBaseChangeTask | None:
+        return self._changes.get(change_id)
+
+    def list_all(self) -> list[KnowledgeBaseChangeTask]:
+        return list(self._changes.values())
+
+    def replace(self, change: KnowledgeBaseChangeTask) -> KnowledgeBaseChangeTask:
+        if change.change_id not in self._changes:
+            raise KeyError(change.change_id)
+        self._changes[change.change_id] = change
+        return change
+
 
 class InMemoryChunkStore:
-    """内存 Chunk 存储，用于测试和离线演示。"""
+    """内存 Chunk 存储，用于测试和离线演示。
+
+    `ChunkMetadata` 本身不含 `course_id`，因此课程归属在存储层单独记录。
+    """
 
     def __init__(self) -> None:
         self._chunks: list[ChunkMetadata] = []
+        self._course_by_resource: dict[str, str] = {}
 
-    def save(self, chunks: list[ChunkMetadata]) -> int:
+    def save(self, chunks: list[ChunkMetadata], course_id: str | None = None) -> int:
         self._chunks.extend(chunks)
+        if course_id:
+            for chunk in chunks:
+                self._course_by_resource[chunk.resource_id] = course_id
         return len(chunks)
 
     def list_by_resource(self, resource_id: str) -> list[ChunkMetadata]:
@@ -760,6 +848,33 @@ class InMemoryChunkStore:
 
     def list_all(self) -> list[ChunkMetadata]:
         return self._chunks.copy()
+
+    def list_resources(self, course_id: str | None = None) -> list[ResourceSummary]:
+        summaries: dict[str, ResourceSummary] = {}
+        for chunk in self._chunks:
+            owner = self._course_by_resource.get(chunk.resource_id, "unknown")
+            if course_id is not None and owner != course_id:
+                continue
+            existing = summaries.get(chunk.resource_id)
+            if existing is None:
+                summaries[chunk.resource_id] = ResourceSummary(
+                    resource_id=chunk.resource_id,
+                    course_id=owner,
+                    title=chunk.title,
+                    chunk_count=1,
+                    language=chunk.language,
+                    content_type=chunk.content_type,
+                    version=chunk.version,
+                    updated_at=chunk.updated_at,
+                )
+            else:
+                summaries[chunk.resource_id] = existing.model_copy(
+                    update={
+                        "chunk_count": existing.chunk_count + 1,
+                        "updated_at": max(existing.updated_at, chunk.updated_at),
+                    }
+                )
+        return sorted(summaries.values(), key=lambda item: item.resource_id)
 
     def count(self) -> int:
         return len(self._chunks)

@@ -2,10 +2,13 @@ from functools import lru_cache
 
 import httpx2
 
+from app.adapters.knowledge_points import InMemoryKnowledgePointRepository
 from app.adapters.mock import (
     MOCK_CHUNKS,
     InMemoryChunkStore,
     InMemoryEventSink,
+    InMemoryFeedbackStore,
+    InMemoryKnowledgeBaseChangeStore,
     InMemoryQualityReviewStore,
     InMemoryTaskRepository,
     MockResourceImporter,
@@ -18,6 +21,9 @@ from app.core.config import get_settings
 from app.services.ports import (
     ChunkStore,
     EventSink,
+    FeedbackStore,
+    KnowledgeBaseChangeStore,
+    KnowledgePointRepository,
     QualityReviewStore,
     ResourceImporter,
     TaskRepository,
@@ -25,7 +31,6 @@ from app.services.ports import (
 from app.services.qa import QaService
 from app.services.rag import IndexManager, RagService, RetrievalPipeline
 
-_chunk_store = InMemoryChunkStore()
 _quality_review_store = InMemoryQualityReviewStore()
 
 
@@ -98,7 +103,7 @@ def get_rag_service() -> RagService:
 
 @lru_cache
 def get_chunk_store() -> ChunkStore:
-    return _chunk_store
+    return InMemoryChunkStore()
 
 
 @lru_cache
@@ -117,6 +122,11 @@ def get_qa_service() -> QaService:
 
 
 @lru_cache
+def get_knowledge_point_repository() -> KnowledgePointRepository:
+    return InMemoryKnowledgePointRepository()
+
+
+@lru_cache
 def get_task_repository() -> TaskRepository:
     return InMemoryTaskRepository()
 
@@ -124,6 +134,16 @@ def get_task_repository() -> TaskRepository:
 @lru_cache
 def get_event_sink() -> EventSink:
     return InMemoryEventSink()
+
+
+@lru_cache
+def get_feedback_store() -> FeedbackStore:
+    return InMemoryFeedbackStore()
+
+
+@lru_cache
+def get_knowledge_base_change_store() -> KnowledgeBaseChangeStore:
+    return InMemoryKnowledgeBaseChangeStore()
 
 
 @lru_cache

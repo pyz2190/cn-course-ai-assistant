@@ -1,9 +1,23 @@
 import type {
+  AnswerFeedback,
+  AnswerFeedbackCreate,
   ApiErrorPayload,
   AskRequest,
   AskResponse,
+  FeedbackQuery,
+  FeedbackReviewRequest,
   HealthResponse,
+  KnowledgeBaseChangeQuery,
+  KnowledgeBaseChangeTask,
+  KnowledgeBaseChangeUpdateRequest,
+  KnowledgePoint,
+  KnowledgePointQuery,
   LearningEvent,
+  LearningEventQuery,
+  ResourceSummary,
+  TaskPublishRequest,
+  TaskStatus,
+  TaskStatusUpdateRequest,
   TaskTemplate,
 } from "./types";
 
@@ -36,6 +50,15 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
   return payload as T;
 }
 
+function queryString(params: object): string {
+  const query = new URLSearchParams();
+  Object.entries(params).forEach(([key, value]) => {
+    if (typeof value === "string") query.set(key, value);
+  });
+  const serialized = query.toString();
+  return serialized ? `?${serialized}` : "";
+}
+
 export const getHealth = () => request<HealthResponse>("/health");
 
 export const askQuestion = (payload: AskRequest) =>
@@ -46,6 +69,12 @@ export const askQuestion = (payload: AskRequest) =>
 
 export const listTasks = () => request<TaskTemplate[]>("/tasks");
 
+export const publishTask = (payload: TaskPublishRequest) =>
+  request<TaskTemplate>("/tasks", {
+    method: "POST",
+    body: JSON.stringify(payload),
+  });
+
 export const getTask = (taskId: string) =>
   request<TaskTemplate>(`/tasks/${encodeURIComponent(taskId)}`);
 
@@ -53,4 +82,59 @@ export const recordEvent = (event: LearningEvent) =>
   request<LearningEvent>("/events", {
     method: "POST",
     body: JSON.stringify(event),
+  });
+
+export const queryEvents = (params: LearningEventQuery = {}) =>
+  request<LearningEvent[]>(`/events${queryString(params)}`);
+
+export const createFeedback = (payload: AnswerFeedbackCreate) =>
+  request<AnswerFeedback>("/feedback", {
+    method: "POST",
+    body: JSON.stringify(payload),
+  });
+
+export const listFeedback = (params: FeedbackQuery = {}) =>
+  request<AnswerFeedback[]>(`/feedback${queryString(params)}`);
+
+export const getFeedback = (feedbackId: string) =>
+  request<AnswerFeedback>(`/feedback/${encodeURIComponent(feedbackId)}`);
+
+export const reviewFeedback = (feedbackId: string, payload: FeedbackReviewRequest) =>
+  request<AnswerFeedback>(`/feedback/${encodeURIComponent(feedbackId)}/review`, {
+    method: "PATCH",
+    body: JSON.stringify(payload),
+  });
+
+export const listKnowledgeBaseChanges = (params: KnowledgeBaseChangeQuery = {}) =>
+  request<KnowledgeBaseChangeTask[]>(
+    `/knowledge-base/changes${queryString(params)}`,
+  );
+
+export const getKnowledgeBaseChange = (changeId: string) =>
+  request<KnowledgeBaseChangeTask>(
+    `/knowledge-base/changes/${encodeURIComponent(changeId)}`,
+  );
+
+export const updateKnowledgeBaseChange = (
+  changeId: string,
+  payload: KnowledgeBaseChangeUpdateRequest,
+) =>
+  request<KnowledgeBaseChangeTask>(
+    `/knowledge-base/changes/${encodeURIComponent(changeId)}`,
+    { method: "PATCH", body: JSON.stringify(payload) },
+  );
+
+export const listKnowledgePoints = (params: KnowledgePointQuery = {}) =>
+  request<KnowledgePoint[]>(`/knowledge-points${queryString(params)}`);
+
+export const getKnowledgePoint = (knowledgePointId: string) =>
+  request<KnowledgePoint>(`/knowledge-points/${encodeURIComponent(knowledgePointId)}`);
+
+export const listResources = (courseId?: string) =>
+  request<ResourceSummary[]>(`/resources${queryString(courseId ? { course_id: courseId } : {})}`);
+
+export const updateTaskStatus = (taskId: string, status: TaskStatus) =>
+  request<TaskTemplate>(`/tasks/${encodeURIComponent(taskId)}/status`, {
+    method: "PATCH",
+    body: JSON.stringify({ status } satisfies TaskStatusUpdateRequest),
   });

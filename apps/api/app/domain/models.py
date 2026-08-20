@@ -16,6 +16,8 @@ from app.domain.enums import (
     Difficulty,
     EvaluationReviewStatus,
     EventType,
+    FeedbackStatus,
+    KnowledgeBaseChangeStatus,
     Language,
     ParseStatus,
     QuestionCategory,
@@ -116,7 +118,25 @@ class ResourceUploadResponse(ContractModel):
     chunk_count: int = Field(ge=0)
     parse_status: ParseStatus
     chunks: list[ChunkMetadata] = Field(default_factory=list)
+    indexed_chunks: int | None = Field(
+        default=None,
+        ge=0,
+        description="向量库在本次导入后的 Chunk 总数；为空表示未执行向量化。",
+    )
     error: str | None = None
+
+
+class ResourceSummary(ContractModel):
+    """已导入资料的概览，用于确认解析与入库结果。"""
+
+    resource_id: str = Field(min_length=1)
+    course_id: str = Field(min_length=1)
+    title: str = Field(min_length=1)
+    chunk_count: int = Field(ge=1)
+    language: Language
+    content_type: ContentType
+    version: str = Field(min_length=1)
+    updated_at: datetime
 
 
 class AskRequest(ContractModel):
@@ -155,6 +175,125 @@ class TaskTemplate(ContractModel):
     completion_criteria: list[str] = Field(min_length=1)
     ai_feedback_points: list[str] = Field(min_length=1)
     status: TaskStatus
+
+
+class TaskPublishRequest(ContractModel):
+    task_id: str = Field(min_length=1)
+    title: str = Field(min_length=1)
+    description: str = Field(min_length=1)
+    task_type: TaskType
+    knowledge_point_ids: list[str] = Field(min_length=1)
+    resource_ids: list[str] = Field(min_length=1)
+    prerequisite_ids: list[str] = Field(default_factory=list)
+    completion_criteria: list[str] = Field(min_length=1)
+    ai_feedback_points: list[str] = Field(min_length=1)
+    status: TaskStatus = Field(
+        default=TaskStatus.PUBLISHED,
+        description="发布状态；传 draft 可先存为草稿，稍后再发布。",
+    )
+
+
+class TaskStatusUpdateRequest(ContractModel):
+    """任务状态流转请求，用于发布草稿或标记任务完成。"""
+
+    status: TaskStatus
+
+
+class AnswerFeedbackCreate(ContractModel):
+    course_id: str = Field(min_length=1)
+    user_id: str = Field(min_length=1)
+    request_id: str = Field(min_length=1)
+    question: str = Field(min_length=1)
+    answer: str = Field(min_length=1)
+    reason: str = Field(min_length=1)
+    citation_ids: list[str] = Field(default_factory=list)
+
+
+class AnswerFeedback(AnswerFeedbackCreate):
+    feedback_id: str = Field(min_length=1)
+    status: FeedbackStatus
+    created_at: datetime
+    reviewer: str | None = Field(default=None, min_length=1)
+    reviewed_at: datetime | None = None
+    review_notes: str = ""
+    knowledge_base_change_id: str | None = Field(default=None, min_length=1)
+
+    @model_validator(mode="after")
+    def validate_review_state(self) -> "AnswerFeedback":
+        if self.status == FeedbackStatus.PENDING_REVIEW:
+            if self.reviewer is not None or self.reviewed_at is not None:
+                raise ValueError("pending feedback must not contain review metadata")
+            if self.knowledge_base_change_id is not None:
+                raise ValueError("pending feedback must not reference a knowledge-base change")
+            return self
+
+        if self.reviewer is None or self.reviewed_at is None:
+            raise ValueError("reviewer and reviewed_at are required after review")
+        if self.status != FeedbackStatus.APPROVED and self.knowledge_base_change_id is not None:
+            raise ValueError("only approved feedback may reference a knowledge-base change")
+        return self
+
+
+class FeedbackReviewRequest(ContractModel):
+    decision: Literal["approved", "rejected"]
+    reviewer: str = Field(min_length=1)
+    review_notes: str = ""
+    suggested_action: str | None = Field(default=None, min_length=1)
+
+    @model_validator(mode="after")
+    def validate_suggested_action(self) -> "FeedbackReviewRequest":
+        if self.decision == "approved" and self.suggested_action is None:
+            raise ValueError("suggested_action is required when approving feedback")
+        if self.decision == "rejected" and self.suggested_action is not None:
+            raise ValueError("suggested_action is only allowed when approving feedback")
+        return self
+
+
+class KnowledgeBaseChangeTask(ContractModel):
+    change_id: str = Field(min_length=1)
+    feedback_id: str = Field(min_length=1)
+    course_id: str = Field(min_length=1)
+    request_id: str = Field(min_length=1)
+    question: str = Field(min_length=1)
+    reason: str = Field(min_length=1)
+    suggested_action: str = Field(min_length=1)
+    status: KnowledgeBaseChangeStatus
+    created_at: datetime
+    handler: str | None = None
+    updated_at: datetime | None = None
+    resolution_notes: str = ""
+    resource_ids: list[str] = Field(
+        default_factory=list,
+        description="本次优化实际新增或修订的课程资料标识。",
+    )
+
+    @model_validator(mode="after")
+    def validate_progress_metadata(self) -> "KnowledgeBaseChangeTask":
+        if self.status is not KnowledgeBaseChangeStatus.PENDING:
+            if not self.handler:
+                raise ValueError("handler is required once a change task leaves pending")
+            if self.updated_at is None:
+                raise ValueError("updated_at is required once a change task leaves pending")
+        if self.status is KnowledgeBaseChangeStatus.WONT_FIX and not self.resolution_notes:
+            raise ValueError("resolution_notes is required when closing a change as wont_fix")
+        return self
+
+
+class KnowledgeBaseChangeUpdateRequest(ContractModel):
+    """推进或关闭知识库变更任务，构成“审核无效回答 → 优化知识库”的收尾环节。"""
+
+    status: KnowledgeBaseChangeStatus
+    handler: str = Field(min_length=1)
+    resolution_notes: str = Field(default="", max_length=2000)
+    resource_ids: list[str] = Field(default_factory=list)
+
+    @model_validator(mode="after")
+    def validate_transition_request(self) -> "KnowledgeBaseChangeUpdateRequest":
+        if self.status is KnowledgeBaseChangeStatus.PENDING:
+            raise ValueError("status must move the change task out of pending")
+        if self.status is KnowledgeBaseChangeStatus.WONT_FIX and not self.resolution_notes:
+            raise ValueError("resolution_notes is required when closing a change as wont_fix")
+        return self
 
 
 class LearningEvent(ContractModel):
