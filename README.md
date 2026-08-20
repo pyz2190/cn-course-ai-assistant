@@ -11,8 +11,10 @@
 - 课程资料上传解析（PDF / PPT / 字幕 / RFC / 文本 / Markdown）并自动切块入库
 - Qdrant 向量检索 + 可选重排 + 按句挂角标的可追溯引用
 - 中英双语语料，中文问题召回中文语料，英文问题召回英文语料
-- 六类教学任务模板，含知识点、资料、完成判据与 AI 反馈介入点
-- 学习行为事件与语料质量审查接口
+- 六类教学任务模板，含知识点、资料、完成判据与 AI 反馈介入点，支持草稿与发布状态流转
+- 课程知识点与知识图谱（先修关系、章节层次）
+- 人工反馈闭环：学生反馈 → 教师审核 → 知识库变更任务 → 关闭
+- 学习行为事件记录与查询、语料质量审查接口
 - 契约自动生成（OpenAPI → JSON Schema → 前端 TypeScript 类型）
 - 前后端测试、静态检查与 GitHub Actions
 
@@ -188,13 +190,33 @@ npm run check            # 提交前完整检查，等价于 CI
 | `GET` | `/health` | 健康检查与当前运行模式 |
 | `POST` | `/qa/ask` | 课程问答，返回回答、置信度与可追溯引用 |
 | `POST` | `/resources/import` | 资料导入契约（登记元数据） |
-| `POST` | `/resources/upload` | 上传课程文件，自动解析、切块、入库并同步索引 |
-| `GET` | `/tasks` | 六类教学任务列表 |
+| `POST` | `/resources/upload` | 上传课程文件，自动解析、切块、向量化入库 |
+| `GET` | `/resources` | 已导入资料列表，可按 `course_id` 过滤 |
+| `GET` | `/resources/{resource_id}/chunks` | 读取某份资料解析出的全部 Chunk |
+| `GET` | `/knowledge-points` | 课程知识点列表，可按 `chapter`、`parent_id` 浏览知识图谱 |
+| `GET` | `/knowledge-points/{knowledge_point_id}` | 知识点详情，含先修关系 |
+| `GET` | `/tasks` | 教学任务列表，可按 `status`、`task_type` 过滤 |
+| `POST` | `/tasks` | 发布教学任务，可传 `status=draft` 先存草稿 |
 | `GET` | `/tasks/{task_id}` | 任务详情 |
+| `PATCH` | `/tasks/{task_id}/status` | 任务状态流转（草稿／已发布／已完成） |
 | `POST` | `/events` | 记录学习行为事件 |
+| `GET` | `/events` | 查询学习行为事件，可按课程、学生、类型、对象过滤 |
+| `POST` | `/feedback` | 学生提交回答反馈 |
+| `GET` | `/feedback` | 教师与助教的待审核队列 |
+| `GET` | `/feedback/{feedback_id}` | 单条反馈详情 |
+| `PATCH` | `/feedback/{feedback_id}/review` | 审核反馈；通过时自动生成知识库变更任务 |
+| `GET` | `/knowledge-base/changes` | 知识库变更任务列表 |
+| `GET` | `/knowledge-base/changes/{change_id}` | 变更任务详情 |
+| `PATCH` | `/knowledge-base/changes/{change_id}` | 推进或关闭变更任务 |
 | `POST` | `/quality/reviews` | 提交语料质量审查记录 |
 | `GET` | `/quality/reviews` | 查询质量审查记录，可按 `chunk_id` 过滤 |
 | `GET` | `/quality/reviews/{review_id}` | 单条质量审查记录 |
+
+完整字段定义见 <http://127.0.0.1:8000/docs>。
+
+### 人工反馈闭环
+
+学生对回答提交反馈后，教师或助教在 `/feedback` 队列中审核；判定为无效回答时会自动生成一条知识库变更任务，处理完成后通过 `PATCH /knowledge-base/changes/{change_id}` 关闭，形成「反馈 → 审核 → 优化知识库」的闭环。
 
 ### 资料上传
 
