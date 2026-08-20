@@ -14,7 +14,9 @@ import type {
   KnowledgePointQuery,
   LearningEvent,
   LearningEventQuery,
+  QualityReview,
   ResourceSummary,
+  ResourceUploadResponse,
   TaskPublishRequest,
   TaskStatus,
   TaskStatusUpdateRequest,
@@ -36,12 +38,15 @@ export class ApiClientError extends Error {
 }
 
 async function request<T>(path: string, init?: RequestInit): Promise<T> {
+  const isFormData = init?.body instanceof FormData;
   const response = await fetch(`${apiBaseUrl}/api/v1${path}`, {
     ...init,
-    headers: {
-      "Content-Type": "application/json",
-      ...init?.headers,
-    },
+    headers: isFormData
+      ? { ...init?.headers }
+      : {
+          "Content-Type": "application/json",
+          ...init?.headers,
+        },
   });
   const payload = (await response.json()) as T | ApiErrorPayload;
   if (!response.ok) {
@@ -137,4 +142,12 @@ export const updateTaskStatus = (taskId: string, status: TaskStatus) =>
   request<TaskTemplate>(`/tasks/${encodeURIComponent(taskId)}/status`, {
     method: "PATCH",
     body: JSON.stringify({ status } satisfies TaskStatusUpdateRequest),
+  });
+
+export const listQualityReviews = () => request<QualityReview[]>("/quality/reviews");
+
+export const uploadResource = (formData: FormData) =>
+  request<ResourceUploadResponse>("/resources/upload", {
+    method: "POST",
+    body: formData,
   });

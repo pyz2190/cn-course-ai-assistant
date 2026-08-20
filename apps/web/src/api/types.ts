@@ -24,6 +24,8 @@ export type LearningEvent = components["schemas"]["LearningEvent"];
 export type LearningEventQuery = NonNullable<
   operations["query_events_api_v1_events_get"]["parameters"]["query"]
 >;
+export type QualityReview = components["schemas"]["QualityReview"];
+export type ResourceUploadResponse = components["schemas"]["ResourceUploadResponse"];
 export type TaskPublishRequest = components["schemas"]["TaskPublishRequest"];
 export type ResourceSummary = components["schemas"]["ResourceSummary"];
 export type TaskStatus = components["schemas"]["TaskStatus"];
