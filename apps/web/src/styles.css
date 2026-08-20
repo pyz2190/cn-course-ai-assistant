@@ -387,6 +387,14 @@ button { cursor: pointer; }
   color: #1d4e89;
 }
 
+.kb-status--pending { background: #f7e7c7; color: #8a5a12; }
+.kb-status--in_progress { background: #dbe9f7; color: #1d4e89; }
+.kb-status--done { background: #d9efe4; color: #0f5c43; }
+.kb-status--wont_fix { background: #e6e6de; color: #5b5b50; }
+
+.kb-card__handled { color: var(--muted); font-size: 0.78rem; }
+.kb-card__resources { color: var(--green); }
+
 .feedback-card__meta,
 .kb-card__meta {
   color: var(--muted);
