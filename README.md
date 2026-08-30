@@ -358,6 +358,7 @@ spec.md / plan.md / task.md / checklist.md    已确认的需求、方案、任�
 
 | 文档 | 内容 |
 |---|---|
+| [`docs/D-001-AI助教调研报告.md`](docs/D-001-AI助教调研报告.md) | **总报告**：汇总下列各分册的结论、诚实标注已验证/未验证的部分、给出唯一的下一步顺序 |
 | [`docs/D-002-Canvas平台AI能力调研.md`](docs/D-002-Canvas平台AI能力调研.md) | Canvas / 学校平台 AI 能力调研结论与待申请接口 |
 | [`docs/D-003-知识库与问答库建设方案.md`](docs/D-003-知识库与问答库建设方案.md) | 知识来源清单、入库流程、问答库方法、人工反馈制度 |
 | [`docs/d-rag/D-004`](docs/d-rag/D-004-rag-technical-solution.md) ～ [`D-007`](docs/d-rag/D-007-finetuning-deployment-analysis.md) | RAG 技术方案、向量库与框架对比、微调与部署分析 |
