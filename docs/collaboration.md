@@ -2,10 +2,10 @@
 
 ## 单一事实来源
 
-- 产品范围：`spec.md`
-- 技术方案：`plan.md`
-- 任务拆分：`task.md`
-- 验收条件：`checklist.md`
+- 产品范围与运行说明：`README.md`
+- 技术方案与扩展边界：`docs/architecture.md`
+- 工作项与变更记录：GitHub Issue 与 Pull Request
+- 验收入口：`npm run check` 与 GitHub Actions
 - 接口协议：`contracts/openapi.json` 与 `contracts/schemas/`
 - 组内决策：Pull Request、Issue 或飞书项目文档，不以聊天消息作为最终结论
 

@@ -333,7 +333,6 @@ contracts/                OpenAPI、JSON Schema 与联调样例
 docs/                     架构、分工、协作规范与各角色交付文档
 evaluation/               问答库、标注、评分规则与评测流水线
 scripts/                  契约生成、漂移检查与评测脚本
-spec.md / plan.md / task.md / checklist.md    已确认的需求、方案、任务与验收清单
 ```
 
 ---
