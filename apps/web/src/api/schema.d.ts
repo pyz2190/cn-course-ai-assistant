@@ -22,6 +22,43 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/exercises": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List Exercises
+         * @description 列出课程试题，可按知识点或任务取题。
+         */
+        get: operations["list_exercises_api_v1_exercises_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/exercises/{exercise_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Exercise */
+        get: operations["get_exercise_api_v1_exercises__exercise_id__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/feedback": {
         parameters: {
             query?: never;
@@ -591,6 +628,49 @@ export interface components {
          * @enum {string}
          */
         EventType: "qa_asked" | "task_opened" | "task_completed" | "feedback_submitted";
+        /**
+         * Exercise
+         * @description 课程试题，是任务完成判据的可判定载体。
+         *
+         *     试题通过 `knowledge_point_ids` 挂到知识图谱，通过 `resource_ids` 指回命题依据的
+         *     课程资料，使「任务 → 知识点 → 资料 → 试题」形成闭合的引用链。
+         */
+        Exercise: {
+            difficulty: components["schemas"]["Difficulty"];
+            /** Exercise Id */
+            exercise_id: string;
+            exercise_type: components["schemas"]["ExerciseType"];
+            /**
+             * Explanation
+             * @default
+             */
+            explanation: string;
+            /** Knowledge Point Ids */
+            knowledge_point_ids: string[];
+            /**
+             * Options
+             * @description 选择题选项；非选择题为空。
+             */
+            options?: string[];
+            /** Question */
+            question: string;
+            /** Reference Answer */
+            reference_answer: string;
+            /** Resource Ids */
+            resource_ids?: string[];
+            review_status: components["schemas"]["ReviewStatus"];
+            source: components["schemas"]["ExerciseSource"];
+        };
+        /**
+         * ExerciseSource
+         * @enum {string}
+         */
+        ExerciseSource: "textbook" | "lab_guide" | "past_exam" | "course_team";
+        /**
+         * ExerciseType
+         * @enum {string}
+         */
+        ExerciseType: "single_choice" | "multiple_choice" | "short_answer" | "analysis" | "design";
         /** FeedbackReviewRequest */
         FeedbackReviewRequest: {
             /**
@@ -873,6 +953,11 @@ export interface components {
             completion_criteria: string[];
             /** Description */
             description: string;
+            /**
+             * Exercise Ids
+             * @description 任务自测与验收所用的试题标识，对应 /exercises 接口。
+             */
+            exercise_ids?: string[];
             /** Knowledge Point Ids */
             knowledge_point_ids: string[];
             /** Prerequisite Ids */
@@ -910,6 +995,11 @@ export interface components {
             completion_criteria: string[];
             /** Description */
             description: string;
+            /**
+             * Exercise Ids
+             * @description 任务自测与验收所用的试题标识，对应 /exercises 接口。
+             */
+            exercise_ids?: string[];
             /** Knowledge Point Ids */
             knowledge_point_ids: string[];
             /** Prerequisite Ids */
@@ -1004,6 +1094,71 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["LearningEvent"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_exercises_api_v1_exercises_get: {
+        parameters: {
+            query?: {
+                /** @description 按知识点过滤，用于沿知识图谱取题 */
+                knowledge_point_id?: string | null;
+                /** @description 按任务过滤，返回该任务 exercise_ids 关联的试题 */
+                task_id?: string | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Exercise"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_exercise_api_v1_exercises__exercise_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                exercise_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Exercise"];
                 };
             };
             /** @description Validation Error */

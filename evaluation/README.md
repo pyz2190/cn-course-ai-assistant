@@ -68,14 +68,34 @@ are not required by this gate. After those integrations are complete, add CI
 checks for resource-to-Chunk validity, approved citation support, and an
 authenticated adapter integration test using non-production fixtures.
 
+## Technical Baseline
+
+`scripts/run_technical_baseline.py` runs the whole question bank through
+`InProcessRagAdapter` without the review gate. It answers one engineering
+question — does the question bank reach the RAG adapter and come back with
+citations — and reports how far the corpus covers the bank.
+
+```bash
+python scripts/run_technical_baseline.py
+```
+
+It is **not** a formal baseline and must not be quoted as a quality result or
+an acceptance criterion; only `run_evaluation_pipeline.py report` produces
+that, and only from approved data. Its output lives in
+[`reports/technical_baseline.md`](reports/technical_baseline.md).
+
 ## Current External Dependencies
 
 - Member B: provide real, verifiable course resources and Chunk locations for
-  `expected_citations`. Mock and example data cannot be used as formal
-  citations.
-- Member D: provide the configured RAG adapter invocation, authentication,
-  runtime parameters, Citation mapping, timeout/retry behaviour, and test
-  environment. Until then, `evaluate` must not fabricate answers or results.
+  `expected_citations`. `expected_citations` are now populated and all resolve,
+  but they resolve against mock Chunks, and mock data cannot be used as formal
+  citations. Real course material is the remaining blocker.
+- Member D: the RAG adapter is delivered
+  (`apps/api/app/adapters/evaluation.py`, selected with
+  `scripts/evaluate.py --adapter rag`). What remains is running the first
+  formal baseline with the cross-reviewer and recording its runtime
+  parameters. Until approved data exists, `evaluate` must not fabricate
+  answers or results.
 
 ## Delivery Status
 

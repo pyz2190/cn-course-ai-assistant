@@ -638,6 +638,100 @@
         "title": "EventType",
         "type": "string"
       },
+      "Exercise": {
+        "additionalProperties": false,
+        "description": "课程试题，是任务完成判据的可判定载体。\n\n试题通过 `knowledge_point_ids` 挂到知识图谱，通过 `resource_ids` 指回命题依据的\n课程资料，使「任务 → 知识点 → 资料 → 试题」形成闭合的引用链。",
+        "properties": {
+          "difficulty": {
+            "$ref": "#/components/schemas/Difficulty"
+          },
+          "exercise_id": {
+            "minLength": 1,
+            "title": "Exercise Id",
+            "type": "string"
+          },
+          "exercise_type": {
+            "$ref": "#/components/schemas/ExerciseType"
+          },
+          "explanation": {
+            "default": "",
+            "title": "Explanation",
+            "type": "string"
+          },
+          "knowledge_point_ids": {
+            "items": {
+              "type": "string"
+            },
+            "minItems": 1,
+            "title": "Knowledge Point Ids",
+            "type": "array"
+          },
+          "options": {
+            "description": "选择题选项；非选择题为空。",
+            "items": {
+              "type": "string"
+            },
+            "title": "Options",
+            "type": "array"
+          },
+          "question": {
+            "minLength": 1,
+            "title": "Question",
+            "type": "string"
+          },
+          "reference_answer": {
+            "minLength": 1,
+            "title": "Reference Answer",
+            "type": "string"
+          },
+          "resource_ids": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Resource Ids",
+            "type": "array"
+          },
+          "review_status": {
+            "$ref": "#/components/schemas/ReviewStatus"
+          },
+          "source": {
+            "$ref": "#/components/schemas/ExerciseSource"
+          }
+        },
+        "required": [
+          "exercise_id",
+          "question",
+          "exercise_type",
+          "knowledge_point_ids",
+          "difficulty",
+          "reference_answer",
+          "source",
+          "review_status"
+        ],
+        "title": "Exercise",
+        "type": "object"
+      },
+      "ExerciseSource": {
+        "enum": [
+          "textbook",
+          "lab_guide",
+          "past_exam",
+          "course_team"
+        ],
+        "title": "ExerciseSource",
+        "type": "string"
+      },
+      "ExerciseType": {
+        "enum": [
+          "single_choice",
+          "multiple_choice",
+          "short_answer",
+          "analysis",
+          "design"
+        ],
+        "title": "ExerciseType",
+        "type": "string"
+      },
       "FeedbackReviewRequest": {
         "additionalProperties": false,
         "properties": {
@@ -1383,6 +1477,14 @@
             "title": "Description",
             "type": "string"
           },
+          "exercise_ids": {
+            "description": "任务自测与验收所用的试题标识，对应 /exercises 接口。",
+            "items": {
+              "type": "string"
+            },
+            "title": "Exercise Ids",
+            "type": "array"
+          },
           "knowledge_point_ids": {
             "items": {
               "type": "string"
@@ -1484,6 +1586,14 @@
             "minLength": 1,
             "title": "Description",
             "type": "string"
+          },
+          "exercise_ids": {
+            "description": "任务自测与验收所用的试题标识，对应 /exercises 接口。",
+            "items": {
+              "type": "string"
+            },
+            "title": "Exercise Ids",
+            "type": "array"
           },
           "knowledge_point_ids": {
             "items": {
@@ -1737,6 +1847,122 @@
         "summary": "Record Event",
         "tags": [
           "events"
+        ]
+      }
+    },
+    "/api/v1/exercises": {
+      "get": {
+        "description": "列出课程试题，可按知识点或任务取题。",
+        "operationId": "list_exercises_api_v1_exercises_get",
+        "parameters": [
+          {
+            "description": "按知识点过滤，用于沿知识图谱取题",
+            "in": "query",
+            "name": "knowledge_point_id",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "按知识点过滤，用于沿知识图谱取题",
+              "title": "Knowledge Point Id"
+            }
+          },
+          {
+            "description": "按任务过滤，返回该任务 exercise_ids 关联的试题",
+            "in": "query",
+            "name": "task_id",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "按任务过滤，返回该任务 exercise_ids 关联的试题",
+              "title": "Task Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/Exercise"
+                  },
+                  "title": "Response List Exercises Api V1 Exercises Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "List Exercises",
+        "tags": [
+          "exercises"
+        ]
+      }
+    },
+    "/api/v1/exercises/{exercise_id}": {
+      "get": {
+        "operationId": "get_exercise_api_v1_exercises__exercise_id__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "exercise_id",
+            "required": true,
+            "schema": {
+              "title": "Exercise Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Exercise"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Get Exercise",
+        "tags": [
+          "exercises"
         ]
       }
     },

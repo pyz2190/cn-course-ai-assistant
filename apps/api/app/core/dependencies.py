@@ -2,6 +2,7 @@ from functools import lru_cache
 
 import httpx2
 
+from app.adapters.exercises import InMemoryExerciseRepository
 from app.adapters.knowledge_points import InMemoryKnowledgePointRepository
 from app.adapters.mock import (
     MOCK_CHUNKS,
@@ -21,6 +22,7 @@ from app.core.config import get_settings
 from app.services.ports import (
     ChunkStore,
     EventSink,
+    ExerciseRepository,
     FeedbackStore,
     KnowledgeBaseChangeStore,
     KnowledgePointRepository,
@@ -124,6 +126,11 @@ def get_qa_service() -> QaService:
 @lru_cache
 def get_knowledge_point_repository() -> KnowledgePointRepository:
     return InMemoryKnowledgePointRepository()
+
+
+@lru_cache
+def get_exercise_repository() -> ExerciseRepository:
+    return InMemoryExerciseRepository()
 
 
 @lru_cache

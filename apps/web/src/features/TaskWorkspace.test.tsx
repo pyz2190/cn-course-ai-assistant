@@ -2,7 +2,7 @@ import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { describe, expect, it, vi } from "vitest";
 
-import type { KnowledgePoint, TaskTemplate } from "../api/types";
+import type { Exercise, KnowledgePoint, TaskTemplate } from "../api/types";
 import { TaskWorkspace } from "./TaskWorkspace";
 
 const task: TaskTemplate = {
@@ -13,9 +13,24 @@ const task: TaskTemplate = {
   knowledge_point_ids: ["kp-transport-tcp-handshake"],
   resource_ids: ["resource-cn-textbook-001"],
   prerequisite_ids: [],
+  exercise_ids: ["ex-transport-handshake-001"],
   completion_criteria: ["解释序列号变化。"],
   ai_feedback_points: ["检查握手顺序。"],
   status: "published",
+};
+
+const handshakeExercise: Exercise = {
+  exercise_id: "ex-transport-handshake-001",
+  question: "如何依据标志位和序列号区分 SYN、SYN-ACK 与 ACK？",
+  exercise_type: "analysis",
+  knowledge_point_ids: ["kp-transport-tcp-handshake"],
+  resource_ids: ["resource-cn-textbook-001"],
+  difficulty: "intermediate",
+  options: [],
+  reference_answer: "按标志位组合与序列号递进关系判定。",
+  explanation: "",
+  source: "lab_guide",
+  review_status: "approved",
 };
 
 const troubleshootingTask: TaskTemplate = {
@@ -202,5 +217,30 @@ describe("TaskWorkspace", () => {
     await user.click(screen.getByRole("button", { name: "标记完成" }));
     expect(await screen.findByRole("button", { name: "已完成" })).toBeDisabled();
     expect(recordLearningEvent).toHaveBeenCalledTimes(2);
+  });
+  it("resolves task exercise ids into question text and type", async () => {
+    render(
+      <TaskWorkspace
+        loadTasks={vi.fn().mockResolvedValue([task])}
+        loadTask={vi.fn().mockResolvedValue(task)}
+        loadExercises={vi.fn().mockResolvedValue([handshakeExercise])}
+      />,
+    );
+
+    expect(await screen.findByText("关联试题")).toBeInTheDocument();
+    expect(await screen.findByText(handshakeExercise.question)).toBeInTheDocument();
+    expect(screen.getByText("分析")).toBeInTheDocument();
+  });
+
+  it("falls back to raw exercise ids when the exercise request fails", async () => {
+    render(
+      <TaskWorkspace
+        loadTasks={vi.fn().mockResolvedValue([task])}
+        loadTask={vi.fn().mockResolvedValue(task)}
+        loadExercises={vi.fn().mockRejectedValue(new Error("离线"))}
+      />,
+    );
+
+    expect(await screen.findByText("ex-transport-handshake-001")).toBeInTheDocument();
   });
 });

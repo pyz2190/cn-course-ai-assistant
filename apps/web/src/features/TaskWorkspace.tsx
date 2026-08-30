@@ -1,14 +1,29 @@
 import { useEffect, useState } from "react";
 
-import { getTask, listKnowledgePoints, listTasks, recordEvent } from "../api/client";
-import type { KnowledgePoint, LearningEvent, TaskTemplate } from "../api/types";
+import {
+  getTask,
+  listExercisesForTask,
+  listKnowledgePoints,
+  listTasks,
+  recordEvent,
+} from "../api/client";
+import type { Exercise, KnowledgePoint, LearningEvent, TaskTemplate } from "../api/types";
 import { taskTypeLabel, TASK_TYPE_META } from "./taskMeta";
 
 type Props = {
   loadTasks?: () => Promise<TaskTemplate[]>;
   loadTask?: (taskId: string) => Promise<TaskTemplate>;
   loadKnowledgePoints?: () => Promise<KnowledgePoint[]>;
+  loadExercises?: (taskId: string) => Promise<Exercise[]>;
   recordLearningEvent?: (event: LearningEvent) => Promise<LearningEvent>;
+};
+
+const EXERCISE_TYPE_LABEL: Record<Exercise["exercise_type"], string> = {
+  single_choice: "单选",
+  multiple_choice: "多选",
+  short_answer: "简答",
+  analysis: "分析",
+  design: "设计",
 };
 
 const COURSE_ID = "computer-networks";
@@ -44,11 +59,15 @@ export function TaskWorkspace({
   loadTasks = listTasks,
   loadTask = getTask,
   loadKnowledgePoints = listKnowledgePoints,
+  loadExercises = listExercisesForTask,
   recordLearningEvent = recordEvent,
 }: Props) {
   const [knowledgePoints, setKnowledgePoints] = useState<Record<string, KnowledgePoint>>({});
   const [tasks, setTasks] = useState<TaskTemplate[]>([]);
   const [selected, setSelected] = useState<TaskTemplate | null>(null);
+  const [exercises, setExercises] = useState<{ taskId: string; items: Exercise[] } | null>(
+    null,
+  );
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(true);
   const [completedTaskIds, setCompletedTaskIds] = useState<Set<string>>(new Set());
@@ -95,6 +114,24 @@ export function TaskWorkspace({
       active = false;
     };
   }, [loadTask, loadTasks]);
+
+  // 试题按任务标识缓存，切换任务时不会短暂显示上一个任务的试题。
+  useEffect(() => {
+    if (!selected) return;
+    const taskId = selected.task_id;
+    let active = true;
+    loadExercises(taskId)
+      .then((items) => {
+        if (active) setExercises({ taskId, items });
+      })
+      .catch(() => {
+        // 试题加载失败时回退为显示 exercise_ids，不影响任务浏览。
+        if (active) setExercises({ taskId, items: [] });
+      });
+    return () => {
+      active = false;
+    };
+  }, [loadExercises, selected]);
 
   async function selectTask(taskId: string) {
     setError("");
@@ -183,6 +220,7 @@ export function TaskWorkspace({
             <TaskDetail
               task={selected}
               knowledgePoints={knowledgePoints}
+              exercises={exercises?.taskId === selected.task_id ? exercises.items : []}
               completed={completedTaskIds.has(selected.task_id)}
               submitting={completionSubmitting === selected.task_id}
               completionError={completionError}
@@ -200,6 +238,7 @@ export function TaskWorkspace({
 function TaskDetail({
   task,
   knowledgePoints,
+  exercises,
   completed,
   submitting,
   completionError,
@@ -207,6 +246,7 @@ function TaskDetail({
 }: {
   task: TaskTemplate;
   knowledgePoints: Record<string, KnowledgePoint>;
+  exercises: Exercise[];
   completed: boolean;
   submitting: boolean;
   completionError: string;
@@ -233,6 +273,7 @@ function TaskDetail({
           knowledgePoints={knowledgePoints}
         />
         <DetailList title="关联资料" items={task.resource_ids} />
+        <ExerciseList exerciseIds={task.exercise_ids ?? []} exercises={exercises} />
         <DetailList title="完成判据" items={task.completion_criteria} />
         <DetailList title="AI 反馈介入点" items={task.ai_feedback_points} />
       </div>
@@ -292,6 +333,39 @@ function KnowledgePointList({
               {prerequisites && (
                 <span className="knowledge-point__prereq">先修：{prerequisites}</span>
               )}
+            </li>
+          );
+        })}
+      </ul>
+    </div>
+  );
+}
+
+/** 展示任务关联的试题，使「任务 → 知识点 → 资料 → 试题」的引用链在界面上可见。 */
+function ExerciseList({
+  exerciseIds,
+  exercises,
+}: {
+  exerciseIds: string[];
+  exercises: Exercise[];
+}) {
+  if (exerciseIds.length === 0) return null;
+  const loaded = new Map(exercises.map((exercise) => [exercise.exercise_id, exercise]));
+  return (
+    <div className="detail-list">
+      <h4>关联试题</h4>
+      <ul>
+        {exerciseIds.map((id) => {
+          const exercise = loaded.get(id);
+          if (!exercise) {
+            return <li key={id}>{id}</li>;
+          }
+          return (
+            <li key={id}>
+              <strong className="exercise__question">{exercise.question}</strong>
+              <span className="exercise__meta">
+                {EXERCISE_TYPE_LABEL[exercise.exercise_type] ?? exercise.exercise_type}
+              </span>
             </li>
           );
         })}

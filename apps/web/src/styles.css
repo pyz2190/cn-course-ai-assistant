@@ -158,6 +158,10 @@ button { cursor: pointer; }
 .knowledge-point__name { color: #e8efe9; font-weight: 600; }
 .knowledge-point__chapter, .knowledge-point__prereq { display: block; color: #93a39a; font-size: .76rem; }
 
+/* 试题条目：任务详情里显示题干与题型，而不是裸的 exercise_id */
+.exercise__question { color: #e8efe9; font-weight: 600; }
+.exercise__meta { display: block; color: #93a39a; font-size: .76rem; }
+
 /* 回答反馈：负面反馈进入教师与助教的人工审核队列 */
 .answer-feedback { display: grid; justify-items: start; gap: 8px; margin-top: 14px; padding-top: 12px; border-top: 1px solid var(--line); }
 .answer-feedback__trigger { padding: 0; border: 0; background: transparent; color: var(--muted); font-size: .78rem; font-weight: 700; }

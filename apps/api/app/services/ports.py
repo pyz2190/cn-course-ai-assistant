@@ -6,6 +6,7 @@ from app.domain.models import (
     AnswerFeedback,
     AskResponse,
     ChunkMetadata,
+    Exercise,
     KnowledgeBaseChangeTask,
     KnowledgePoint,
     LearningEvent,
@@ -62,6 +63,16 @@ class KnowledgePointRepository(Protocol):
     ) -> list[KnowledgePoint]: ...
 
     def get_knowledge_point(self, knowledge_point_id: str) -> KnowledgePoint | None: ...
+
+
+class ExerciseRepository(Protocol):
+    def list_exercises(
+        self,
+        knowledge_point_id: str | None = None,
+        exercise_ids: list[str] | None = None,
+    ) -> list[Exercise]: ...
+
+    def get_exercise(self, exercise_id: str) -> Exercise | None: ...
 
 
 class TaskRepository(Protocol):

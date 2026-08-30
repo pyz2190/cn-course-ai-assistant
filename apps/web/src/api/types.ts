@@ -9,6 +9,7 @@ export type FeedbackQuery = NonNullable<
   operations["list_feedback_api_v1_feedback_get"]["parameters"]["query"]
 >;
 export type FeedbackReviewRequest = components["schemas"]["FeedbackReviewRequest"];
+export type Exercise = components["schemas"]["Exercise"];
 export type HealthResponse = components["schemas"]["HealthResponse"];
 export type KnowledgeBaseChangeQuery = NonNullable<
   operations["list_changes_api_v1_knowledge_base_changes_get"]["parameters"]["query"]

@@ -45,6 +45,14 @@
       "title": "Description",
       "type": "string"
     },
+    "exercise_ids": {
+      "description": "任务自测与验收所用的试题标识，对应 /exercises 接口。",
+      "items": {
+        "type": "string"
+      },
+      "title": "Exercise Ids",
+      "type": "array"
+    },
     "knowledge_point_ids": {
       "items": {
         "type": "string"

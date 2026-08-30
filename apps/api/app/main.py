@@ -6,6 +6,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from app.api.routes import (
     events,
+    exercises,
     feedback,
     health,
     knowledge_base,
@@ -54,6 +55,7 @@ def create_app() -> FastAPI:
     app.include_router(feedback.router, prefix=prefix)
     app.include_router(knowledge_base.router, prefix=prefix)
     app.include_router(knowledge_points.router, prefix=prefix)
+    app.include_router(exercises.router, prefix=prefix)
     app.include_router(quality.router, prefix=prefix)
     return app
 

@@ -12,6 +12,7 @@ if str(PROJECT_ROOT) not in sys.path:
 from app.core.dependencies import (  # noqa: E402
     get_chunk_store,
     get_event_sink,
+    get_exercise_repository,
     get_feedback_store,
     get_knowledge_base_change_store,
     get_qa_service,
@@ -24,6 +25,7 @@ from app.main import create_app  # noqa: E402
 @pytest.fixture
 def client() -> Generator[TestClient, None, None]:
     get_task_repository.cache_clear()
+    get_exercise_repository.cache_clear()
     get_event_sink.cache_clear()
     get_feedback_store.cache_clear()
     get_knowledge_base_change_store.cache_clear()

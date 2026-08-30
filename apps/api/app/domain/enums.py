@@ -76,6 +76,21 @@ class TaskType(StrEnum):
     TROUBLESHOOTING = "troubleshooting"
 
 
+class ExerciseType(StrEnum):
+    SINGLE_CHOICE = "single_choice"
+    MULTIPLE_CHOICE = "multiple_choice"
+    SHORT_ANSWER = "short_answer"
+    ANALYSIS = "analysis"
+    DESIGN = "design"
+
+
+class ExerciseSource(StrEnum):
+    TEXTBOOK = "textbook"
+    LAB_GUIDE = "lab_guide"
+    PAST_EXAM = "past_exam"
+    COURSE_TEAM = "course_team"
+
+
 class TaskStatus(StrEnum):
     DRAFT = "draft"
     PUBLISHED = "published"

@@ -16,6 +16,8 @@ from app.domain.enums import (
     Difficulty,
     EvaluationReviewStatus,
     EventType,
+    ExerciseSource,
+    ExerciseType,
     FeedbackStatus,
     KnowledgeBaseChangeStatus,
     Language,
@@ -164,6 +166,38 @@ class AskResponse(ContractModel):
     mode: Literal["offline", "external"] = "offline"
 
 
+class Exercise(ContractModel):
+    """课程试题，是任务完成判据的可判定载体。
+
+    试题通过 `knowledge_point_ids` 挂到知识图谱，通过 `resource_ids` 指回命题依据的
+    课程资料，使「任务 → 知识点 → 资料 → 试题」形成闭合的引用链。
+    """
+
+    exercise_id: str = Field(min_length=1)
+    question: str = Field(min_length=1)
+    exercise_type: ExerciseType
+    knowledge_point_ids: list[str] = Field(min_length=1)
+    resource_ids: list[str] = Field(default_factory=list)
+    difficulty: Difficulty
+    options: list[str] = Field(
+        default_factory=list,
+        description="选择题选项；非选择题为空。",
+    )
+    reference_answer: str = Field(min_length=1)
+    explanation: str = ""
+    source: ExerciseSource
+    review_status: ReviewStatus
+
+    @model_validator(mode="after")
+    def validate_options(self) -> "Exercise":
+        choice_types = {ExerciseType.SINGLE_CHOICE, ExerciseType.MULTIPLE_CHOICE}
+        if self.exercise_type in choice_types and len(self.options) < 2:
+            raise ValueError("choice exercises require at least two options")
+        if self.exercise_type not in choice_types and self.options:
+            raise ValueError("options are only allowed for choice exercises")
+        return self
+
+
 class TaskTemplate(ContractModel):
     task_id: str = Field(min_length=1)
     title: str = Field(min_length=1)
@@ -171,6 +205,10 @@ class TaskTemplate(ContractModel):
     task_type: TaskType
     knowledge_point_ids: list[str] = Field(min_length=1)
     resource_ids: list[str] = Field(min_length=1)
+    exercise_ids: list[str] = Field(
+        default_factory=list,
+        description="任务自测与验收所用的试题标识，对应 /exercises 接口。",
+    )
     prerequisite_ids: list[str] = Field(default_factory=list)
     completion_criteria: list[str] = Field(min_length=1)
     ai_feedback_points: list[str] = Field(min_length=1)
@@ -184,6 +222,10 @@ class TaskPublishRequest(ContractModel):
     task_type: TaskType
     knowledge_point_ids: list[str] = Field(min_length=1)
     resource_ids: list[str] = Field(min_length=1)
+    exercise_ids: list[str] = Field(
+        default_factory=list,
+        description="任务自测与验收所用的试题标识，对应 /exercises 接口。",
+    )
     prerequisite_ids: list[str] = Field(default_factory=list)
     completion_criteria: list[str] = Field(min_length=1)
     ai_feedback_points: list[str] = Field(min_length=1)

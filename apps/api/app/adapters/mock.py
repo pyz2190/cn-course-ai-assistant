@@ -403,6 +403,7 @@ def _task(
     knowledge_point: str,
     criterion: str,
     feedback: str,
+    exercise_id: str,
 ) -> TaskTemplate:
     return TaskTemplate(
         task_id=task_id,
@@ -411,6 +412,7 @@ def _task(
         task_type=task_type,
         knowledge_point_ids=[knowledge_point],
         resource_ids=["resource-cn-textbook-001"],
+        exercise_ids=[exercise_id],
         prerequisite_ids=[],
         completion_criteria=[criterion],
         ai_feedback_points=[feedback],
@@ -427,6 +429,7 @@ MOCK_TASKS = [
         "kp-network-addressing",
         "完成知识点自测并解释最长前缀匹配。",
         "自测错误时提示回看对应章节。",
+        "ex-network-addressing-001",
     ),
     _task(
         "task-protocol-tcp-handshake",
@@ -436,6 +439,7 @@ MOCK_TASKS = [
         "kp-transport-tcp-handshake",
         "标注三类报文并解释序列号变化。",
         "提交报文编号后检查握手顺序。",
+        "ex-transport-handshake-001",
     ),
     _task(
         "task-case-congestion",
@@ -445,6 +449,7 @@ MOCK_TASKS = [
         "kp-transport-congestion-control",
         "给出两种算法在目标与信号上的差异。",
         "比较表缺项时提示从控制信号补充。",
+        "ex-transport-congestion-001",
     ),
     _task(
         "task-innovation-edge",
@@ -454,6 +459,7 @@ MOCK_TASKS = [
         "kp-application-load-balancing",
         "提交架构图、关键指标和权衡说明。",
         "在选择策略后追问故障场景。",
+        "ex-application-load-balancing-001",
     ),
     _task(
         "task-project-smart-home",
@@ -463,6 +469,7 @@ MOCK_TASKS = [
         "kp-network-design",
         "提交拓扑、地址规划和安全边界。",
         "检测单点故障与地址冲突。",
+        "ex-network-design-001",
     ),
     _task(
         "task-troubleshooting-dns",
@@ -472,6 +479,7 @@ MOCK_TASKS = [
         "kp-application-dns",
         "给出故障根因、证据和修复步骤。",
         "每完成一个排查步骤后反馈证据充分性。",
+        "ex-application-dns-001",
     ),
 ]
 

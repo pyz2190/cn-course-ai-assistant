@@ -196,6 +196,8 @@ npm run check            # 提交前完整检查，等价于 CI
 | `GET` | `/resources/{resource_id}/chunks` | 读取某份资料解析出的全部 Chunk |
 | `GET` | `/knowledge-points` | 课程知识点列表，可按 `chapter`、`parent_id` 浏览知识图谱 |
 | `GET` | `/knowledge-points/{knowledge_point_id}` | 知识点详情，含先修关系 |
+| `GET` | `/exercises` | 课程试题，可按 `knowledge_point_id` 或 `task_id` 取题 |
+| `GET` | `/exercises/{exercise_id}` | 试题详情，含参考答案与解析 |
 | `GET` | `/tasks` | 教学任务列表，可按 `status`、`task_type` 过滤 |
 | `POST` | `/tasks` | 发布教学任务，可传 `status=draft` 先存草稿 |
 | `GET` | `/tasks/{task_id}` | 任务详情 |
@@ -306,9 +308,12 @@ python -m pip install -e "apps/api[models]"
 ```bash
 python scripts/evaluate.py --adapter rag --dry-run   # 校验执行计划，不调用模型
 python scripts/run_evaluation_pipeline.py validate   # 校验评测数据
+python scripts/run_technical_baseline.py             # 技术基线（非正式基线）
 ```
 
 完整流程（数据校验 → 同步正式集 → 执行 → 人工打分 → 生成基线报告）见 [`evaluation/README.md`](evaluation/README.md)。
+
+**当前状态：** 30 条标注全部为 `pending_review`，正式评测集为空，尚无正式基线报告——人工交叉评审是唯一阻塞项。技术链路已验证可执行（30 题 0 异常），实测结果与语料缺口分析见 [`evaluation/reports/technical_baseline.md`](evaluation/reports/technical_baseline.md)。
 
 ---
 
@@ -351,14 +356,21 @@ spec.md / plan.md / task.md / checklist.md    已确认的需求、方案、任�
 
 各角色交付文档：
 
-- `docs/D-008-任务引擎设计方案.md`：任务引擎与六类教学任务
-- `docs/D-010-Demo运行说明.md`：Demo 演示说明与截图
-- `docs/d-rag/D-004` ～ `D-007`：RAG 技术方案、向量库与框架对比、微调与部署分析
+| 文档 | 内容 |
+|---|---|
+| [`docs/D-002-Canvas平台AI能力调研.md`](docs/D-002-Canvas平台AI能力调研.md) | Canvas / 学校平台 AI 能力调研结论与待申请接口 |
+| [`docs/D-003-知识库与问答库建设方案.md`](docs/D-003-知识库与问答库建设方案.md) | 知识来源清单、入库流程、问答库方法、人工反馈制度 |
+| [`docs/d-rag/D-004`](docs/d-rag/D-004-rag-technical-solution.md) ～ [`D-007`](docs/d-rag/D-007-finetuning-deployment-analysis.md) | RAG 技术方案、向量库与框架对比、微调与部署分析 |
+| [`docs/D-008-任务引擎设计方案.md`](docs/D-008-任务引擎设计方案.md) | 任务引擎与六类教学任务，任务的四类关联 |
+| [`docs/D-009-接口需求说明.md`](docs/D-009-接口需求说明.md) | Canvas API 需求与本系统接口的字段级定义 |
+| [`docs/D-010-Demo运行说明.md`](docs/D-010-Demo运行说明.md) | Demo 演示说明与截图 |
 
 ---
 
 ## 十、项目边界
 
 系统不接入 Canvas API、LTI、课程身份、资源同步、成绩回写或学习行为回写。任务数据与学习行为记录完全由本系统承载。
+
+这一边界是调研结论而非假设：本校 Canvas 部署未向课程成员开放 AI 能力、API、LTI 或课程导出，详见 [D-002 Canvas 平台 AI 能力调研](docs/D-002-Canvas平台AI能力调研.md)；需要学校开通的接口清单见 [D-009 接口需求说明](docs/D-009-接口需求说明.md) 第三节。
 
 未来获得 Canvas API、LTI 或课程导出权限后，只需实现资源导入适配器即可接入，不应把 Canvas 专有字段泄漏到领域模型和前端。

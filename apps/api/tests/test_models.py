@@ -9,12 +9,15 @@ from app.domain.enums import (
     AccessLevel,
     ContentType,
     Difficulty,
+    ExerciseSource,
+    ExerciseType,
     Language,
     ParseStatus,
     QuestionCategory,
+    ReviewStatus,
     ScoringDimension,
 )
-from app.domain.models import AskRequest, ChunkMetadata, EvaluationItem
+from app.domain.models import AskRequest, ChunkMetadata, EvaluationItem, Exercise
 
 PROJECT_ROOT = Path(__file__).resolve().parents[3]
 EVALUATION_ITEM_EXAMPLE = (
@@ -91,3 +94,47 @@ def test_evaluation_item_rejects_invalid_categories(invalid_category: str) -> No
 
     with pytest.raises(ValidationError):
         EvaluationItem.model_validate(data)
+
+
+def test_choice_exercise_requires_options() -> None:
+    with pytest.raises(ValidationError):
+        Exercise(
+            exercise_id="ex-1",
+            question="最长前缀匹配会命中哪一条？",
+            exercise_type=ExerciseType.SINGLE_CHOICE,
+            knowledge_point_ids=["kp-network-addressing"],
+            difficulty=Difficulty.INTRODUCTORY,
+            reference_answer="192.168.1.0/24",
+            source=ExerciseSource.TEXTBOOK,
+            review_status=ReviewStatus.APPROVED,
+        )
+
+
+def test_non_choice_exercise_rejects_options() -> None:
+    with pytest.raises(ValidationError):
+        Exercise(
+            exercise_id="ex-2",
+            question="说明 Reno 与 BBR 的控制信号差异。",
+            exercise_type=ExerciseType.SHORT_ANSWER,
+            knowledge_point_ids=["kp-transport-congestion-control"],
+            difficulty=Difficulty.INTERMEDIATE,
+            options=["A", "B"],
+            reference_answer="Reno 依据丢包，BBR 依据带宽时延模型。",
+            source=ExerciseSource.PAST_EXAM,
+            review_status=ReviewStatus.APPROVED,
+        )
+
+
+def test_exercise_requires_a_knowledge_point() -> None:
+    """试题必须挂在知识图谱上，否则无法与任务和资料建立关联。"""
+    with pytest.raises(ValidationError):
+        Exercise(
+            exercise_id="ex-3",
+            question="孤立试题",
+            exercise_type=ExerciseType.SHORT_ANSWER,
+            knowledge_point_ids=[],
+            difficulty=Difficulty.INTRODUCTORY,
+            reference_answer="answer",
+            source=ExerciseSource.COURSE_TEAM,
+            review_status=ReviewStatus.DRAFT,
+        )

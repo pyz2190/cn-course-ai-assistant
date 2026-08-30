@@ -4,6 +4,7 @@ import type {
   ApiErrorPayload,
   AskRequest,
   AskResponse,
+  Exercise,
   FeedbackQuery,
   FeedbackReviewRequest,
   HealthResponse,
@@ -128,6 +129,9 @@ export const updateKnowledgeBaseChange = (
     `/knowledge-base/changes/${encodeURIComponent(changeId)}`,
     { method: "PATCH", body: JSON.stringify(payload) },
   );
+
+export const listExercisesForTask = (taskId: string) =>
+  request<Exercise[]>(`/exercises${queryString({ task_id: taskId })}`);
 
 export const listKnowledgePoints = (params: KnowledgePointQuery = {}) =>
   request<KnowledgePoint[]>(`/knowledge-points${queryString(params)}`);

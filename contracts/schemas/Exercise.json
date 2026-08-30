@@ -1,0 +1,114 @@
+{
+  "$defs": {
+    "Difficulty": {
+      "enum": [
+        "introductory",
+        "intermediate",
+        "advanced"
+      ],
+      "title": "Difficulty",
+      "type": "string"
+    },
+    "ExerciseSource": {
+      "enum": [
+        "textbook",
+        "lab_guide",
+        "past_exam",
+        "course_team"
+      ],
+      "title": "ExerciseSource",
+      "type": "string"
+    },
+    "ExerciseType": {
+      "enum": [
+        "single_choice",
+        "multiple_choice",
+        "short_answer",
+        "analysis",
+        "design"
+      ],
+      "title": "ExerciseType",
+      "type": "string"
+    },
+    "ReviewStatus": {
+      "enum": [
+        "draft",
+        "reviewed",
+        "approved"
+      ],
+      "title": "ReviewStatus",
+      "type": "string"
+    }
+  },
+  "additionalProperties": false,
+  "description": "课程试题，是任务完成判据的可判定载体。\n\n试题通过 `knowledge_point_ids` 挂到知识图谱，通过 `resource_ids` 指回命题依据的\n课程资料，使「任务 → 知识点 → 资料 → 试题」形成闭合的引用链。",
+  "properties": {
+    "difficulty": {
+      "$ref": "#/$defs/Difficulty"
+    },
+    "exercise_id": {
+      "minLength": 1,
+      "title": "Exercise Id",
+      "type": "string"
+    },
+    "exercise_type": {
+      "$ref": "#/$defs/ExerciseType"
+    },
+    "explanation": {
+      "default": "",
+      "title": "Explanation",
+      "type": "string"
+    },
+    "knowledge_point_ids": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Knowledge Point Ids",
+      "type": "array"
+    },
+    "options": {
+      "description": "选择题选项；非选择题为空。",
+      "items": {
+        "type": "string"
+      },
+      "title": "Options",
+      "type": "array"
+    },
+    "question": {
+      "minLength": 1,
+      "title": "Question",
+      "type": "string"
+    },
+    "reference_answer": {
+      "minLength": 1,
+      "title": "Reference Answer",
+      "type": "string"
+    },
+    "resource_ids": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Resource Ids",
+      "type": "array"
+    },
+    "review_status": {
+      "$ref": "#/$defs/ReviewStatus"
+    },
+    "source": {
+      "$ref": "#/$defs/ExerciseSource"
+    }
+  },
+  "required": [
+    "exercise_id",
+    "question",
+    "exercise_type",
+    "knowledge_point_ids",
+    "difficulty",
+    "reference_answer",
+    "source",
+    "review_status"
+  ],
+  "title": "Exercise",
+  "type": "object"
+}

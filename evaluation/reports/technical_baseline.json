@@ -1,0 +1,276 @@
+{
+  "corpus_chunks": 22,
+  "questions": 30,
+  "unresolved_citations": [],
+  "errors": 0,
+  "refused": 8,
+  "expected_hits": 16,
+  "by_category": {
+    "common_error": {
+      "total": 5,
+      "hits": 2
+    },
+    "concept": {
+      "total": 5,
+      "hits": 4
+    },
+    "lab": {
+      "total": 5,
+      "hits": 2
+    },
+    "protocol_detail": {
+      "total": 5,
+      "hits": 3
+    },
+    "review": {
+      "total": 5,
+      "hits": 3
+    },
+    "tool_tutorial": {
+      "total": 5,
+      "hits": 2
+    }
+  },
+  "rows": [
+    {
+      "evaluation_id": "QA-CONCEPT-001",
+      "category": "concept",
+      "citation_count": 1,
+      "expected_hit": true,
+      "refused": false,
+      "error": null
+    },
+    {
+      "evaluation_id": "QA-CONCEPT-002",
+      "category": "concept",
+      "citation_count": 1,
+      "expected_hit": true,
+      "refused": false,
+      "error": null
+    },
+    {
+      "evaluation_id": "QA-CONCEPT-003",
+      "category": "concept",
+      "citation_count": 1,
+      "expected_hit": true,
+      "refused": false,
+      "error": null
+    },
+    {
+      "evaluation_id": "QA-CONCEPT-004",
+      "category": "concept",
+      "citation_count": 1,
+      "expected_hit": true,
+      "refused": false,
+      "error": null
+    },
+    {
+      "evaluation_id": "QA-CONCEPT-005",
+      "category": "concept",
+      "citation_count": 0,
+      "expected_hit": false,
+      "refused": true,
+      "error": null
+    },
+    {
+      "evaluation_id": "QA-ERROR-001",
+      "category": "common_error",
+      "citation_count": 0,
+      "expected_hit": false,
+      "refused": true,
+      "error": null
+    },
+    {
+      "evaluation_id": "QA-ERROR-002",
+      "category": "common_error",
+      "citation_count": 1,
+      "expected_hit": true,
+      "refused": false,
+      "error": null
+    },
+    {
+      "evaluation_id": "QA-ERROR-003",
+      "category": "common_error",
+      "citation_count": 0,
+      "expected_hit": false,
+      "refused": true,
+      "error": null
+    },
+    {
+      "evaluation_id": "QA-ERROR-004",
+      "category": "common_error",
+      "citation_count": 0,
+      "expected_hit": false,
+      "refused": true,
+      "error": null
+    },
+    {
+      "evaluation_id": "QA-ERROR-005",
+      "category": "common_error",
+      "citation_count": 1,
+      "expected_hit": true,
+      "refused": false,
+      "error": null
+    },
+    {
+      "evaluation_id": "QA-LAB-001",
+      "category": "lab",
+      "citation_count": 1,
+      "expected_hit": true,
+      "refused": false,
+      "error": null
+    },
+    {
+      "evaluation_id": "QA-LAB-002",
+      "category": "lab",
+      "citation_count": 1,
+      "expected_hit": false,
+      "refused": false,
+      "error": null
+    },
+    {
+      "evaluation_id": "QA-LAB-003",
+      "category": "lab",
+      "citation_count": 0,
+      "expected_hit": false,
+      "refused": true,
+      "error": null
+    },
+    {
+      "evaluation_id": "QA-LAB-004",
+      "category": "lab",
+      "citation_count": 0,
+      "expected_hit": false,
+      "refused": true,
+      "error": null
+    },
+    {
+      "evaluation_id": "QA-LAB-005",
+      "category": "lab",
+      "citation_count": 1,
+      "expected_hit": true,
+      "refused": false,
+      "error": null
+    },
+    {
+      "evaluation_id": "QA-PROTOCOL-001",
+      "category": "protocol_detail",
+      "citation_count": 1,
+      "expected_hit": true,
+      "refused": false,
+      "error": null
+    },
+    {
+      "evaluation_id": "QA-PROTOCOL-002",
+      "category": "protocol_detail",
+      "citation_count": 1,
+      "expected_hit": false,
+      "refused": false,
+      "error": null
+    },
+    {
+      "evaluation_id": "QA-PROTOCOL-003",
+      "category": "protocol_detail",
+      "citation_count": 1,
+      "expected_hit": true,
+      "refused": false,
+      "error": null
+    },
+    {
+      "evaluation_id": "QA-PROTOCOL-004",
+      "category": "protocol_detail",
+      "citation_count": 1,
+      "expected_hit": true,
+      "refused": false,
+      "error": null
+    },
+    {
+      "evaluation_id": "QA-PROTOCOL-005",
+      "category": "protocol_detail",
+      "citation_count": 1,
+      "expected_hit": false,
+      "refused": false,
+      "error": null
+    },
+    {
+      "evaluation_id": "QA-REVIEW-001",
+      "category": "review",
+      "citation_count": 1,
+      "expected_hit": true,
+      "refused": false,
+      "error": null
+    },
+    {
+      "evaluation_id": "QA-REVIEW-002",
+      "category": "review",
+      "citation_count": 1,
+      "expected_hit": true,
+      "refused": false,
+      "error": null
+    },
+    {
+      "evaluation_id": "QA-REVIEW-003",
+      "category": "review",
+      "citation_count": 1,
+      "expected_hit": true,
+      "refused": false,
+      "error": null
+    },
+    {
+      "evaluation_id": "QA-REVIEW-004",
+      "category": "review",
+      "citation_count": 0,
+      "expected_hit": false,
+      "refused": true,
+      "error": null
+    },
+    {
+      "evaluation_id": "QA-REVIEW-005",
+      "category": "review",
+      "citation_count": 0,
+      "expected_hit": false,
+      "refused": true,
+      "error": null
+    },
+    {
+      "evaluation_id": "QA-TOOL-001",
+      "category": "tool_tutorial",
+      "citation_count": 1,
+      "expected_hit": false,
+      "refused": false,
+      "error": null
+    },
+    {
+      "evaluation_id": "QA-TOOL-002",
+      "category": "tool_tutorial",
+      "citation_count": 1,
+      "expected_hit": false,
+      "refused": false,
+      "error": null
+    },
+    {
+      "evaluation_id": "QA-TOOL-003",
+      "category": "tool_tutorial",
+      "citation_count": 1,
+      "expected_hit": true,
+      "refused": false,
+      "error": null
+    },
+    {
+      "evaluation_id": "QA-TOOL-004",
+      "category": "tool_tutorial",
+      "citation_count": 1,
+      "expected_hit": false,
+      "refused": false,
+      "error": null
+    },
+    {
+      "evaluation_id": "QA-TOOL-005",
+      "category": "tool_tutorial",
+      "citation_count": 1,
+      "expected_hit": true,
+      "refused": false,
+      "error": null
+    }
+  ]
+}
